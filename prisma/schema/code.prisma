@@ -1,0 +1,10 @@
+model Code {
+    id         Int      @id @default(autoincrement())
+    code       String
+    retryDate DateTime @map("retry_date")
+    expiryDate DateTime @map("expiry_date")
+    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId     Int      @map("user_id")
+
+    @@map("codes")
+}
