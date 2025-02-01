@@ -1,4 +1,6 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsEnum, IsString, MinLength } from 'class-validator';
+
+import { Language } from '@prisma/client';
 
 export class AuthRequestDto {
     @IsEmail()
@@ -7,4 +9,7 @@ export class AuthRequestDto {
     @IsString()
     @MinLength(8)
     password: string;
+
+    @IsEnum(Language)
+    language: Language;
 }

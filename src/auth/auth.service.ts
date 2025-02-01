@@ -1,22 +1,30 @@
+import { compareSync } from 'bcrypt';
+import { v4 } from 'uuid';
+
 import {
-    BadRequestException,
     Injectable,
+    BadRequestException,
     UnauthorizedException
 } from '@nestjs/common';
-import { UserService } from '@user/user.service';
-import { AuthRequestDto } from './dto/auth-request.dto';
-import { PrismaService } from '@prisma/prisma.service';
-import { v4 } from 'uuid';
-import { User } from '@prisma/client';
 import { JwtService } from '@nestjs/jwt';
-import { compareSync } from 'bcrypt';
+
+import { CodeService } from '@code/code.service';
+import { MailService } from '@mail/mail.service';
+import { User } from '@prisma/client';
+import { PrismaService } from '@prisma/prisma.service';
+import { UserService } from '@user/user.service';
+
+import { AuthRequestDto } from './dto/auth-request.dto';
+import { RegisterRequestDto } from './dto/register-request.dto';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly prismaService: PrismaService,
         private readonly userService: UserService,
-        private readonly jwtService: JwtService
+        private readonly jwtService: JwtService,
+        private readonly codeService: CodeService,
+        private readonly mailService: MailService
     ) {}
 
     private async getRefreshToken(userId: number, userAgent: string) {
@@ -81,10 +89,18 @@ export class AuthService {
 
         const tokens = await this.generateTokens(user, userAgent);
 
+        const code = await this.codeService.create(user.id);
+
+        this.mailService.sendVerificationCode({
+            to: dto.email,
+            code,
+            language: dto.language
+        });
+
         return { user: this.createDto(user), tokens };
     }
 
-    async login(dto: AuthRequestDto, userAgent: string) {
+    async login(dto: RegisterRequestDto, userAgent: string) {
         const existingUser = await this.userService.getByEmail(dto.email);
 
         if (
@@ -129,5 +145,34 @@ export class AuthService {
                 token
             }
         });
+    }
+
+    async resendVerificationCode(userId: number) {
+        const { isVerified, email, language } =
+            await this.userService.getById(userId);
+
+        if (isVerified) {
+            throw new BadRequestException('Ваш аккаунт уже верифицирован');
+        }
+
+        const code = await this.codeService.recreate(userId);
+
+        this.mailService.sendVerificationCode({
+            to: email,
+            code,
+            language
+        });
+    }
+
+    async verify(code: string, userId: number) {
+        const { isVerified } = await this.userService.getById(userId);
+
+        if (isVerified) {
+            throw new BadRequestException('Ваш аккаунт уже верифицирован');
+        }
+
+        await this.codeService.validateCode(code, userId);
+
+        await this.userService.verify(userId);
     }
 }

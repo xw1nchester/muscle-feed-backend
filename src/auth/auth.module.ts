@@ -1,15 +1,27 @@
 import { Module } from '@nestjs/common';
-import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { AuthService } from './auth.service';
-import { AuthController } from './auth.controller';
-import { options } from './config';
-import { STRATEGIES } from './strategies';
-import { GUARDS } from './guards';
+import { PassportModule } from '@nestjs/passport';
+
+
+import { CodeModule } from '@code/code.module';
+import { MailModule } from '@mail/mail.module';
 import { UserModule } from '@user/user.module';
 
+import { AuthController } from './auth.controller';
+import { AuthService } from './auth.service';
+import { options } from './config';
+import { GUARDS } from './guards';
+import { STRATEGIES } from './strategies';
+
+
 @Module({
-    imports: [PassportModule, JwtModule.registerAsync(options()), UserModule],
+    imports: [
+        PassportModule,
+        JwtModule.registerAsync(options()),
+        UserModule,
+        CodeModule,
+        MailModule
+    ],
     controllers: [AuthController],
     providers: [AuthService, ...STRATEGIES, ...GUARDS]
 })

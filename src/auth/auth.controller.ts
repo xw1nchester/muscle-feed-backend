@@ -1,10 +1,24 @@
-import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { AuthRequestDto } from './dto/auth-request.dto';
-import { Cookie, UserAgent } from './decorators';
-import { Token } from '@prisma/client';
 import { Response } from 'express';
+
+import {
+    Body,
+    Controller,
+    Get,
+    HttpStatus,
+    Post,
+    Res,
+    UseGuards
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Token } from '@prisma/client';
+
+import { AuthService } from './auth.service';
+import { Cookie, CurrentUser, UserAgent } from './decorators';
+import { AuthRequestDto } from './dto/auth-request.dto';
+import { JwtPayload } from './interfaces';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { RegisterRequestDto } from './dto/register-request.dto';
+import { CodeRequestDto } from './dto/code-request.dto';
 
 const REFRESH_TOKEN = 'refresh-token';
 
@@ -45,7 +59,7 @@ export class AuthController {
 
     @Post('login')
     async login(
-        @Body() dto: AuthRequestDto,
+        @Body() dto: RegisterRequestDto,
         @UserAgent() userAgent: string,
         @Res() res: Response
     ) {
@@ -79,5 +93,24 @@ export class AuthController {
         res.clearCookie(REFRESH_TOKEN);
 
         res.sendStatus(HttpStatus.OK);
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Get('resend-verification')
+    async resendVerificationCode(@CurrentUser() user: JwtPayload) {
+        await this.authService.resendVerificationCode(user.id);
+
+        return HttpStatus.OK;
+    }
+
+    @UseGuards(JwtAuthGuard)
+    @Post('verify')
+    async verify(
+        @Body() { code }: CodeRequestDto,
+        @CurrentUser() user: JwtPayload
+    ) {
+        await this.authService.verify(code, user.id);
+
+        return HttpStatus.OK;
     }
 }

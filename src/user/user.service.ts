@@ -1,7 +1,9 @@
 import { genSaltSync, hashSync } from 'bcrypt';
+
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@prisma/prisma.service';
+
 import { AuthRequestDto } from '@auth/dto/auth-request.dto';
+import { PrismaService } from '@prisma/prisma.service';
 
 @Injectable()
 export class UserService {
@@ -23,12 +25,22 @@ export class UserService {
         });
     }
 
-    async create({ email, password }: AuthRequestDto) {
+    async create({ email, password, language }: AuthRequestDto) {
         return await this.prismaService.user.create({
             data: {
                 email,
-                password: hashSync(password, genSaltSync(10))
+                password: hashSync(password, genSaltSync(10)),
+                language
             }
+        });
+    }
+
+    async verify(id: number) {
+        return await this.prismaService.user.update({
+            where: {
+                id
+            },
+            data: { isVerified: true }
         });
     }
 }
