@@ -1,0 +1,488 @@
+openapi: 3.0.0
+info:
+  title: Muscle Feed
+  version: 1.0.0
+  description: API Documentation for Muscle Feed backend
+components:
+  schemas:
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        isVerified:
+          type: boolean
+        roles:
+          type: array
+          items:
+            enum:
+              - ADMIN
+              - MODERATOR
+    AuthDto:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/UserDto"
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ4Y3Jvd25sZXNzQG1haWwucnUiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3Mzg1OTQxNzMsImV4cCI6ODgxMzg1OTQxNzN9.dmQAXWl2nvmgrKjL41XsuQXkC7efWpaNwYD9yuW9Bfc
+    FileDto:
+      type: object
+      properties:
+        url:
+          type: string
+          example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        name:
+          type: string
+          example: dog.jpeg
+        type:
+          type: string
+          example: image/png
+        size:
+          type: integer
+          example: 100500
+    TeamRequestDto:
+      type: object
+      properties:
+        picture:
+          type: string
+          example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        roleRu:
+          type: string
+          example: Бармен
+        roleHe:
+          type: string
+          example: ברמן
+        nameRu:
+          type: string
+          example: Дмитрий Сидоров
+        nameHe:
+          type: string
+          example: דימיטרי סידורוב
+        descriptionRu:
+          type: string
+          example: Профессиональный бармен, который умеет создавать уникальные коктейли и всегда поддерживает атмосферу в баре.
+        descriptionHe:
+          type: string
+          example: ברמן מקצועי שיודע ליצור קוקטיילים ייחודיים ומתחזק את האווירה בבר
+      required:
+        - picture
+        - roleRu
+        - roleHe
+        - nameRu
+        - nameHe
+        - descriptionRu
+        - descriptionHe
+    TeamResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        picture:
+          type: string
+          example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        role:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Бармен
+            he:
+              type: string
+              example: ברמן
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Дмитрий Сидоров
+            he:
+              type: string
+              example: דימיטרי סידורוב
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Профессиональный бармен, который умеет создавать уникальные коктейли и всегда поддерживает атмосферу в баре.
+            he:
+              type: string
+              example: ברמן מקצועי שיודע ליצור קוקטיילים ייחודיים ומתחזק את האווירה בבר
+        createdAt:
+          type: string
+          format: datetime
+        updatedAt:
+          type: string
+          format: datetime
+    PaginationBodyFields:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+          example: 20
+        isLast:
+          type: boolean
+          example: false
+        elementsCount:
+          type: integer
+          example: 5
+  parameters:
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 5
+    Offset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 0
+  requestBodies:
+    Team:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TeamRequestDto"
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
+security:
+  - BearerAuth: []
+
+paths:
+  /api/ping:
+    get:
+      tags:
+        - Health
+      security: []
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  example: 2LQ9VRVCQ
+                language:
+                  type: string
+                  enum:
+                    - RU
+                    - HE
+              required:
+                - email
+                - password
+                - language
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthDto"
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  example: 2LQ9VRVCQ
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthDto"
+  /api/auth/refresh:
+    get:
+      tags:
+        - Auth
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  accessToken:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ4Y3Jvd25sZXNzQG1haWwucnUiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3Mzg1OTQxNzMsImV4cCI6ODgxMzg1OTQxNzN9.dmQAXWl2nvmgrKjL41XsuQXkC7efWpaNwYD9yuW9Bfc
+  /api/auth/logout:
+    get:
+      tags:
+        - Auth
+      security: []
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/resend-verification:
+    get:
+      tags:
+        - Auth
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/verify-email:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                code:
+                  type: string
+                  example: 157014
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/send-recovery:
+    post:
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/verify-recovery:
+    post:
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                  example: 157014
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: string
+                    example: 157014
+  /api/auth/recovery-password:
+    post:
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                  example: 157014
+                password:
+                  type: string
+                  example: 2LQ9VRVCQ
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/change-password:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                oldPassword:
+                  type: string
+                  example: 2LQ9VRVCQ
+                newPassword:
+                  type: string
+                  example: 9YYUCCPLO
+      responses:
+        "200":
+          description: "Success"
+  /api/admin/upload:
+    post:
+      tags:
+        - Admin Upload
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  files:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FileDto"
+  /static/{fileName}:
+    get:
+      tags:
+        - File
+      security: []
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 42c193f6-1ccc-4376-aef7-4f302817adc3.png
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /api/admin/team:
+    post:
+      tags:
+        - Admin Team
+      requestBody:
+        $ref: "#/components/requestBodies/Team"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  employee:
+                    $ref: "#/components/schemas/TeamResponseDto"
+  /api/admin/team/{teamId}:
+    get:
+      tags:
+        - Admin Team
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  employee:
+                    $ref: "#/components/schemas/TeamResponseDto"
+    patch:
+      tags:
+        - Admin Team
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/Team"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  employee:
+                    $ref: "#/components/schemas/TeamResponseDto"
+    delete:
+      tags:
+        - Admin Team
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  employee:
+                    $ref: "#/components/schemas/TeamResponseDto"
+  /api/team/:
+    get:
+      tags:
+        - Team
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  team:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TeamResponseDto"

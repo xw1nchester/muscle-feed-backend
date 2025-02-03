@@ -68,6 +68,7 @@ export class AuthController {
         res.json({ user, accessToken: tokens.accessToken });
     }
 
+    @Public()
     @Get('refresh')
     async refresh(
         @Cookie(REFRESH_TOKEN) refreshToken: string,

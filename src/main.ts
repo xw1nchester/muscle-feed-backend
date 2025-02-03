@@ -1,8 +1,11 @@
 import * as cookieParser from 'cookie-parser';
+import { join } from 'path';
+import * as YAML from 'yamljs';
 
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
 
@@ -21,6 +24,10 @@ async function bootstrap() {
     app.use(cookieParser());
 
     app.setGlobalPrefix('api');
+
+    const swaggerDocument = YAML.load(join(__dirname, '..', 'swagger.yaml'));
+
+    SwaggerModule.setup('api-docs', app, swaggerDocument);
 
     await app.listen(configService.get('PORT'));
 }
