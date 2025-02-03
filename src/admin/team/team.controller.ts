@@ -12,9 +12,10 @@ import {
 
 import { Role as RoleEnum } from '@prisma/client';
 
+import { Role } from '@auth/decorators';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { TeamService } from '@team/team.service';
-import { Role } from '@auth/decorators';
+
 import { TeamRequestDto } from './dto/team-request.dto';
 
 @UseGuards(RoleGuard)
