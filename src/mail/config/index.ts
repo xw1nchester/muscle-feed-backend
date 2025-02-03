@@ -1,1 +1,1 @@
-export * from './mail-module-async-options'
+export * from './mail-module-async-options';

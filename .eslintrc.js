@@ -5,7 +5,7 @@ module.exports = {
         tsconfigRootDir: __dirname,
         sourceType: 'module'
     },
-    plugins: ['@typescript-eslint/eslint-plugin', 'import'],
+    plugins: ['@typescript-eslint/eslint-plugin'],
     extends: [
         'plugin:@typescript-eslint/recommended',
         'plugin:prettier/recommended'
@@ -21,39 +21,6 @@ module.exports = {
         '@typescript-eslint/explicit-function-return-type': 'off',
         '@typescript-eslint/explicit-module-boundary-types': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
-        'prettier/prettier': 'off',
-        'import/order': [
-            'warn',
-            {
-                groups: [
-                    'builtin',
-                    'external',
-                    'internal',
-                    'parent',
-                    'sibling',
-                    'index'
-                ],
-                'newlines-between': 'always',
-                alphabetize: { order: 'asc', caseInsensitive: true },
-                pathGroups: [
-                    {
-                        pattern: '@nestjs/**',
-                        group: 'external',
-                        position: 'after'
-                    },
-                    {
-                        pattern: '@nestjs-*',
-                        group: 'external',
-                        position: 'after'
-                    },
-                    {
-                        pattern: '@*/**',
-                        group: 'internal',
-                        position: 'after'
-                    }
-                ],
-                pathGroupsExcludedImportTypes: ['builtin']
-            }
-        ]
+        'prettier/prettier': 'off'
     }
 };

@@ -2,5 +2,16 @@
     "singleQuote": true,
     "tabWidth": 4,
     "trailingComma": "none",
-    "arrowParens": "avoid"
+    "arrowParens": "avoid",
+    "plugins": ["@trivago/prettier-plugin-sort-imports"],
+    "importOrder": [
+        "<THIRD_PARTY_MODULES>",
+        "^@nestjs[/-](.*)$",
+        "@prisma/(.*)$",
+        "^@(.*)/(.*)$",
+        "^[./]"
+    ],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true,
+    "importOrderParserPlugins": ["typescript", "decorators-legacy"]
 }

@@ -20,6 +20,8 @@
         "paths": {
             "@prisma": ["src/prisma"],
             "@prisma/*": ["src/prisma/*"],
+            "@utils": ["src/utils"],
+            "@utils/*": ["src/utils/*"],
             "@user": ["src/user"],
             "@user/*": ["src/user/*"],
             "@auth": ["src/auth"],
@@ -27,7 +29,11 @@
             "@mail": ["src/mail"],
             "@mail/*": ["src/mail/*"],
             "@code": ["src/code"],
-            "@code/*": ["src/code/*"]
+            "@code/*": ["src/code/*"],
+            "@team": ["src/team"],
+            "@team/*": ["src/team/*"],
+            "@admin": ["src/admin"],
+            "@admin/*": ["src/admin/*"]
         }
     }
 }

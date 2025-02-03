@@ -2,8 +2,9 @@ import { genSaltSync, hashSync } from 'bcrypt';
 
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { AuthRequestDto } from '@auth/dto/auth-request.dto';
 import { PrismaService } from '@prisma/prisma.service';
+
+import { RegisterRequestDto } from '@auth/dto/register-request.dto';
 
 @Injectable()
 export class UserService {
@@ -13,7 +14,7 @@ export class UserService {
         const user = await this.prismaService.user.findFirst({ where: { id } });
 
         if (!user) {
-            throw new NotFoundException('');
+            throw new NotFoundException('Пользователь не найден');
         }
 
         return user;
@@ -25,7 +26,7 @@ export class UserService {
         });
     }
 
-    async create({ email, password, language }: AuthRequestDto) {
+    async create({ email, password, language }: RegisterRequestDto) {
         return await this.prismaService.user.create({
             data: {
                 email,
@@ -41,6 +42,17 @@ export class UserService {
                 id
             },
             data: { isVerified: true }
+        });
+    }
+
+    async updatePassword(id: number, password: string) {
+        return await this.prismaService.user.update({
+            where: {
+                id
+            },
+            data: {
+                password: hashSync(password, genSaltSync(10))
+            }
         });
     }
 }

@@ -1,10 +1,9 @@
 import { join } from 'path';
 
-import { ConfigService } from '@nestjs/config';
-
 import { MailerOptions } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 import { MailerAsyncOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-async-options.interface';
+import { ConfigService } from '@nestjs/config';
 
 const mailerModuleOptions = (configService: ConfigService): MailerOptions => ({
     transport: {

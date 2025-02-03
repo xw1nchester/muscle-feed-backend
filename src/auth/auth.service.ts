@@ -2,20 +2,26 @@ import { compareSync } from 'bcrypt';
 import { v4 } from 'uuid';
 
 import {
-    Injectable,
     BadRequestException,
+    Injectable,
+    NotFoundException,
     UnauthorizedException
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 
-import { CodeService } from '@code/code.service';
-import { MailService } from '@mail/mail.service';
 import { User } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
+
+import { CodeService } from '@code/code.service';
+import { MailService } from '@mail/mail.service';
 import { UserService } from '@user/user.service';
 
-import { AuthRequestDto } from './dto/auth-request.dto';
+import { ChangePasswordRequestDto } from './dto/change-password-request.dto';
+import { LoginRequestDto } from './dto/login-request.dto';
+import { RecoveryPasswordRequestDto } from './dto/recovery-password-request.dto';
+import { RecoveryRequestDto } from './dto/recovery-request.dto';
 import { RegisterRequestDto } from './dto/register-request.dto';
+import { VerifyRecoveryRequestDto } from './dto/verify-recovery-request.dto';
 
 @Injectable()
 export class AuthService {
@@ -76,7 +82,7 @@ export class AuthService {
         return { id, email, isVerified, roles };
     }
 
-    async register(dto: AuthRequestDto, userAgent: string) {
+    async register(dto: RegisterRequestDto, userAgent: string) {
         const existingUser = await this.userService.getByEmail(dto.email);
 
         if (existingUser) {
@@ -100,7 +106,7 @@ export class AuthService {
         return { user: this.createDto(user), tokens };
     }
 
-    async login(dto: RegisterRequestDto, userAgent: string) {
+    async login(dto: LoginRequestDto, userAgent: string) {
         const existingUser = await this.userService.getByEmail(dto.email);
 
         if (
@@ -137,7 +143,7 @@ export class AuthService {
 
     async deleteRefreshToken(token: string) {
         if (!token) {
-            throw new UnauthorizedException();
+            return;
         }
 
         return this.prismaService.token.deleteMany({
@@ -155,7 +161,7 @@ export class AuthService {
             throw new BadRequestException('Ваш аккаунт уже верифицирован');
         }
 
-        const code = await this.codeService.recreate(userId);
+        const code = await this.codeService.create(userId);
 
         this.mailService.sendVerificationCode({
             to: email,
@@ -174,5 +180,65 @@ export class AuthService {
         await this.codeService.validateCode(code, userId);
 
         await this.userService.verify(userId);
+    }
+
+    async sendRecoveryCode({ email }: RecoveryRequestDto) {
+        const existingUser = await this.userService.getByEmail(email);
+
+        if (existingUser) {
+            const code = await this.codeService.create(existingUser.id);
+
+            this.mailService.sendRecoveryCode({
+                to: email,
+                code,
+                language: existingUser.language
+            });
+        }
+    }
+
+    async verifyRecoveryCode({ email, code }: VerifyRecoveryRequestDto) {
+        const existingUser = await this.userService.getByEmail(email);
+
+        if (!existingUser) {
+            throw new BadRequestException('Код недействителен или истек');
+        }
+
+        await this.codeService.validateCode(code, existingUser.id);
+
+        const newCode = await this.codeService.create(existingUser.id);
+
+        return { code: newCode };
+    }
+
+    async recoveryPassword({
+        email,
+        code,
+        password
+    }: RecoveryPasswordRequestDto) {
+        const existingUser = await this.userService.getByEmail(email);
+
+        if (!existingUser) {
+            throw new NotFoundException('Пользователь не найден');
+        }
+
+        await this.codeService.validateCode(code, existingUser.id);
+
+        return await this.userService.updatePassword(existingUser.id, password);
+    }
+
+    async changePassword(
+        { oldPassword, newPassword }: ChangePasswordRequestDto,
+        userId: number
+    ) {
+        const existingUser = await this.userService.getById(userId);
+
+        if (!compareSync(oldPassword, existingUser.password)) {
+            throw new BadRequestException('Неверный старый пароль');
+        }
+
+        return await this.userService.updatePassword(
+            existingUser.id,
+            newPassword
+        );
     }
 }

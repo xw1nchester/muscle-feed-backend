@@ -1,24 +1,20 @@
 import { Response } from 'express';
 
-import {
-    Body,
-    Controller,
-    Get,
-    HttpStatus,
-    Post,
-    Res,
-    UseGuards
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+
 import { Token } from '@prisma/client';
 
 import { AuthService } from './auth.service';
-import { Cookie, CurrentUser, UserAgent } from './decorators';
-import { AuthRequestDto } from './dto/auth-request.dto';
-import { JwtPayload } from './interfaces';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
-import { RegisterRequestDto } from './dto/register-request.dto';
+import { Cookie, CurrentUser, Public, UserAgent } from './decorators';
+import { ChangePasswordRequestDto } from './dto/change-password-request.dto';
 import { CodeRequestDto } from './dto/code-request.dto';
+import { LoginRequestDto } from './dto/login-request.dto';
+import { RecoveryPasswordRequestDto } from './dto/recovery-password-request.dto';
+import { RecoveryRequestDto } from './dto/recovery-request.dto';
+import { RegisterRequestDto } from './dto/register-request.dto';
+import { VerifyRecoveryRequestDto } from './dto/verify-recovery-request.dto';
+import { JwtPayload } from './interfaces';
 
 const REFRESH_TOKEN = 'refresh-token';
 
@@ -41,9 +37,10 @@ export class AuthController {
         });
     }
 
+    @Public()
     @Post('register')
     async register(
-        @Body() dto: AuthRequestDto,
+        @Body() dto: RegisterRequestDto,
         @UserAgent() userAgent: string,
         @Res() res: Response
     ) {
@@ -57,9 +54,10 @@ export class AuthController {
         res.json({ user, accessToken: tokens.accessToken });
     }
 
+    @Public()
     @Post('login')
     async login(
-        @Body() dto: RegisterRequestDto,
+        @Body() dto: LoginRequestDto,
         @UserAgent() userAgent: string,
         @Res() res: Response
     ) {
@@ -83,6 +81,7 @@ export class AuthController {
         res.json({ accessToken: tokens.accessToken });
     }
 
+    @Public()
     @Get('logout')
     async logout(
         @Cookie(REFRESH_TOKEN) refreshToken: string,
@@ -95,7 +94,6 @@ export class AuthController {
         res.sendStatus(HttpStatus.OK);
     }
 
-    @UseGuards(JwtAuthGuard)
     @Get('resend-verification')
     async resendVerificationCode(@CurrentUser() user: JwtPayload) {
         await this.authService.resendVerificationCode(user.id);
@@ -103,13 +101,44 @@ export class AuthController {
         return HttpStatus.OK;
     }
 
-    @UseGuards(JwtAuthGuard)
-    @Post('verify')
+    @Post('verify-email')
     async verify(
         @Body() { code }: CodeRequestDto,
         @CurrentUser() user: JwtPayload
     ) {
         await this.authService.verify(code, user.id);
+
+        return HttpStatus.OK;
+    }
+
+    @Public()
+    @Post('send-recovery')
+    async sendRecoveryCode(@Body() dto: RecoveryRequestDto) {
+        await this.authService.sendRecoveryCode(dto);
+
+        return HttpStatus.OK;
+    }
+
+    @Public()
+    @Post('verify-recovery')
+    async verifyRecoveryCode(@Body() dto: VerifyRecoveryRequestDto) {
+        return await this.authService.verifyRecoveryCode(dto);
+    }
+
+    @Public()
+    @Post('recovery-password')
+    async recoveryPassword(@Body() dto: RecoveryPasswordRequestDto) {
+        await this.authService.recoveryPassword(dto);
+
+        return HttpStatus.OK;
+    }
+
+    @Post('change-password')
+    async changePassword(
+        @Body() dto: ChangePasswordRequestDto,
+        @CurrentUser() user: JwtPayload
+    ) {
+        await this.authService.changePassword(dto, user.id);
 
         return HttpStatus.OK;
     }

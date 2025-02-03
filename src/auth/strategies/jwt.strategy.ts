@@ -6,8 +6,6 @@ import { PassportStrategy } from '@nestjs/passport';
 
 import { JwtPayload } from '@auth/interfaces';
 
-
-
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(private readonly configService: ConfigService) {
