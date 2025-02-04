@@ -1,0 +1,8 @@
+model DishType {
+    id     Int    @id @default(autoincrement())
+    nameRu String @map("name_ru")
+    nameHe String @map("name_he")
+    dishes Dish[]
+
+    @@map("dish_types")
+}

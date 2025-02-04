@@ -1,12 +1,12 @@
 model Team {
     id            Int      @id @default(autoincrement())
     picture       String
-    roleRu        String
-    roleHe        String
-    nameRu        String
-    nameHe        String
-    descriptionRu String
-    descriptionHe String
+    roleRu        String   @map("role_ru")
+    roleHe        String   @map("role_he")
+    nameRu        String   @map("name_ru")
+    nameHe        String   @map("name_he")
+    descriptionRu String   @map("description_ru")
+    descriptionHe String   @map("description_he")
     createdAt     DateTime @default(now()) @map("created_at")
     updatedAt     DateTime @updatedAt @map("updated_at")
 

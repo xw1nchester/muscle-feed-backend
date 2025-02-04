@@ -1,0 +1,19 @@
+model Dish {
+    id            Int      @id @default(autoincrement())
+    adminName     String   @map("admin_name")
+    nameRu        String   @map("name_ru")
+    nameHe        String   @map("name_he")
+    dishType      DishType @relation(fields: [dishTypeId], references: [id], onDelete: Cascade)
+    dishTypeId    Int      @map("dish_type_id")
+    picture       String
+    descriptionRu String   @map("description_ru")
+    descriptionHe String   @map("description_he")
+    calories      Int
+    weight        Int
+    proteins      Int
+    fats          Int
+    carbohydrates Int
+    isActive      Boolean  @map("is_active")
+
+    @@map("dishes")
+}
