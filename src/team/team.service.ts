@@ -61,12 +61,9 @@ export class TeamService {
         return { employee: this.createDto(updatedTeam) };
     }
 
+    // TODO: удалить картинку
     async delete(id: number) {
         const existingTeam = await this.getById(id);
-
-        if (!existingTeam) {
-            throw new NotFoundException('Сотрудник не найден');
-        }
 
         await this.prismaService.team.delete({ where: { id } });
 

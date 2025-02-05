@@ -1,1 +1,1 @@
-export * from './is-url-or-local.decorator'
+export * from './is-url-or-local.decorator';

@@ -144,6 +144,7 @@ export class DishService {
         return { dish: this.createDto(updatedDish) };
     }
 
+    // TODO: удалить картинку
     async delete(id: number) {
         const existingDish = await this.getById(id);
 

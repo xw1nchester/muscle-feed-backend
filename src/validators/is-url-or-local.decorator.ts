@@ -1,7 +1,4 @@
-import {
-    ValidationOptions,
-    registerDecorator
-} from 'class-validator';
+import { ValidationOptions, registerDecorator } from 'class-validator';
 
 export const IsUrlOrLocal =
     (options?: ValidationOptions) => (object: object, propertyName: string) => {
