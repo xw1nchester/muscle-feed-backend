@@ -1,11 +1,10 @@
-import { extractLocalizedFields } from '@utils';
-
 import { Injectable, NotFoundException } from '@nestjs/common';
 
 import { Team } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { TeamRequestDto } from '@admin/team/dto/team-request.dto';
+import { extractLocalizedFields } from '@utils';
 
 @Injectable()
 export class TeamService {
@@ -45,7 +44,7 @@ export class TeamService {
         return team;
     }
 
-    async createDtoById(id: number) {
+    async getDtoById(id: number) {
         const existingTeam = await this.getById(id);
 
         return { employee: this.createDto(existingTeam) };

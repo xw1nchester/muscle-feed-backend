@@ -1,8 +1,9 @@
-import { IsString, IsUrl } from 'class-validator';
+import { IsString } from 'class-validator';
+
+import { IsUrlOrLocal } from '@validators/is-url-or-local.decorator';
 
 export class TeamRequestDto {
-    // TODO: должно быть IsUrl, но localhost не считает за url
-    @IsString()
+    @IsUrlOrLocal()
     picture: string;
 
     @IsString()

@@ -31,7 +31,7 @@ export class TeamController {
 
     @Get(':id')
     async getById(@Param('id', ParseIntPipe) id: number) {
-        return await this.teamService.createDtoById(id);
+        return await this.teamService.getDtoById(id);
     }
 
     @Patch(':id')

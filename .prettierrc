@@ -8,7 +8,7 @@
         "<THIRD_PARTY_MODULES>",
         "^@nestjs[/-](.*)$",
         "@prisma/(.*)$",
-        "^@(.*)/(.*)$",
+        "^@(.*)$",
         "^[./]"
     ],
     "importOrderSeparation": true,

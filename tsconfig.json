@@ -33,7 +33,15 @@
             "@team": ["src/team"],
             "@team/*": ["src/team/*"],
             "@admin": ["src/admin"],
-            "@admin/*": ["src/admin/*"]
+            "@admin/*": ["src/admin/*"],
+            "@dish-type": ["src/dish-type"],
+            "@dish-type/*": ["src/dish-type/*"],
+            "@dish": ["src/dish"],
+            "@dish/*": ["src/dish/*"],
+            "@validators": ["src/validators"],
+            "@validators/*": ["src/validators/*"],
+            "@dto": ["src/dto"],
+            "@dto/*": ["src/dto/*"]
         }
     }
 }
