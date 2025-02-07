@@ -4,11 +4,15 @@ import { Team } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { TeamRequestDto } from '@admin/team/dto/team-request.dto';
+import { FileService } from '@file/file.service';
 import { extractLocalizedFields } from '@utils';
 
 @Injectable()
 export class TeamService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly fileService: FileService
+    ) {}
 
     createDto(team: Team) {
         const { id, picture, createdAt, updatedAt, ...rest } = team;
@@ -51,12 +55,16 @@ export class TeamService {
     }
 
     async update(id: number, dto: TeamRequestDto) {
-        await this.getById(id);
+        const existingTeam = await this.getById(id);
 
         const updatedTeam = await this.prismaService.team.update({
             where: { id },
             data: dto
         });
+
+        if (existingTeam.picture != dto.picture) {
+            this.fileService.delete(existingTeam.picture);
+        }
 
         return { employee: this.createDto(updatedTeam) };
     }
@@ -66,6 +74,8 @@ export class TeamService {
         const existingTeam = await this.getById(id);
 
         await this.prismaService.team.delete({ where: { id } });
+
+        this.fileService.delete(existingTeam.picture);
 
         return { employee: this.createDto(existingTeam) };
     }

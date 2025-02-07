@@ -21,6 +21,15 @@ components:
             enum:
               - ADMIN
               - MODERATOR
+        firstName:
+          type: string
+          example: Rob
+        lastName:
+          type: string
+          example: Top
+        phone:
+          type: string
+          example: +79123456789
     AuthDto:
       type: object
       properties:
@@ -113,10 +122,10 @@ components:
               example: ברמן מקצועי שיודע ליצור קוקטיילים ייחודיים ומתחזק את האווירה בבר
         createdAt:
           type: string
-          format: datetime
+          format: date-time
         updatedAt:
           type: string
-          format: datetime
+          format: date-time
     PaginationBodyFields:
       type: object
       properties:
@@ -486,3 +495,55 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/TeamResponseDto"
+                      
+  /api/user/{userId}:
+    get:
+      tags:
+        - User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserDto"
+    patch:
+      tags:
+        - User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                firstName:
+                  type: string
+                  example: Rob
+                lastName:
+                  type: string
+                  example: Rob
+                phone:
+                  type: string
+                  example: +79123456789
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserDto"

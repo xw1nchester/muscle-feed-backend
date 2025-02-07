@@ -3,12 +3,16 @@ model User {
     email      String   @unique
     password   String
     isVerified Boolean  @default(false) @map("is_verified")
+    firstName String?
+    lastName String?
+    phone String?
     createdAt  DateTime @default(now()) @map("created_at")
     updatedAt  DateTime @updatedAt @map("updated_at")
     language   Language
     roles      Role[]
     tokens     Token[]
     codes      Code[]
+    addresses      Address[]
 
     @@map("users")
 }

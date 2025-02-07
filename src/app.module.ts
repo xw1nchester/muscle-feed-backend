@@ -12,6 +12,7 @@ import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { CodeModule } from './code/code.module';
 import { DishModule } from './dish/dish.module';
+import { FileModule } from './file/file.module';
 import { LoggerMiddleware } from './logger.midleware';
 import { MailModule } from './mail/mail.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -32,7 +33,8 @@ import { UserModule } from './user/user.module';
         CodeModule,
         TeamModule,
         AdminModule,
-        DishModule
+        DishModule,
+        FileModule
     ],
     controllers: [AppController],
     providers: [

@@ -5,11 +5,15 @@ import { PrismaService } from '@prisma/prisma.service';
 
 import { DishRequestDto } from '@admin/dish/dto/dish-request.dto';
 import { PaginationDto } from '@dto/pagination.dto';
+import { FileService } from '@file/file.service';
 import { extractLocalizedFields } from '@utils';
 
 @Injectable()
 export class DishService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly fileService: FileService
+    ) {}
 
     async getTypes() {
         const types = await this.prismaService.dishType.findMany();
@@ -133,13 +137,17 @@ export class DishService {
     }
 
     async update(id: number, dto: DishRequestDto) {
-        await this.getById(id);
+        const existingDish = await this.getById(id);
 
         const updatedDish = await this.prismaService.dish.update({
             where: { id },
             data: dto,
             include: { dishType: true }
         });
+
+        if (existingDish.picture != dto.picture) {
+            this.fileService.delete(existingDish.picture);
+        }
 
         return { dish: this.createDto(updatedDish) };
     }
@@ -151,6 +159,8 @@ export class DishService {
         await this.prismaService.dish.delete({
             where: { id }
         });
+
+        this.fileService.delete(existingDish.picture);
 
         return { dish: this.createDto(existingDish) };
     }
