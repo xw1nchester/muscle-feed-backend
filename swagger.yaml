@@ -126,6 +126,46 @@ components:
         updatedAt:
           type: string
           format: date-time
+    AddressRequestDto:
+      type: object
+      properties:
+        city:
+          type: string
+          example: Новосибирск
+        street:
+          type: string
+          example: ул. Советская
+        house:
+          type: string
+          example: 33/1
+        floor:
+          type: number
+        apartment:
+          type: number
+      required:
+        - city
+        - street
+        - house
+    AddressResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
+        city:
+          type: string
+          example: Новосибирск
+        street:
+          type: string
+          example: ул. Советская
+        house:
+          type: string
+          example: 33/1
+        floor:
+          type: number
+        apartment:
+          type: number
+        isPrimary:
+          type: boolean
     PaginationBodyFields:
       type: object
       properties:
@@ -159,6 +199,11 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/TeamRequestDto"
+    Address:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AddressRequestDto"
   securitySchemes:
     BearerAuth:
       type: http
@@ -495,17 +540,10 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/TeamResponseDto"
-                      
-  /api/user/{userId}:
+  /api/user:
     get:
       tags:
         - User
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: integer
       responses:
         "200":
           description: "Success"
@@ -518,12 +556,6 @@ paths:
     patch:
       tags:
         - User
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: integer
       requestBody:
         content:
           application/json:
@@ -534,10 +566,14 @@ paths:
                   example: Rob
                 lastName:
                   type: string
-                  example: Rob
+                  example: Top
                 phone:
                   type: string
                   example: +79123456789
+              required:
+                - firstName
+                - lastName
+                - phone
       responses:
         "200":
           description: "Success"
@@ -547,3 +583,99 @@ paths:
                 properties:
                   user:
                     $ref: "#/components/schemas/UserDto"
+  /api/user/address:
+    get:
+      tags:
+        - User
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  primaryAddress:
+                    $ref: "#/components/schemas/AddressResponseDto"
+                  otherAddresses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AddressResponseDto"
+    post:
+      tags:
+        - User
+      requestBody:
+        $ref: "#/components/requestBodies/Address"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    $ref: "#/components/schemas/AddressResponseDto"
+  /api/user/address/{addressId}:
+    patch:
+      tags:
+        - User
+      parameters:
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/Address"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    $ref: "#/components/schemas/AddressResponseDto"
+    delete:
+      tags:
+        - User
+      parameters:
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    $ref: "#/components/schemas/AddressResponseDto"
+  /api/user/address/{addressId}/toggle-primary:
+    patch:
+      tags:
+        - User
+      parameters:
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    $ref: "#/components/schemas/AddressResponseDto"
+      
+                    
+                    
+                    
+                    
+                    
+                    
