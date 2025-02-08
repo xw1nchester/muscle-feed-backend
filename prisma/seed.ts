@@ -39,7 +39,7 @@ async function main() {
     ];
 
     for (const { id, nameRu, nameHe } of dishTypes) {
-        await prisma.dishType.upsert({
+        const dishType = await prisma.dishType.upsert({
             where: { id },
             update: {
                 nameRu,
@@ -51,6 +51,8 @@ async function main() {
                 nameHe
             }
         });
+
+        console.log('Seeded dishType:', dishType);
     }
 
     console.log('Seeding finished.');

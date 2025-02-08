@@ -4,7 +4,7 @@ import { basename, join } from 'path';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class FileService {
+export class UploadService {
     delete(url: string) {
         const filePath = join(__dirname, '..', '..', 'uploads', basename(url));
 

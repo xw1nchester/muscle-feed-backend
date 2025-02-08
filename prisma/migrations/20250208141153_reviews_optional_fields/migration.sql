@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "reviews" ALTER COLUMN "author_ru" DROP NOT NULL,
+ALTER COLUMN "author_he" DROP NOT NULL,
+ALTER COLUMN "text_ru" DROP NOT NULL,
+ALTER COLUMN "text_he" DROP NOT NULL;

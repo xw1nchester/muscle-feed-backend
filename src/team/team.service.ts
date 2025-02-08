@@ -4,14 +4,14 @@ import { Team } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { TeamRequestDto } from '@admin/team/dto/team-request.dto';
-import { FileService } from '@file/file.service';
+import { UploadService } from '@upload/upload.service';
 import { extractLocalizedFields } from '@utils';
 
 @Injectable()
 export class TeamService {
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly fileService: FileService
+        private readonly fileService: UploadService
     ) {}
 
     createDto(team: Team) {

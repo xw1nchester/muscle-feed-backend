@@ -42,8 +42,10 @@
             "@validators/*": ["src/validators/*"],
             "@dto": ["src/dto"],
             "@dto/*": ["src/dto/*"],
-            "@file": ["src/file"],
-            "@file/*": ["src/file/*"]
+            "@upload": ["src/upload"],
+            "@upload/*": ["src/upload/*"],
+            "@review": ["src/review"],
+            "@review/*": ["src/review/*"]
         }
     }
 }

@@ -5,14 +5,14 @@ import { PrismaService } from '@prisma/prisma.service';
 
 import { DishRequestDto } from '@admin/dish/dto/dish-request.dto';
 import { PaginationDto } from '@dto/pagination.dto';
-import { FileService } from '@file/file.service';
+import { UploadService } from '@upload/upload.service';
 import { extractLocalizedFields } from '@utils';
 
 @Injectable()
 export class DishService {
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly fileService: FileService
+        private readonly fileService: UploadService
     ) {}
 
     async getTypes() {
@@ -95,13 +95,13 @@ export class DishService {
     }
 
     async find({
+        page,
         limit,
-        offset,
         search,
         isActive
     }: {
         limit: number;
-        offset: number;
+        page: number;
         search: string;
         isActive?: boolean;
     }) {
@@ -115,11 +115,14 @@ export class DishService {
             })
         };
 
+        const skip = (page - 1) * limit;
+
         const dishesData = await this.prismaService.dish.findMany({
             where,
             include: { dishType: true },
+            orderBy: { createdAt: 'desc' },
             take: limit,
-            skip: offset
+            skip
         });
 
         const totalCount = await this.prismaService.dish.aggregate({
@@ -132,7 +135,7 @@ export class DishService {
             dishesData,
             totalCount._count.id,
             limit,
-            offset
+            page
         );
     }
 

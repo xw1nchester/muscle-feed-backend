@@ -33,16 +33,16 @@ export class DishController {
 
     @Get()
     async find(
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
-        @Query('offset', new DefaultValuePipe(0), ParseIntPipe) offset: number,
         @Query('search')
         search: string
     ) {
-        return await this.dishService.find({ limit, offset, search });
+        return await this.dishService.find({ page, limit, search });
     }
 
     @Get(':id')
-    async getById(@Param('id', ParseIntPipe) id: number) {
+    async getDtoById(@Param('id', ParseIntPipe) id: number) {
         return await this.dishService.getDtoById(id);
     }
 

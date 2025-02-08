@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class RecoveryPasswordRequestDto {
     @IsEmail()
@@ -9,5 +9,6 @@ export class RecoveryPasswordRequestDto {
     password: string;
 
     @IsString()
+    @IsNotEmpty()
     code: string;
 }
