@@ -1,6 +1,10 @@
 import { genSaltSync, hashSync } from 'bcrypt';
 
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException
+} from '@nestjs/common';
 
 import { Address, User } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
@@ -109,6 +113,17 @@ export class UserService {
     }
 
     async createAddress(userId: number, dto: AddressRequestDto) {
+        const addressesCountData = await this.prismaService.address.aggregate({
+            _count: { id: true },
+            where: { userId }
+        });
+
+        if (addressesCountData._count.id > 4) {
+            throw new BadRequestException(
+                'Превышено максимальное количество адресов (5)'
+            );
+        }
+
         const createdAddress = await this.prismaService.address.create({
             data: {
                 ...dto,

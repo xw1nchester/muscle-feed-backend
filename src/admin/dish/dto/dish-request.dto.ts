@@ -16,7 +16,6 @@ export class DishRequestDto {
     nameHe: string;
 
     @IsNumber()
-    @IsNotEmpty()
     dishTypeId: number;
 
     @IsUrlOrLocal()
@@ -32,23 +31,18 @@ export class DishRequestDto {
     descriptionHe: string;
 
     @IsNumber()
-    @IsNotEmpty()
     calories: number;
 
     @IsNumber()
-    @IsNotEmpty()
     weight: number;
 
     @IsNumber()
-    @IsNotEmpty()
     proteins: number;
 
     @IsNumber()
-    @IsNotEmpty()
     fats: number;
 
     @IsNumber()
-    @IsNotEmpty()
     carbohydrates: number;
 
     @IsBoolean()

@@ -2,11 +2,13 @@ import {
     Body,
     Controller,
     DefaultValuePipe,
+    Delete,
     Get,
     Param,
     ParseBoolPipe,
     ParseIntPipe,
     Patch,
+    Post,
     Query,
     UseGuards
 } from '@nestjs/common';
@@ -38,6 +40,11 @@ export class ReviewController {
         });
     }
 
+    @Post()
+    async create(@Body() dto: ReviewRequestDto) {
+        return await this.reviewService.adminCreate(dto);
+    }
+
     @Get(':id')
     async getDtoById(@Param('id', ParseIntPipe) id: number) {
         return await this.reviewService.getDtoById(id);
@@ -49,5 +56,15 @@ export class ReviewController {
         @Body() dto: ReviewRequestDto
     ) {
         return this.reviewService.update(id, dto);
+    }
+
+    @Patch(':id/toggle-publish')
+    async togglePublish(@Param('id', ParseIntPipe) id: number) {
+        return this.reviewService.togglePublish(id);
+    }
+
+    @Delete(':id')
+    async delete(@Param('id', ParseIntPipe) id: number) {
+        return this.reviewService.delete(id);
     }
 }

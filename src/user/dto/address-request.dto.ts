@@ -17,12 +17,10 @@ export class AddressRequestDto {
     @IsOptional()
     @Transform(({ value }) => Number(value))
     @IsNumber()
-    @IsNotEmpty()
     floor: number;
 
     @IsOptional()
     @Transform(({ value }) => Number(value))
     @IsNumber()
-    @IsNotEmpty()
     apartment: number;
 }

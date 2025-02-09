@@ -96,10 +96,18 @@ export class ReviewService {
         );
     }
 
+    async adminCreate(dto: AdminReviewRequestDto) {
+        const createdReview = await this.prismaService.review.create({
+            data: dto
+        });
+
+        return { review: this.createDto(createdReview) };
+    }
+
     async getDtoById(id: number) {
         const review = await this.getById(id);
 
-        return { review };
+        return { review: this.createDto(review) };
     }
 
     async update(id: number, dto: AdminReviewRequestDto) {
@@ -111,5 +119,31 @@ export class ReviewService {
         });
 
         return { review: this.createDto(updatedReview) };
+    }
+
+    async togglePublish(id: number) {
+        const { authorRu, authorHe, textRu, textHe, isPublished } =
+            await this.getById(id);
+
+        if (!isPublished && (!authorRu || !authorHe || !textRu || !textHe)) {
+            throw new BadRequestException(
+                'У отзыва должны быть заполнены все поля'
+            );
+        }
+
+        const updatedReview = await this.prismaService.review.update({
+            where: { id },
+            data: { isPublished: !isPublished }
+        });
+
+        return { review: this.createDto(updatedReview) };
+    }
+
+    async delete(id: number) {
+        const existingReview = await this.getById(id);
+
+        await this.prismaService.review.delete({ where: { id } });
+
+        return { review: this.createDto(existingReview) };
     }
 }

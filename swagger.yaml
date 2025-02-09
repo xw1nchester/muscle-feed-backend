@@ -166,19 +166,161 @@ components:
           type: number
         isPrimary:
           type: boolean
+    ReviewResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
+        picture:
+          type: string
+          example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        author:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Иван
+            he:
+              type: string
+              example: יִשְׂרָאֵל
+        text:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Прекрасный отзыв!
+            he:
+              type: string
+              example: ביקורת נהדרת!
+    AdminReviewRequestDto:
+      type: object
+      properties:
+        picture:
+          type: string
+          example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        authorRu:
+          type: string
+          example: Иван
+        authorHe:
+          type: string
+          example: יִשְׂרָאֵל
+        textRu:
+          type: string
+          example: Прекрасный отзыв!
+        textHe:
+          type: string
+          example: ביקורת נהדרת!
+        isPublished:
+          type: boolean
+    DishRequestDto:
+      type: object
+      properties:
+        adminName:
+          type: string
+          example: "Стейк с картофелем"
+        nameRu:
+          type: string
+          example: "Стейк с картофелем"
+        nameHe:
+          type: string
+          example: "סטייק עם תפוחי אדמה"
+        dishTypeId:
+          type: integer
+        picture:
+          type: string
+          example: "http://localhost:8080/static/7fbe6f80-800e-4520-9580-e60e3c93fc20.png"
+        descriptionRu:
+          type: string
+          example: "Сочный стейк с картофельным пюре и овощами."
+        descriptionHe:
+          type: string
+          example: "סטייק עסיסי עם פירה תפוחי אדמה וירקות."
+        calories:
+          type: integer
+        weight:
+          type: integer
+        proteins:
+          type: number
+        fats:
+          type: number
+        carbohydrates:
+          type: number
+        isActive:
+          type: boolean
+    DishResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        adminName:
+          type: string
+          example: "Стейк с картофелем"
+        dishType:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: object
+              properties:
+                ru:
+                  type: string
+                  example: "Завтрак"
+                he:
+                  type: string
+                  example: "ארוחת בוקר"
+        picture:
+          type: string
+          example: "http://localhost:8080/static/7fbe6f80-800e-4520-9580-e60e3c93fc20.png"
+        calories:
+          type: integer
+        weight:
+          type: integer
+        proteins:
+          type: number
+        fats:
+          type: number
+        carbohydrates:
+          type: number
+        isActive:
+          type: boolean
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Стейк с картофелем"
+            he:
+              type: string
+              example: "סטייק עם תפוחי אדמה"
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сочный стейк с картофельным пюре и овощами."
+            he:
+              type: string
+              example: "סטייק עסיסי עם פירה תפוחי אדמה וירקות."
     PaginationBodyFields:
       type: object
       properties:
-        totalCount:
-          type: integer
-          example: 20
-        isLast:
-          type: boolean
-          example: false
         elementsCount:
           type: integer
-          example: 5
+        page:
+          type: integer
+        totalPages:
+          type: integer
+        isLast:
+          type: boolean
   parameters:
+    Page:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 1
     Limit:
       name: limit
       in: query
@@ -186,13 +328,6 @@ components:
       schema:
         type: integer
         default: 5
-    Offset:
-      name: offset
-      in: query
-      required: false
-      schema:
-        type: integer
-        default: 0
   requestBodies:
     Team:
       content:
@@ -204,6 +339,16 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/AddressRequestDto"
+    AdminReview:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AdminReviewRequestDto"
+    Dish:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DishRequestDto"
   securitySchemes:
     BearerAuth:
       type: http
@@ -417,6 +562,33 @@ paths:
               type: object
               properties:
                 file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  files:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FileDto"
+  /api/upload:
+    post:
+      tags:
+        - File
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  description: The file must be an image of up to 2 MB with a 1-to-1 aspect ratio.
                   type: array
                   items:
                     type: string
@@ -672,10 +844,260 @@ paths:
                 properties:
                   address:
                     $ref: "#/components/schemas/AddressResponseDto"
-      
-                    
-                    
-                    
-                    
-                    
-                    
+  /api/review:
+    post:
+      tags:
+        - Review
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                picture:
+                  type: string
+                  example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+                author:
+                  type: string
+                  example: Иван Иванов
+                text:
+                  type: string
+                  example: Отзыв
+                language:
+                  type: string
+                  enum:
+                    - RU
+                    - HE
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
+    get:
+      tags:
+        - Review
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                  allOf:
+                    - properties:
+                        reviews: 
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/ReviewResponseDto"
+                    - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/review:
+    post:
+      tags:
+        - Admin Review
+      requestBody:
+        $ref: "#/components/requestBodies/AdminReview"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
+    get:
+      tags:
+        - Admin Review
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: published
+          in: query
+          required: true
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                  allOf:
+                    - properties:
+                        reviews: 
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/ReviewResponseDto"
+                    - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/review/{reviewId}:
+    get:
+      tags:
+        - Admin Review
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
+    patch:
+      tags:
+        - Admin Review
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/AdminReview"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
+    delete:
+      tags:
+        - Admin Review
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
+  /api/admin/review/{reviewId}/toggle-publish:
+      patch:
+        tags:
+          - Admin Review
+        parameters:
+          - name: reviewId
+            in: path
+            required: true
+            schema:
+              type: integer
+        responses:
+          "200":
+            description: "Success"
+            content:
+              application/json:
+                schema:
+                  properties:
+                    review:
+                      $ref: "#/components/schemas/ReviewResponseDto"
+  /api/admin/dish:
+    post:
+      tags:
+        - Admin Dish
+      requestBody:
+        $ref: "#/components/requestBodies/Dish"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/DishResponseDto"
+    get:
+      tags:
+        - Admin Dish
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                  allOf:
+                    - properties:
+                        dishes: 
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/DishResponseDto"
+                    - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/dish/{dishId}:
+    get:
+      tags:
+        - Admin Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                    dish: 
+                      $ref: "#/components/schemas/DishResponseDto"
+    patch:
+      tags:
+        - Admin Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/Dish"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                    dish: 
+                      $ref: "#/components/schemas/DishResponseDto"
+    delete:
+      tags:
+        - Admin Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                    dish: 
+                      $ref: "#/components/schemas/DishResponseDto"
