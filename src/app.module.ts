@@ -14,6 +14,7 @@ import { CodeModule } from './code/code.module';
 import { DishModule } from './dish/dish.module';
 import { LoggerMiddleware } from './logger.midleware';
 import { MailModule } from './mail/mail.module';
+import { MenuModule } from './menu/menu.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ReviewModule } from './review/review.module';
 import { TeamModule } from './team/team.module';
@@ -36,7 +37,8 @@ import { UserModule } from './user/user.module';
         AdminModule,
         DishModule,
         UploadModule,
-        ReviewModule
+        ReviewModule,
+        MenuModule
     ],
     controllers: [AppController],
     providers: [

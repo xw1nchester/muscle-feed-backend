@@ -1,0 +1,9 @@
+model MenuDay {
+    id     Int  @id @default(autoincrement())
+    day    Int
+    menu   Menu @relation(fields: [menuId], references: [id], onDelete: Cascade)
+    menuId Int  @map("menu_id")
+    menuDayDishes MenuDayDish[]
+
+    @@map("menu_days")
+}

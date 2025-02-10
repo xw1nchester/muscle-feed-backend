@@ -1,0 +1,19 @@
+model Menu {
+    id             Int       @id @default(autoincrement())
+    adminName      String    @map("admin_name")
+    nameRu         String    @map("name_ru")
+    nameHe         String    @map("name_he")
+    descriptionRu  String    @map("description_ru")
+    descriptionHe  String    @map("description_he")
+    calories       Int       @default(0)
+    order          Int       @default(0)
+    cycleStartDate DateTime  @default(now())
+    isPublished    Boolean   @default(false) @map("is_published")
+    createdAt      DateTime  @default(now()) @map("created_at")
+    updatedAt      DateTime  @updatedAt @map("updated_at")
+    menuType       MenuType  @relation(fields: [menuTypeId], references: [id], onDelete: Cascade)
+    menuTypeId     Int       @map("menu_type_id")
+    menuDays       MenuDay[]
+
+    @@map("menus")
+}

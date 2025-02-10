@@ -16,9 +16,19 @@ export class DishService {
     ) {}
 
     async getTypes() {
-        const types = await this.prismaService.dishType.findMany();
+        const typesData = await this.prismaService.dishType.findMany();
 
-        return { types };
+        const dishTypes = typesData.map(type => {
+            return {
+                id: type.id,
+                name: {
+                    ru: type.nameRu,
+                    he: type.nameHe
+                }
+            };
+        });
+
+        return { dishTypes };
     }
 
     async getById(id: number) {
@@ -125,6 +135,8 @@ export class DishService {
             skip
         });
 
+        const dishes = dishesData.map(dish => this.createDto(dish));
+
         const totalCount = await this.prismaService.dish.aggregate({
             _count: { id: true },
             where
@@ -132,7 +144,7 @@ export class DishService {
 
         return new PaginationDto(
             'dishes',
-            dishesData,
+            dishes,
             totalCount._count.id,
             limit,
             page
@@ -155,7 +167,6 @@ export class DishService {
         return { dish: this.createDto(updatedDish) };
     }
 
-    // TODO: удалить картинку
     async delete(id: number) {
         const existingDish = await this.getById(id);
 

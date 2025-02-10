@@ -1,0 +1,12 @@
+model MenuDayDish {
+    id         Int      @id @default(autoincrement())
+    isPrimary  Boolean  @map("is_primary")
+    menuDay    MenuDay  @relation(fields: [menuDayId], references: [id], onDelete: Cascade)
+    menuDayId  Int      @map("menu_day_id")
+    dishType   DishType @relation(fields: [dishTypeId], references: [id], onDelete: Cascade)
+    dishTypeId Int      @map("dish_type_id")
+    dish       Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
+    dishId     Int      @map("dish_id")
+
+    @@map("menu_day_dishes")
+}

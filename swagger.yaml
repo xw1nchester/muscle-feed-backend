@@ -247,6 +247,20 @@ components:
           type: number
         isActive:
           type: boolean
+    DishTypeResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Завтрак"
+            he:
+              type: string
+              example: "ארוחת בוקר"
     DishResponseDto:
       type: object
       properties:
@@ -256,19 +270,7 @@ components:
           type: string
           example: "Стейк с картофелем"
         dishType:
-          type: object
-          properties:
-            id:
-              type: integer
-            name:
-              type: object
-              properties:
-                ru:
-                  type: string
-                  example: "Завтрак"
-                he:
-                  type: string
-                  example: "ארוחת בוקר"
+            $ref: "#/components/schemas/DishTypeResponseDto"
         picture:
           type: string
           example: "http://localhost:8080/static/7fbe6f80-800e-4520-9580-e60e3c93fc20.png"
@@ -1010,6 +1012,21 @@ paths:
                   properties:
                     review:
                       $ref: "#/components/schemas/ReviewResponseDto"
+  /api/dish/type:
+    get:
+      tags:
+        - Dish
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DishTypeResponseDto"
   /api/admin/dish:
     post:
       tags:

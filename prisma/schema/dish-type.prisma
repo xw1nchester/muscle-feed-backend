@@ -3,6 +3,7 @@ model DishType {
     nameRu String @map("name_ru")
     nameHe String @map("name_he")
     dishes Dish[]
+    menuDayDishes MenuDayDish[]
 
     @@map("dish_types")
 }
