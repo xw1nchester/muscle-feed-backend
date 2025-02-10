@@ -55,7 +55,8 @@ export class DishService {
             proteins,
             fats,
             carbohydrates,
-            isActive
+            isPublished,
+            benefit
         } = dish;
 
         const localizedFields = extractLocalizedFields(dish);
@@ -76,8 +77,9 @@ export class DishService {
             proteins,
             fats,
             carbohydrates,
-            isActive,
-            ...localizedFields
+            isPublished,
+            ...localizedFields,
+            benefit
         };
     }
 

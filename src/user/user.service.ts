@@ -45,9 +45,26 @@ export class UserService {
     }
 
     createDto(user: User) {
-        const { id, email, isVerified, roles, firstName, lastName, phone } =
-            user;
-        return { id, email, isVerified, roles, firstName, lastName, phone };
+        const {
+            id,
+            email,
+            isVerified,
+            roles,
+            firstName,
+            lastName,
+            phone,
+            allergies
+        } = user;
+        return {
+            id,
+            email,
+            isVerified,
+            roles,
+            firstName,
+            lastName,
+            phone,
+            allergies
+        };
     }
 
     async verify(id: number) {

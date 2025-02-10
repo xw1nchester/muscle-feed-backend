@@ -4,9 +4,11 @@ import {
     IsArray,
     IsBoolean,
     IsDate,
+    IsDateString,
     IsNotEmpty,
     IsNumber,
     IsString,
+    Min,
     ValidateNested
 } from 'class-validator';
 
@@ -26,13 +28,14 @@ class MenuDayDishDto {
 class MenuDayDto {
     @Transform(({ value }) => Number(value))
     @IsNumber()
-    day: number;
+    @Min(1)
+    number: number;
 
     @IsArray()
-    @ArrayMinSize(3)
+    @ArrayMinSize(2)
     @ValidateNested({ each: true })
     @Type(() => MenuDayDishDto)
-    menuDayDishes: MenuDayDishDto[];
+    dishes: MenuDayDishDto[];
 }
 
 export class MenuRequestDto {
@@ -67,7 +70,7 @@ export class MenuRequestDto {
     @IsNumber()
     order: number;
 
-    @IsDate()
+    @IsDateString()
     cycleStartDate: Date;
 
     @IsBoolean()
@@ -77,5 +80,5 @@ export class MenuRequestDto {
     @ArrayMinSize(1)
     @ValidateNested({ each: true })
     @Type(() => MenuDayDto)
-    menuDays: MenuDayDto[];
+    days: MenuDayDto[];
 }

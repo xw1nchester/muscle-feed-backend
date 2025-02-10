@@ -9,4 +9,7 @@ export class ProfileRequestDto {
 
     @IsString()
     phone: string;
+
+    @IsString()
+    allergies: string;
 }

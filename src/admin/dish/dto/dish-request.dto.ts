@@ -1,4 +1,10 @@
-import { IsBoolean, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import {
+    IsBoolean,
+    IsNotEmpty,
+    IsNumber,
+    IsOptional,
+    IsString
+} from 'class-validator';
 
 import { IsUrlOrLocal } from '@validators';
 
@@ -45,7 +51,11 @@ export class DishRequestDto {
     @IsNumber()
     carbohydrates: number;
 
+    @IsOptional()
+    @IsString()
+    benefit: string;
+
     @IsBoolean()
     @IsNotEmpty()
-    isActive: boolean;
+    isPublished: boolean;
 }

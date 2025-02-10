@@ -30,6 +30,9 @@ components:
         phone:
           type: string
           example: +79123456789
+        allergies:
+          type: string
+          example: "Морковь"
     AuthDto:
       type: object
       properties:
@@ -245,8 +248,11 @@ components:
           type: number
         carbohydrates:
           type: number
-        isActive:
+        isPublished:
           type: boolean
+        benefit:
+          type: string
+          example: "Польза"
     DishTypeResponseDto:
       type: object
       properties:
@@ -304,6 +310,9 @@ components:
             he:
               type: string
               example: "סטייק עסיסי עם פירה תפוחי אדמה וירקות."
+        benefit:
+          type: string
+          example: "Польза"
     PaginationBodyFields:
       type: object
       properties:
@@ -744,10 +753,14 @@ paths:
                 phone:
                   type: string
                   example: +79123456789
+                allergies:
+                  type: string
+                  example: "Морковь"
               required:
                 - firstName
                 - lastName
                 - phone
+                - allergies
       responses:
         "200":
           description: "Success"

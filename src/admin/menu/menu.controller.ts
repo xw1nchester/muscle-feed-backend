@@ -16,6 +16,7 @@ import { Role } from '@auth/decorators';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { MenuService } from '@menu/menu.service';
 
+import { MenuRequestDto } from './dto/menu-request.dto';
 import { MenuTypeRequestDto } from './dto/menu-type-request.dto';
 
 @UseGuards(RoleGuard)
@@ -50,5 +51,10 @@ export class MenuController {
     @Delete('type/:id')
     async deleteType(@Param('id', ParseIntPipe) id: number) {
         return await this.menuService.deleteType(id);
+    }
+
+    @Post()
+    async create(@Body() dto: MenuRequestDto) {
+        return dto;
     }
 }
