@@ -180,4 +180,24 @@ export class DishService {
 
         return { dish: this.createDto(existingDish) };
     }
+
+    async validateDishTypeIds(dishTypeIds: number[]) {
+        const dishTypesCount = await this.prismaService.dishType.count({
+            where: { id: { in: dishTypeIds } }
+        });
+
+        if (dishTypesCount != new Set(dishTypeIds).size) {
+            throw new NotFoundException('Тип приема пищи не найден');
+        }
+    }
+
+    async validateDishesIds(dishIds: number[]) {
+        const dishesCount = await this.prismaService.dish.count({
+            where: { id: { in: dishIds } }
+        });
+
+        if (dishesCount != new Set(dishIds).size) {
+            throw new NotFoundException('Блюдо не найдено');
+        }
+    }
 }

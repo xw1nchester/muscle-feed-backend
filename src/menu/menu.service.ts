@@ -7,12 +7,17 @@ import {
 import { MenuType } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
+import { MenuRequestDto } from '@admin/menu/dto/menu-request.dto';
 import { MenuTypeRequestDto } from '@admin/menu/dto/menu-type-request.dto';
+import { DishService } from '@dish/dish.service';
 import { extractLocalizedFields } from '@utils';
 
 @Injectable()
 export class MenuService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly dishService: DishService
+    ) {}
 
     private get menuRepository() {
         return this.prismaService.menu;
@@ -121,5 +126,15 @@ export class MenuService {
         return {
             menuType: this.createTypeDto(existingType)
         };
+    }
+
+    async create(dto: MenuRequestDto) {
+        await this.dishService.validateDishTypeIds(
+            dto.days[0].dishes.map(dish => dish.dishTypeId)
+        );
+
+        await this.dishService.validateDishesIds(
+            dto.days.flatMap(day => day.dishes.map(dish => dish.dishId))
+        );
     }
 }

@@ -3,7 +3,6 @@ import {
     ArrayMinSize,
     IsArray,
     IsBoolean,
-    IsDate,
     IsDateString,
     IsNotEmpty,
     IsNumber,

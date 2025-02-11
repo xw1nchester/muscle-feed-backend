@@ -18,6 +18,7 @@ import { MenuService } from '@menu/menu.service';
 
 import { MenuRequestDto } from './dto/menu-request.dto';
 import { MenuTypeRequestDto } from './dto/menu-type-request.dto';
+import { ValidateMenuPipe } from './pipes/validate-menu.pipe';
 
 @UseGuards(RoleGuard)
 @Role(RoleEnum.ADMIN)
@@ -54,7 +55,7 @@ export class MenuController {
     }
 
     @Post()
-    async create(@Body() dto: MenuRequestDto) {
-        return dto;
+    async create(@Body(ValidateMenuPipe) dto: MenuRequestDto) {
+        return await this.menuService.create(dto);
     }
 }
