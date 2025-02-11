@@ -31,7 +31,7 @@ class MenuDayDto {
     number: number;
 
     @IsArray()
-    @ArrayMinSize(2)
+    @ArrayMinSize(1)
     @ValidateNested({ each: true })
     @Type(() => MenuDayDishDto)
     dishes: MenuDayDishDto[];

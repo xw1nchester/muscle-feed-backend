@@ -160,7 +160,8 @@ export class MenuService {
         const days = menu.menuDays.map(({ id, day, menuDayDishes }) => ({
             id,
             number: day,
-            dishes: menuDayDishes.map(({ dishType, dish, isPrimary }) => ({
+            dishes: menuDayDishes.map(({ id, dishType, dish, isPrimary }) => ({
+                id,
                 dishType: this.dishService.createTypeDto(dishType),
                 dish: this.dishService.createDto(dish),
                 isPrimary
@@ -400,5 +401,13 @@ export class MenuService {
         });
 
         return { menu: this.createAdminDto(updatedMenu) };
+    }
+
+    async delete(id: number) {
+        const existingMenu = await this.getById(id);
+
+        await this.menuRepository.delete({ where: { id } });
+
+        return { menu: this.createAdminDto(existingMenu) };
     }
 }

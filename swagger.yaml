@@ -599,7 +599,7 @@ paths:
               type: object
               properties:
                 file:
-                  description: The file must be an image of up to 2 MB with a 1-to-1 aspect ratio.
+                  description: The file must be an image of up to 2 MB
                   type: array
                   items:
                     type: string
@@ -863,6 +863,7 @@ paths:
     post:
       tags:
         - Review
+      security: []
       requestBody:
         content:
           application/json:
@@ -894,6 +895,7 @@ paths:
     get:
       tags:
         - Review
+      security: []
       parameters:
         - $ref: "#/components/parameters/Page"
         - $ref: "#/components/parameters/Limit"

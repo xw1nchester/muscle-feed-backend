@@ -1,9 +1,4 @@
-import { diskStorage } from 'multer';
-import { extname } from 'path';
-import { v4 } from 'uuid';
-
 import {
-    BadRequestException,
     Controller,
     FileTypeValidator,
     MaxFileSizeValidator,
@@ -12,11 +7,9 @@ import {
     UploadedFiles,
     UseInterceptors
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
 import { UploadedFile } from './interfaces';
-import { AspectRatioPipe } from './pipes/aspect-ration.pipe';
 import { SharpPipe } from './pipes/sharp.pipe';
 
 @Controller('upload')
@@ -34,7 +27,6 @@ export class UploadController {
                     })
                 ]
             }),
-            AspectRatioPipe,
             SharpPipe
         )
         files: UploadedFile[]

@@ -1,10 +1,12 @@
-import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
+import { IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 import { Language } from '@prisma/client';
 
+import { IsUrlOrLocal } from '@validators';
+
 export class ReviewRequestDto {
-    @IsString()
-    @IsNotEmpty()
+    @IsOptional()
+    @IsUrlOrLocal()
     picture: string;
 
     @IsString()

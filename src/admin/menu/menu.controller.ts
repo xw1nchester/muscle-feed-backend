@@ -85,7 +85,15 @@ export class MenuController {
     }
 
     @Patch(':id')
-    async update(@Param('id', ParseIntPipe) id: number) {
-        return await this.menuService.getDtoById(id);
+    async update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body(ValidateMenuPipe) dto: MenuRequestDto
+    ) {
+        return await this.menuService.update(id, dto);
+    }
+
+    @Delete(':id')
+    async delete(@Param('id', ParseIntPipe) id: number) {
+        return await this.menuService.delete(id);
     }
 }
