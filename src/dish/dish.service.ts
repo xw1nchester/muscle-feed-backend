@@ -15,18 +15,20 @@ export class DishService {
         private readonly fileService: UploadService
     ) {}
 
+    createTypeDto(dishType: DishType) {
+        return {
+            id: dishType.id,
+            name: {
+                ru: dishType.nameRu,
+                he: dishType.nameHe
+            }
+        };
+    }
+
     async getTypes() {
         const typesData = await this.prismaService.dishType.findMany();
 
-        const dishTypes = typesData.map(type => {
-            return {
-                id: type.id,
-                name: {
-                    ru: type.nameRu,
-                    he: type.nameHe
-                }
-            };
-        });
+        const dishTypes = typesData.map(type => this.createTypeDto(type));
 
         return { dishTypes };
     }
@@ -110,15 +112,15 @@ export class DishService {
         page,
         limit,
         search,
-        isActive
+        isPublished
     }: {
         limit: number;
         page: number;
         search: string;
-        isActive?: boolean;
+        isPublished?: boolean;
     }) {
         const where = {
-            ...(isActive != undefined && { isActive }),
+            ...(isPublished != undefined && { isPublished }),
             ...(search != undefined && {
                 adminName: {
                     contains: search,

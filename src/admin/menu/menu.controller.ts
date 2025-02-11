@@ -1,12 +1,15 @@
 import {
     Body,
     Controller,
+    DefaultValuePipe,
     Delete,
     Get,
     Param,
+    ParseBoolPipe,
     ParseIntPipe,
     Patch,
     Post,
+    Query,
     UseGuards
 } from '@nestjs/common';
 
@@ -57,5 +60,32 @@ export class MenuController {
     @Post()
     async create(@Body(ValidateMenuPipe) dto: MenuRequestDto) {
         return await this.menuService.create(dto);
+    }
+
+    @Get()
+    async find(
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+        @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+        @Query('published', new ParseBoolPipe({ optional: true }))
+        isPublished: boolean,
+        @Query('search')
+        search: string
+    ) {
+        return await this.menuService.find({
+            page,
+            limit,
+            isPublished,
+            search
+        });
+    }
+
+    @Get(':id')
+    async getDtoById(@Param('id', ParseIntPipe) id: number) {
+        return await this.menuService.getDtoById(id);
+    }
+
+    @Patch(':id')
+    async update(@Param('id', ParseIntPipe) id: number) {
+        return await this.menuService.getDtoById(id);
     }
 }
