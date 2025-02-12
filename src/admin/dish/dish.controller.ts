@@ -5,6 +5,7 @@ import {
     Delete,
     Get,
     Param,
+    ParseBoolPipe,
     ParseIntPipe,
     Patch,
     Post,
@@ -36,10 +37,18 @@ export class DishController {
     async find(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+        @Query('published', new ParseBoolPipe({ optional: true })) isPublished,
         @Query('search')
-        search: string
+        search: string,
+        @Query('dish_type_id', new ParseIntPipe({ optional: true })) dishTypeId
     ) {
-        return await this.dishService.find({ page, limit, search });
+        return await this.dishService.find({
+            page,
+            limit,
+            isPublished,
+            search,
+            dishTypeId
+        });
     }
 
     @Get(':id')

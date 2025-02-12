@@ -276,7 +276,7 @@ components:
           type: string
           example: "Стейк с картофелем"
         dishType:
-            $ref: "#/components/schemas/DishTypeResponseDto"
+          $ref: "#/components/schemas/DishTypeResponseDto"
         picture:
           type: string
           example: "http://localhost:8080/static/7fbe6f80-800e-4520-9580-e60e3c93fc20.png"
@@ -319,10 +319,291 @@ components:
         updatedAt:
           type: string
           format: date-time
+    MenuTypeRequestDto:
+      type: object
+      properties:
+        adminName:
+          type: string
+          example: "Программа питания"
+        nameRu:
+          type: string
+          example: "Программа питания"
+        nameHe:
+          type: string
+          example: "תוכנית תזונה"
+        descriptionRu:
+          type: string
+          example: "Рациональное питание для поддержания здорового образа жизни."
+        descriptionHe:
+          type: string
+          example: "תזונה מאוזנת לשמירה על אורח חיים בריא."
+        shortDescriptionRu:
+          type: string
+          example: "Краткое описание программы питания."
+        shortDescriptionHe:
+          type: string
+          example: "תיאור קצר של תוכנית התזונה."
+        initialPriceRu:
+          type: string
+          example: "3500"
+        initialPriceHe:
+          type: string
+          example: "3500"
+        backgroundPicture:
+          type: string
+          example: "http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png"
+        order:
+          type: integer
+        isPublished:
+          type: boolean
+    MenuTypeResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        adminName:
+          type: string
+          example: "Простое решение"
+        backgroundPicture:
+          type: string
+          example: "http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png"
+        order:
+          type: integer
+        isPublished:
+          type: boolean
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Простое решение"
+            he:
+              type: string
+              example: "פתרון פשוט"
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Базовое сбалансированное меню на каждый день."
+            he:
+              type: string
+              example: "תפריט בסיסי ומאוזן לכל יום."
+        shortDescription:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Простое и вкусное меню."
+            he:
+              type: string
+              example: "תפריט פשוט וטעים."
+        initialPrice:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "От 1000 руб."
+            he:
+              type: string
+              example: "מ-1000 רובל"
+        menusCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    MenuTypeResponseShortDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Простое решение"
+            he:
+              type: string
+              example: "פתרון פשוט"
+    MenuRequestDto:
+      type: object
+      properties:
+        menuTypeId:
+          type: integer
+        adminName:
+          type: string
+          example: "Сбалансированное меню"
+        nameRu:
+          type: string
+          example: "Сбалансированное меню"
+        nameHe:
+          type: string
+          example: "תפריט מאוזן"
+        descriptionRu:
+          type: string
+          example: "Сбалансированное меню"
+        descriptionHe:
+          type: string
+          example: "תפריט מאוזן"
+        calories:
+          type: integer
+        order:
+          type: integer
+        cycleStartDate:
+          type: string
+          format: date-time
+        isPublished:
+          type: boolean
+        days:
+          type: array
+          items:
+            type: object
+            properties:
+              number:
+                type: integer
+              dishes:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    dishTypeId:
+                      type: integer
+                    dishId:
+                      type: integer
+                    isPrimary:
+                      type: boolean
+    MenuResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        adminName:
+          type: string
+          example: "Сбалансированное меню"
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        calories:
+          type: integer
+        order:
+          type: integer
+        cycleStartDate:
+          type: string
+          format: date-time
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        menuType:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: object
+              properties:
+                ru:
+                  type: string
+                  example: "Простое решение"
+                he:
+                  type: string
+                  example: "פתרון פשוט"
+            daysCount:
+              type: integer
+    MenuResponseFullDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        adminName:
+          type: string
+          example: "Сбалансированное меню обнова"
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        calories:
+          type: integer
+        order:
+          type: integer
+        cycleStartDate:
+          type: string
+          format: date-time
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        menuType:
+          $ref: "#/components/schemas/MenuTypeResponseShortDto"
+        days:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              number:
+                type: integer
+              dishes:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                    dishType:
+                      $ref: "#/components/schemas/DishTypeResponseDto"
+                    dish:
+                      $ref: "#/components/schemas/DishResponseDto"
+                    isPrimary:
+                      type: boolean
+        daysCount:
+          type: integer
     PaginationBodyFields:
       type: object
       properties:
-        elementsCount:
+        totalCount:
           type: integer
         page:
           type: integer
@@ -366,6 +647,17 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/DishRequestDto"
+    MenuType:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MenuTypeRequestDto"
+    Menu:
+      description: The days should go in the order 1, 2, 3, etc. Within one meal, all dishes must be unique, and there must be exactly one main course.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MenuRequestDto"
   securitySchemes:
     BearerAuth:
       type: http
@@ -912,13 +1204,13 @@ paths:
           content:
             application/json:
               schema:
-                  allOf:
-                    - properties:
-                        reviews: 
-                          type: array
-                          items:
-                            $ref: "#/components/schemas/ReviewResponseDto"
-                    - $ref: "#/components/schemas/PaginationBodyFields"
+                allOf:
+                  - properties:
+                      reviews:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ReviewResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
   /api/admin/review:
     post:
       tags:
@@ -951,13 +1243,13 @@ paths:
           content:
             application/json:
               schema:
-                  allOf:
-                    - properties:
-                        reviews: 
-                          type: array
-                          items:
-                            $ref: "#/components/schemas/ReviewResponseDto"
-                    - $ref: "#/components/schemas/PaginationBodyFields"
+                allOf:
+                  - properties:
+                      reviews:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ReviewResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
   /api/admin/review/{reviewId}:
     get:
       tags:
@@ -1016,24 +1308,24 @@ paths:
                   review:
                     $ref: "#/components/schemas/ReviewResponseDto"
   /api/admin/review/{reviewId}/toggle-publish:
-      patch:
-        tags:
-          - Admin Review
-        parameters:
-          - name: reviewId
-            in: path
-            required: true
-            schema:
-              type: integer
-        responses:
-          "200":
-            description: "Success"
-            content:
-              application/json:
-                schema:
-                  properties:
-                    review:
-                      $ref: "#/components/schemas/ReviewResponseDto"
+    patch:
+      tags:
+        - Admin Review
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
   /api/dish/type:
     get:
       tags:
@@ -1070,25 +1362,35 @@ paths:
       parameters:
         - $ref: "#/components/parameters/Page"
         - $ref: "#/components/parameters/Limit"
+        - name: published
+          in: query
+          required: false
+          schema:
+            type: boolean
         - name: search
           in: query
           required: false
           schema:
             type: string
             example: Цезарь
+        - name: dish_type_id
+          in: query
+          required: false
+          schema:
+            type: number
       responses:
         "200":
           description: "Success"
           content:
             application/json:
               schema:
-                  allOf:
-                    - properties:
-                        dishes: 
-                          type: array
-                          items:
-                            $ref: "#/components/schemas/DishResponseDto"
-                    - $ref: "#/components/schemas/PaginationBodyFields"
+                allOf:
+                  - properties:
+                      dishes:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/DishResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
   /api/admin/dish/{dishId}:
     get:
       tags:
@@ -1106,8 +1408,8 @@ paths:
             application/json:
               schema:
                 properties:
-                    dish: 
-                      $ref: "#/components/schemas/DishResponseDto"
+                  dish:
+                    $ref: "#/components/schemas/DishResponseDto"
     patch:
       tags:
         - Admin Dish
@@ -1126,8 +1428,8 @@ paths:
             application/json:
               schema:
                 properties:
-                    dish: 
-                      $ref: "#/components/schemas/DishResponseDto"
+                  dish:
+                    $ref: "#/components/schemas/DishResponseDto"
     delete:
       tags:
         - Admin Dish
@@ -1144,8 +1446,8 @@ paths:
             application/json:
               schema:
                 properties:
-                    dish: 
-                      $ref: "#/components/schemas/DishResponseDto"
+                  dish:
+                    $ref: "#/components/schemas/DishResponseDto"
   /api/admin/dish/{dishId}/copy:
     post:
       tags:
@@ -1163,5 +1465,235 @@ paths:
             application/json:
               schema:
                 properties:
-                    dish: 
-                      $ref: "#/components/schemas/DishResponseDto"
+                  dish:
+                    $ref: "#/components/schemas/DishResponseDto"
+  /api/admin/menu/type:
+    post:
+      tags:
+        - Admin Menu
+      requestBody:
+        $ref: "#/components/requestBodies/MenuType"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuType:
+                    $ref: "#/components/schemas/MenuTypeResponseDto"
+    get:
+      tags:
+        - Admin Menu
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MenuTypeResponseDto"
+  /api/admin/menu/type/{menuTypeId}:
+    get:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuTypeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuType:
+                    $ref: "#/components/schemas/MenuTypeResponseDto"
+    patch:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuTypeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/MenuType"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuType:
+                    $ref: "#/components/schemas/MenuTypeResponseDto"
+    delete:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuTypeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuType:
+                    $ref: "#/components/schemas/MenuTypeResponseDto"
+  /api/admin/menu:
+    post:
+      tags:
+        - Admin Menu
+      requestBody:
+        $ref: "#/components/requestBodies/Menu"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menu:
+                    $ref: "#/components/schemas/MenuResponseDto"
+    get:
+      tags:
+        - Admin Menu
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: published
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            example: баланс
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      menus:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/MenuResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/menu/{menuId}:
+    get:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menu:
+                    $ref: "#/components/schemas/MenuResponseFullDto"
+    patch:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/Menu"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menu:
+                    $ref: "#/components/schemas/MenuResponseDto"
+    delete:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menu:
+                    $ref: "#/components/schemas/MenuResponseDto"
+  /api/menu/type:
+    get:
+      tags:
+        - Menu
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MenuTypeResponseDto"
+  /api/menu:
+    get:
+      tags:
+        - Menu
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: menu_type_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      menus:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/MenuResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"

@@ -59,7 +59,15 @@ export class MenuService {
     }
 
     createTypeDto(type: MenuType, menusCount: number = 0) {
-        const { id, adminName, backgroundPicture, order, isPublished } = type;
+        const {
+            id,
+            adminName,
+            backgroundPicture,
+            order,
+            isPublished,
+            createdAt,
+            updatedAt
+        } = type;
 
         const localizedFields = extractLocalizedFields(type);
 
@@ -70,8 +78,18 @@ export class MenuService {
             order,
             isPublished,
             ...localizedFields,
-            menusCount
+            menusCount,
+            createdAt,
+            updatedAt
         };
+    }
+
+    createShortTypeDto(type: Partial<MenuType>) {
+        const { id, adminName } = type;
+
+        const localizedFields = extractLocalizedFields(type);
+
+        return { id, adminName, ...localizedFields };
     }
 
     async createType(dto: MenuTypeRequestDto) {
@@ -144,7 +162,7 @@ export class MenuService {
 
     // Menu
     createFullInfoDto(
-        menu: Menu & { menuType: MenuType } & {
+        menu: Menu & { menuType: Partial<MenuType> } & {
             menuDays: (MenuDay & {
                 menuDayDishes: (MenuDayDish & { dishType: DishType } & {
                     dish: Dish & { dishType: DishType };
@@ -155,7 +173,7 @@ export class MenuService {
     ) {
         const localizedFields = extractLocalizedFields(menu);
 
-        const menuType = this.createTypeDto(menu.menuType);
+        const menuType = this.createShortTypeDto(menu.menuType);
 
         const days = menu.menuDays.map(({ id, day, menuDayDishes }) => ({
             id,
@@ -184,9 +202,38 @@ export class MenuService {
         };
     }
 
+    createDto(
+        menu: Menu & { menuType: Partial<MenuType> },
+        daysCount: number = 0
+    ) {
+        const localizedFields = extractLocalizedFields(menu);
+
+        const menuType = this.createShortTypeDto(menu.menuType);
+
+        return {
+            id: menu.id,
+            adminName: menu.adminName,
+            ...localizedFields,
+            calories: menu.calories,
+            order: menu.order,
+            cycleStartDate: menu.cycleStartDate,
+            isPublished: menu.isPublished,
+            createdAt: menu.createdAt,
+            updatedAt: menu.updatedAt,
+            menuType,
+            daysCount
+        };
+    }
+
     private getMenuFullInfoInclude() {
         return {
-            menuType: true,
+            menuType: {
+                select: {
+                    id: true,
+                    nameRu: true,
+                    nameHe: true
+                }
+            },
             menuDays: {
                 include: {
                     menuDayDishes: {
@@ -207,7 +254,13 @@ export class MenuService {
 
     private getMenuBasicInfoInclude() {
         return {
-            menuType: true,
+            menuType: {
+                select: {
+                    id: true,
+                    nameRu: true,
+                    nameHe: true
+                }
+            },
             _count: {
                 select: { menuDays: true }
             }
@@ -281,36 +334,18 @@ export class MenuService {
         return { menu: this.createDto(createdMenu) };
     }
 
-    createDto(menu: Menu & { menuType: MenuType }, daysCount: number = 0) {
-        const localizedFields = extractLocalizedFields(menu);
-
-        const menuType = this.createTypeDto(menu.menuType);
-
-        return {
-            id: menu.id,
-            adminName: menu.adminName,
-            ...localizedFields,
-            calories: menu.calories,
-            order: menu.order,
-            cycleStartDate: menu.cycleStartDate,
-            isPublished: menu.isPublished,
-            createdAt: menu.createdAt,
-            updatedAt: menu.updatedAt,
-            menuType,
-            daysCount
-        };
-    }
-
     async find({
         page,
         limit,
         isPublished,
-        search
+        search,
+        menuTypeId
     }: {
         page: number;
         limit: number;
         isPublished?: boolean;
         search?: string;
+        menuTypeId?: number;
     }) {
         const where = {
             ...(isPublished != undefined && { isPublished }),
@@ -319,7 +354,8 @@ export class MenuService {
                     contains: search,
                     mode: 'insensitive'
                 } as Prisma.StringFilter
-            })
+            }),
+            ...(menuTypeId != undefined && { menuTypeId })
         };
 
         const skip = (page - 1) * limit;
@@ -409,5 +445,21 @@ export class MenuService {
         await this.menuRepository.delete({ where: { id } });
 
         return { menu: this.createDto(existingMenu) };
+    }
+
+    async findPublishedByTypeId(
+        page: number,
+        limit: number,
+        menuTypeId: number
+    ) {
+        const existingType = await this.menuTypeRepository.findFirst({
+            where: { id: menuTypeId, isPublished: true }
+        });
+
+        if (!existingType) {
+            throw new NotFoundException('Тип меню не найден');
+        }
+
+        return await this.find({ page, limit, isPublished: true, menuTypeId });
     }
 }

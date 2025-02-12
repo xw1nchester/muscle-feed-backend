@@ -34,7 +34,7 @@ export class DishService {
     }
 
     async getTypes() {
-        const typesData = await this.prismaService.dishType.findMany();
+        const typesData = await this.dishTypeRepository.findMany();
 
         const dishTypes = typesData.map(type => this.createTypeDto(type));
 
@@ -42,7 +42,7 @@ export class DishService {
     }
 
     async getById(id: number) {
-        const dish = await this.prismaService.dish.findFirst({
+        const dish = await this.dishRepository.findFirst({
             where: { id },
             include: { dishType: true }
         });
@@ -92,7 +92,7 @@ export class DishService {
     }
 
     async create(dto: DishRequestDto) {
-        const existingType = await this.prismaService.dishType.findFirst({
+        const existingType = await this.dishTypeRepository.findFirst({
             where: { id: dto.dishTypeId }
         });
 
@@ -100,7 +100,7 @@ export class DishService {
             throw new NotFoundException('Тип блюда не найден');
         }
 
-        const createdDish = await this.prismaService.dish.create({
+        const createdDish = await this.dishRepository.create({
             data: dto,
             include: { dishType: true }
         });
@@ -118,12 +118,14 @@ export class DishService {
         page,
         limit,
         search,
-        isPublished
+        isPublished,
+        dishTypeId
     }: {
         limit: number;
         page: number;
         search: string;
         isPublished?: boolean;
+        dishTypeId?: number;
     }) {
         const where = {
             ...(isPublished != undefined && { isPublished }),
@@ -132,12 +134,13 @@ export class DishService {
                     contains: search,
                     mode: 'insensitive'
                 } as Prisma.StringFilter
-            })
+            }),
+            ...(dishTypeId != undefined && { dishTypeId })
         };
 
         const skip = (page - 1) * limit;
 
-        const dishesData = await this.prismaService.dish.findMany({
+        const dishesData = await this.dishRepository.findMany({
             where,
             include: { dishType: true },
             orderBy: { createdAt: 'desc' },
@@ -147,7 +150,7 @@ export class DishService {
 
         const dishes = dishesData.map(dish => this.createDto(dish));
 
-        const totalCount = await this.prismaService.dish.aggregate({
+        const totalCount = await this.dishRepository.aggregate({
             _count: { id: true },
             where
         });
@@ -161,17 +164,24 @@ export class DishService {
         );
     }
 
-    async update(id: number, dto: DishRequestDto) {
-        const existingDish = await this.getById(id);
+    private async getDishesCountByPicture(picture: string) {
+        return await this.dishRepository.count({ where: { picture } });
+    }
 
-        const updatedDish = await this.prismaService.dish.update({
+    async update(id: number, dto: DishRequestDto) {
+        const { picture } = await this.getById(id);
+
+        const updatedDish = await this.dishRepository.update({
             where: { id },
             data: dto,
             include: { dishType: true }
         });
 
-        if (existingDish.picture != dto.picture) {
-            this.fileService.delete(existingDish.picture);
+        const dishesWithPictureCount =
+            await this.getDishesCountByPicture(picture);
+
+        if (picture != dto.picture && dishesWithPictureCount == 0) {
+            this.fileService.delete(picture);
         }
 
         return { dish: this.createDto(updatedDish) };
@@ -180,17 +190,23 @@ export class DishService {
     async delete(id: number) {
         const existingDish = await this.getById(id);
 
-        await this.prismaService.dish.delete({
+        await this.dishRepository.delete({
             where: { id }
         });
 
-        this.fileService.delete(existingDish.picture);
+        const dishesWithPictureCount = await this.getDishesCountByPicture(
+            existingDish.picture
+        );
+
+        if (dishesWithPictureCount == 0) {
+            this.fileService.delete(existingDish.picture);
+        }
 
         return { dish: this.createDto(existingDish) };
     }
 
     async validateDishTypeIds(dishTypeIds: number[]) {
-        const dishTypesCount = await this.prismaService.dishType.count({
+        const dishTypesCount = await this.dishTypeRepository.count({
             where: { id: { in: dishTypeIds } }
         });
 
@@ -200,7 +216,7 @@ export class DishService {
     }
 
     async validateDishesIds(dishIds: number[]) {
-        const dishesCount = await this.prismaService.dish.count({
+        const dishesCount = await this.dishRepository.count({
             where: { id: { in: dishIds } }
         });
 
