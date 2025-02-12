@@ -19,6 +19,7 @@ import { RoleGuard } from '@auth/guards/role.guard';
 import { DishService } from '@dish/dish.service';
 
 import { DishRequestDto } from './dto/dish-request.dto';
+import { DishPipe } from './pipes/dish.pipe';
 
 @UseGuards(RoleGuard)
 @Role(RoleEnum.ADMIN)
@@ -27,7 +28,7 @@ export class DishController {
     constructor(private readonly dishService: DishService) {}
 
     @Post()
-    async create(@Body() dto: DishRequestDto) {
+    async create(@Body(DishPipe) dto: DishRequestDto) {
         return await this.dishService.create(dto);
     }
 
@@ -49,7 +50,7 @@ export class DishController {
     @Patch(':id')
     async update(
         @Param('id', ParseIntPipe) id: number,
-        @Body() dto: DishRequestDto
+        @Body(DishPipe) dto: DishRequestDto
     ) {
         return await this.dishService.update(id, dto);
     }
@@ -57,5 +58,10 @@ export class DishController {
     @Delete(':id')
     async delete(@Param('id', ParseIntPipe) id: number) {
         return await this.dishService.delete(id);
+    }
+
+    @Post(':id/copy')
+    async copy(@Param('id', ParseIntPipe) id: number) {
+        return await this.dishService.copy(id);
     }
 }

@@ -15,6 +15,14 @@ export class DishService {
         private readonly fileService: UploadService
     ) {}
 
+    private get dishTypeRepository() {
+        return this.prismaService.dishType;
+    }
+
+    private get dishRepository() {
+        return this.prismaService.dish;
+    }
+
     createTypeDto(dishType: DishType) {
         return {
             id: dishType.id,
@@ -58,7 +66,9 @@ export class DishService {
             fats,
             carbohydrates,
             isPublished,
-            benefit
+            benefit,
+            createdAt,
+            updatedAt
         } = dish;
 
         const localizedFields = extractLocalizedFields(dish);
@@ -66,13 +76,7 @@ export class DishService {
         return {
             id,
             adminName,
-            dishType: {
-                id: dishType.id,
-                name: {
-                    ru: dishType.nameRu,
-                    he: dishType.nameHe
-                }
-            },
+            dishType: this.createTypeDto(dishType),
             picture,
             calories,
             weight,
@@ -81,7 +85,9 @@ export class DishService {
             carbohydrates,
             isPublished,
             ...localizedFields,
-            benefit
+            benefit,
+            createdAt,
+            updatedAt
         };
     }
 
@@ -201,5 +207,27 @@ export class DishService {
         if (dishesCount != new Set(dishIds).size) {
             throw new NotFoundException('Блюдо не найдено');
         }
+    }
+
+    async copy(id: number) {
+        /* eslint-disable @typescript-eslint/no-unused-vars */
+        const {
+            id: existingDishId,
+            dishType,
+            isPublished,
+            createdAt,
+            updatedAt,
+            ...rest
+        } = await this.getById(id);
+        /* eslint-enable @typescript-eslint/no-unused-vars */
+
+        const createdDish = await this.dishRepository.create({
+            data: rest,
+            include: {
+                dishType: true
+            }
+        });
+
+        return { dish: this.createDto(createdDish) };
     }
 }

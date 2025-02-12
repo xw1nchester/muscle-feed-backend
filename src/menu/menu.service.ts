@@ -143,7 +143,7 @@ export class MenuService {
     }
 
     // Menu
-    createAdminFullDto(
+    createFullInfoDto(
         menu: Menu & { menuType: MenuType } & {
             menuDays: (MenuDay & {
                 menuDayDishes: (MenuDayDish & { dishType: DishType } & {
@@ -278,10 +278,10 @@ export class MenuService {
             include: this.getMenuBasicInfoInclude()
         });
 
-        return { menu: this.createAdminDto(createdMenu) };
+        return { menu: this.createDto(createdMenu) };
     }
 
-    createAdminDto(menu: Menu & { menuType: MenuType }, daysCount: number = 0) {
+    createDto(menu: Menu & { menuType: MenuType }, daysCount: number = 0) {
         const localizedFields = extractLocalizedFields(menu);
 
         const menuType = this.createTypeDto(menu.menuType);
@@ -333,7 +333,7 @@ export class MenuService {
         });
 
         const menus = menusData.map(menu =>
-            this.createAdminDto(menu, menu._count.menuDays)
+            this.createDto(menu, menu._count.menuDays)
         );
 
         const totalCount = await this.menuRepository.aggregate({
@@ -354,7 +354,7 @@ export class MenuService {
         const existingMenu = await this.getById(id);
 
         return {
-            menu: this.createAdminFullDto(
+            menu: this.createFullInfoDto(
                 existingMenu,
                 existingMenu._count.menuDays
             )
@@ -365,8 +365,6 @@ export class MenuService {
         await this.getById(id);
 
         await this.validateMenuDto(dto);
-
-        // await this.menuDayRepository.deleteMany({ where: { menuId: id } });
 
         const updatedMenu = await this.menuRepository.update({
             where: { id },
@@ -400,14 +398,16 @@ export class MenuService {
             include: this.getMenuBasicInfoInclude()
         });
 
-        return { menu: this.createAdminDto(updatedMenu) };
+        return { menu: this.createDto(updatedMenu) };
     }
 
     async delete(id: number) {
         const existingMenu = await this.getById(id);
 
+        // TODO: проверить чтобы не было заказов с этим меню
+
         await this.menuRepository.delete({ where: { id } });
 
-        return { menu: this.createAdminDto(existingMenu) };
+        return { menu: this.createDto(existingMenu) };
     }
 }

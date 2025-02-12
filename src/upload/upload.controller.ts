@@ -9,9 +9,12 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 
+import { Public } from '@auth/decorators';
+
 import { UploadedFile } from './interfaces';
 import { SharpPipe } from './pipes/sharp.pipe';
 
+@Public()
 @Controller('upload')
 export class UploadController {
     @UseInterceptors(FilesInterceptor('file'))

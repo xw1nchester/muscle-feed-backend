@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import {
     IsBoolean,
     IsNotEmpty,
@@ -36,18 +37,23 @@ export class DishRequestDto {
     @IsNotEmpty()
     descriptionHe: string;
 
+    @Transform(({ value }) => Number(value))
     @IsNumber()
     calories: number;
 
+    @Transform(({ value }) => Number(value))
     @IsNumber()
     weight: number;
 
+    @Transform(({ value }) => Number(value))
     @IsNumber()
     proteins: number;
 
+    @Transform(({ value }) => Number(value))
     @IsNumber()
     fats: number;
 
+    @Transform(({ value }) => Number(value))
     @IsNumber()
     carbohydrates: number;
 

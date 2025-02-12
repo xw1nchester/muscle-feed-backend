@@ -290,7 +290,7 @@ components:
           type: number
         carbohydrates:
           type: number
-        isActive:
+        isPublished:
           type: boolean
         name:
           type: object
@@ -313,6 +313,12 @@ components:
         benefit:
           type: string
           example: "Польза"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     PaginationBodyFields:
       type: object
       properties:
@@ -326,7 +332,7 @@ components:
           type: boolean
   parameters:
     Page:
-      name: offset
+      name: page
       in: query
       required: false
       schema:
@@ -592,6 +598,7 @@ paths:
     post:
       tags:
         - File
+      security: []
       requestBody:
         content:
           multipart/form-data:
@@ -1055,7 +1062,7 @@ paths:
             application/json:
               schema:
                 properties:
-                  review:
+                  dish:
                     $ref: "#/components/schemas/DishResponseDto"
     get:
       tags:
@@ -1122,6 +1129,25 @@ paths:
                     dish: 
                       $ref: "#/components/schemas/DishResponseDto"
     delete:
+      tags:
+        - Admin Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                    dish: 
+                      $ref: "#/components/schemas/DishResponseDto"
+  /api/admin/dish/{dishId}/copy:
+    post:
       tags:
         - Admin Dish
       parameters:
