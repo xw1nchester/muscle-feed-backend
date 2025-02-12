@@ -22,6 +22,7 @@ export class DishRequestDto {
     @IsNotEmpty()
     nameHe: string;
 
+    @Transform(({ value }) => Number(value))
     @IsNumber()
     dishTypeId: number;
 
