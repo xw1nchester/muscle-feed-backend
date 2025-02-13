@@ -12,7 +12,7 @@ import { extractLocalizedFields } from '@utils';
 export class DishService {
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly fileService: UploadService
+        private readonly uploadService: UploadService
     ) {}
 
     private get dishTypeRepository() {
@@ -181,7 +181,7 @@ export class DishService {
             await this.getDishesCountByPicture(picture);
 
         if (picture != dto.picture && dishesWithPictureCount == 0) {
-            this.fileService.delete(picture);
+            this.uploadService.delete(picture);
         }
 
         return { dish: this.createDto(updatedDish) };
@@ -199,7 +199,7 @@ export class DishService {
         );
 
         if (dishesWithPictureCount == 0) {
-            this.fileService.delete(existingDish.picture);
+            this.uploadService.delete(existingDish.picture);
         }
 
         return { dish: this.createDto(existingDish) };

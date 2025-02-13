@@ -12,6 +12,7 @@ import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
 import { CodeModule } from './code/code.module';
 import { DishModule } from './dish/dish.module';
+import { FaqModule } from './faq/faq.module';
 import { LoggerMiddleware } from './logger.midleware';
 import { MailModule } from './mail/mail.module';
 import { MenuModule } from './menu/menu.module';
@@ -38,7 +39,8 @@ import { UserModule } from './user/user.module';
         DishModule,
         UploadModule,
         ReviewModule,
-        MenuModule
+        MenuModule,
+        FaqModule
     ],
     controllers: [AppController],
     providers: [

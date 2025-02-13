@@ -11,7 +11,7 @@ import { extractLocalizedFields } from '@utils';
 export class TeamService {
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly fileService: UploadService
+        private readonly uploadService: UploadService
     ) {}
 
     createDto(team: Team) {
@@ -63,7 +63,7 @@ export class TeamService {
         });
 
         if (existingTeam.picture != dto.picture) {
-            this.fileService.delete(existingTeam.picture);
+            this.uploadService.delete(existingTeam.picture);
         }
 
         return { employee: this.createDto(updatedTeam) };
@@ -74,7 +74,7 @@ export class TeamService {
 
         await this.prismaService.team.delete({ where: { id } });
 
-        this.fileService.delete(existingTeam.picture);
+        this.uploadService.delete(existingTeam.picture);
 
         return { employee: this.createDto(existingTeam) };
     }

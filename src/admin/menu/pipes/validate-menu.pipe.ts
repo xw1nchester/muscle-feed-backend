@@ -9,6 +9,11 @@ export class ValidateMenuPipe implements PipeTransform {
 
         // const dishTypeIds = this.getUniqueDishTypeIds(dto.days[0].dishes);
 
+        dto.days = dto.days.map(day => ({
+            ...day,
+            number: Number(day.number)
+        }));
+
         for (const day of dto.days) {
             this.validateDayOrder(day.number, expectedDayNumber);
 

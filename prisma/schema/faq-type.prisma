@@ -1,0 +1,11 @@
+model FaqCategory {
+    id        Int      @id @default(autoincrement())
+    picture   String
+    nameRu    String   @map("name_ru")
+    nameHe    String   @map("name_he")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    faq       Faq[]
+
+    @@map("faq_categories")
+}

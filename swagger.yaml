@@ -600,6 +600,91 @@ components:
                       type: boolean
         daysCount:
           type: integer
+    FaqCategoryRequestDto:
+      type: object
+      properties:
+        picture:
+          type: string
+          example: "http://localhost:8080/static/bcdc9636-1696-4455-af0b-9c43310d9805.jpeg"
+        nameRu:
+          type: string
+          example: "Оплата"
+        nameHe:
+          type: string
+          example: "משלוח"
+    FaqCategoryResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        picture:
+          type: string
+          example: "http://localhost:8080/static/bcdc9636-1696-4455-af0b-9c43310d9805.jpeg"
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Оплата"
+            he:
+              type: string
+              example: "משלוח"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        faqCount:
+          type: integer
+    FaqRequestDto:
+      type: object
+      properties:
+        faqCategoryId:
+          type: integer
+        questionRu:
+          type: string
+          example: "Какие способы оплаты доступны?"
+        questionHe:
+          type: string
+          example: "אילו אמצעי תשלום זמינים?"
+        answerRu:
+          type: string
+          example: "Вы можете оплатить заказ картой, через Apple Pay, Google Pay или наличными курьеру."
+        answerHe:
+          type: string
+          example: "ניתן לשלם עבור ההזמנה בכרטיס אשראי, Apple Pay, Google Pay או במזומן לשליח."
+    FaqResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        question:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Какие способы оплаты доступны?"
+            he:
+              type: string
+              example: "אילו אמצעי תשלום זמינים?"
+        answer:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Вы можете оплатить заказ картой, через Apple Pay, Google Pay или наличными курьеру."
+            he:
+              type: string
+              example: "ניתן לשלם עבור ההזמנה בכרטיס אשראי, Apple Pay, Google Pay או במזומן לשליח."
+        faqCategory:
+          $ref: "#/components/schemas/FaqCategoryResponseDto"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     PaginationBodyFields:
       type: object
       properties:
@@ -658,6 +743,16 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/MenuRequestDto"
+    FaqCategory:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FaqCategoryRequestDto"
+    Faq:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FaqRequestDto"
   securitySchemes:
     BearerAuth:
       type: http
@@ -1697,3 +1792,185 @@ paths:
                         items:
                           $ref: "#/components/schemas/MenuResponseDto"
                   - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/faq/category:
+    post:
+      tags:
+        - Admin Faq
+      requestBody:
+        $ref: "#/components/requestBodies/FaqCategory"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faqCategory:
+                    $ref: "#/components/schemas/FaqCategoryResponseDto"
+  /api/admin/faq/category/{categoryId}:
+    get:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faqCategory:
+                    $ref: "#/components/schemas/FaqCategoryResponseDto"
+    patch:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/FaqCategory"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faqCategory:
+                    $ref: "#/components/schemas/FaqCategoryResponseDto"
+    delete:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faqCategory:
+                    $ref: "#/components/schemas/FaqCategoryResponseDto"
+  /api/admin/faq:
+    post:
+      tags:
+        - Admin Faq
+      requestBody:
+        $ref: "#/components/requestBodies/Faq"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faq:
+                    $ref: "#/components/schemas/FaqResponseDto"
+  /api/admin/faq/{faqId}:
+    get:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: faqId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faq:
+                    $ref: "#/components/schemas/FaqResponseDto"
+    patch:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: faqId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/Faq"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faq:
+                    $ref: "#/components/schemas/FaqResponseDto"
+    delete:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: faqId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faq:
+                    $ref: "#/components/schemas/FaqResponseDto"
+  /api/faq/category:
+    get:
+      tags:
+        - Faq
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faqCategories:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FaqCategoryResponseDto"
+  /api/faq:
+    get:
+      tags:
+        - Faq
+      security: []
+      parameters:
+        - name: faq_category_id
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faq:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FaqResponseDto"

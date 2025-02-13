@@ -47,7 +47,9 @@
             "@review": ["src/review"],
             "@review/*": ["src/review/*"],
             "@menu": ["src/menu"],
-            "@menu/*": ["src/menu/*"]
+            "@menu/*": ["src/menu/*"],
+            "@faq": ["src/faq"],
+            "@faq/*": ["src/faq/*"]
         }
     }
 }
