@@ -179,6 +179,8 @@ export class FaqService {
     async update(id: number, dto: FaqRequestDto) {
         await this.getById(id);
 
+        dto.faqCategoryId = Number(dto.faqCategoryId);
+
         const updatedFaq = await this.faqRepository.update({
             where: { id },
             data: dto,

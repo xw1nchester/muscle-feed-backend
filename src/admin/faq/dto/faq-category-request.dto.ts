@@ -1,9 +1,7 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
-import { IsUrlOrLocal } from '@validators';
-
 export class FaqCategoryRequestDto {
-    @IsUrlOrLocal()
+    @IsString()
     @IsNotEmpty()
     picture: string;
 
