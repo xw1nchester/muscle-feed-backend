@@ -31,6 +31,7 @@ export class MenuController {
 
     @Post('type')
     async createType(@Body() dto: MenuTypeRequestDto) {
+        console.log({ dto });
         return await this.menuService.createType(dto);
     }
 

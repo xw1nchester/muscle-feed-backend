@@ -30,14 +30,17 @@ export class ReviewService {
     }
 
     createDto(review: Review) {
-        const { id, picture } = review;
+        const { id, picture, isPublished, createdAt, updatedAt } = review;
 
         const localizedFields = extractLocalizedFields(review);
 
         return {
             id,
             picture,
-            ...localizedFields
+            ...localizedFields,
+            isPublished,
+            createdAt,
+            updatedAt
         };
     }
 
@@ -69,7 +72,7 @@ export class ReviewService {
         limit: number;
         isPublished: boolean;
     }) {
-        const where = { isPublished };
+        const where = { ...(isPublished != undefined && { isPublished }) };
 
         const skip = (page - 1) * limit;
 

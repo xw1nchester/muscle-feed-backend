@@ -31,7 +31,8 @@ export class ReviewController {
     async find(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
-        @Query('published', ParseBoolPipe) isPublished: boolean
+        @Query('published', new ParseBoolPipe({ optional: true }))
+        isPublished: boolean
     ) {
         return await this.reviewService.find({
             page,

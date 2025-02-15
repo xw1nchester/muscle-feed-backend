@@ -195,6 +195,14 @@ components:
             he:
               type: string
               example: ביקורת נהדרת!
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     AdminReviewRequestDto:
       type: object
       properties:
@@ -1329,7 +1337,7 @@ paths:
         - $ref: "#/components/parameters/Limit"
         - name: published
           in: query
-          required: true
+          required: false
           schema:
             type: boolean
       responses:
