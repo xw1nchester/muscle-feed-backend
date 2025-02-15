@@ -93,6 +93,8 @@ export class MenuService {
     }
 
     async createType(dto: MenuTypeRequestDto) {
+        dto.order = Number(dto.order);
+
         const createdType = await this.menuTypeRepository.create({
             data: dto
         });
@@ -128,6 +130,8 @@ export class MenuService {
 
     async updateType(id: number, dto: MenuTypeRequestDto) {
         await this.getTypeById(id);
+
+        dto.order = Number(dto.order);
 
         const updatedType = await this.menuTypeRepository.update({
             where: { id },

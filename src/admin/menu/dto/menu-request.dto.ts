@@ -66,6 +66,7 @@ export class MenuRequestDto {
     @IsNumber()
     calories: number;
 
+    @Transform(({ value }) => Number(value))
     @IsNumber()
     order: number;
 
