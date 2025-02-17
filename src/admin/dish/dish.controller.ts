@@ -20,7 +20,6 @@ import { RoleGuard } from '@auth/guards/role.guard';
 import { DishService } from '@dish/dish.service';
 
 import { DishRequestDto } from './dto/dish-request.dto';
-import { DishPipe } from './pipes/dish.pipe';
 
 @UseGuards(RoleGuard)
 @Role(RoleEnum.ADMIN)
@@ -29,7 +28,7 @@ export class DishController {
     constructor(private readonly dishService: DishService) {}
 
     @Post()
-    async create(@Body(DishPipe) dto: DishRequestDto) {
+    async create(@Body() dto: DishRequestDto) {
         return await this.dishService.create(dto);
     }
 
@@ -40,7 +39,12 @@ export class DishController {
         @Query('published', new ParseBoolPipe({ optional: true })) isPublished,
         @Query('search')
         search: string,
-        @Query('dish_type_id', new ParseIntPipe({ optional: true })) dishTypeId
+        @Query(
+            'dish_type_id',
+            new DefaultValuePipe(undefined),
+            new ParseIntPipe({ optional: true })
+        )
+        dishTypeId: number
     ) {
         return await this.dishService.find({
             page,
@@ -59,7 +63,7 @@ export class DishController {
     @Patch(':id')
     async update(
         @Param('id', ParseIntPipe) id: number,
-        @Body(DishPipe) dto: DishRequestDto
+        @Body() dto: DishRequestDto
     ) {
         return await this.dishService.update(id, dto);
     }

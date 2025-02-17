@@ -4,15 +4,7 @@ import {
     NotFoundException
 } from '@nestjs/common';
 
-import {
-    Dish,
-    DishType,
-    Menu,
-    MenuDay,
-    MenuDayDish,
-    MenuType,
-    Prisma
-} from '@prisma/client';
+import { Menu, MenuType, Prisma } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { MenuRequestDto } from '@admin/menu/dto/menu-request.dto';
@@ -93,8 +85,6 @@ export class MenuService {
     }
 
     async createType(dto: MenuTypeRequestDto) {
-        dto.order = Number(dto.order);
-
         const createdType = await this.menuTypeRepository.create({
             data: dto
         });
@@ -131,8 +121,6 @@ export class MenuService {
     async updateType(id: number, dto: MenuTypeRequestDto) {
         await this.getTypeById(id);
 
-        dto.order = Number(dto.order);
-
         const updatedType = await this.menuTypeRepository.update({
             where: { id },
             data: dto,
@@ -165,47 +153,6 @@ export class MenuService {
     }
 
     // Menu
-    createFullInfoDto(
-        menu: Menu & { menuType: Partial<MenuType> } & {
-            menuDays: (MenuDay & {
-                menuDayDishes: (MenuDayDish & { dishType: DishType } & {
-                    dish: Dish & { dishType: DishType };
-                })[];
-            })[];
-        },
-        daysCount: number = 0
-    ) {
-        const localizedFields = extractLocalizedFields(menu);
-
-        const menuType = this.createShortTypeDto(menu.menuType);
-
-        const days = menu.menuDays.map(({ id, day, menuDayDishes }) => ({
-            id,
-            number: day,
-            dishes: menuDayDishes.map(({ id, dishType, dish, isPrimary }) => ({
-                id,
-                dishType: this.dishService.createTypeDto(dishType),
-                dish: this.dishService.createDto(dish),
-                isPrimary
-            }))
-        }));
-
-        return {
-            id: menu.id,
-            adminName: menu.adminName,
-            ...localizedFields,
-            calories: menu.calories,
-            order: menu.order,
-            cycleStartDate: menu.cycleStartDate,
-            isPublished: menu.isPublished,
-            createdAt: menu.createdAt,
-            updatedAt: menu.updatedAt,
-            menuType,
-            days,
-            daysCount
-        };
-    }
-
     createDto(
         menu: Menu & { menuType: Partial<MenuType> },
         daysCount: number = 0
@@ -229,34 +176,7 @@ export class MenuService {
         };
     }
 
-    private getMenuFullInfoInclude() {
-        return {
-            menuType: {
-                select: {
-                    id: true,
-                    nameRu: true,
-                    nameHe: true
-                }
-            },
-            menuDays: {
-                include: {
-                    menuDayDishes: {
-                        include: {
-                            dishType: true,
-                            dish: {
-                                include: { dishType: true }
-                            }
-                        }
-                    }
-                }
-            },
-            _count: {
-                select: { menuDays: true }
-            }
-        };
-    }
-
-    private getMenuBasicInfoInclude() {
+    private getMenuInclude() {
         return {
             menuType: {
                 select: {
@@ -274,7 +194,7 @@ export class MenuService {
     async getById(id: number) {
         const menu = await this.menuRepository.findFirst({
             where: { id },
-            include: this.getMenuFullInfoInclude()
+            include: this.getMenuInclude()
         });
 
         if (!menu) {
@@ -330,9 +250,12 @@ export class MenuService {
                             )
                         }
                     }))
+                },
+                menuPrices: {
+                    create: dto.prices.map(price => price)
                 }
             },
-            include: this.getMenuBasicInfoInclude()
+            include: this.getMenuInclude()
         });
 
         return { menu: this.createDto(createdMenu) };
@@ -366,7 +289,7 @@ export class MenuService {
 
         const menusData = await this.menuRepository.findMany({
             where,
-            include: this.getMenuBasicInfoInclude(),
+            include: this.getMenuInclude(),
             orderBy: { order: 'asc' },
             take: limit,
             skip
@@ -390,14 +313,63 @@ export class MenuService {
         );
     }
 
-    async getDtoById(id: number) {
-        const existingMenu = await this.getById(id);
+    async getAdminDtoById(id: number) {
+        const existingMenu = await this.menuRepository.findFirst({
+            where: { id },
+            include: {
+                menuType: {
+                    select: {
+                        id: true,
+                        nameRu: true,
+                        nameHe: true
+                    }
+                },
+                menuDays: {
+                    select: {
+                        day: true,
+                        menuDayDishes: {
+                            select: {
+                                dishTypeId: true,
+                                dishId: true,
+                                isPrimary: true
+                            }
+                        }
+                    }
+                },
+                menuPrices: {
+                    select: {
+                        daysCount: true,
+                        totalPriceRu: true,
+                        totalPriceHe: true,
+                        pricePerDayRu: true,
+                        pricePerDayHe: true
+                    }
+                }
+            }
+        });
+
+        const localizedFields = extractLocalizedFields(existingMenu);
+
+        const days = existingMenu.menuDays.map(({ day, menuDayDishes }) => ({
+            number: day,
+            dishes: menuDayDishes
+        }));
 
         return {
-            menu: this.createFullInfoDto(
-                existingMenu,
-                existingMenu._count.menuDays
-            )
+            menu: {
+                id: existingMenu.id,
+                adminName: existingMenu.adminName,
+                ...localizedFields,
+                calories: existingMenu.calories,
+                order: existingMenu.order,
+                cycleStartDate: existingMenu.cycleStartDate,
+                isPublished: existingMenu.isPublished,
+                createdAt: existingMenu.createdAt,
+                updatedAt: existingMenu.updatedAt,
+                menuTypeId: existingMenu.menuTypeId,
+                days,
+                prices: existingMenu.menuPrices
+            }
         };
     }
 
@@ -433,9 +405,13 @@ export class MenuService {
                             )
                         }
                     }))
+                },
+                menuPrices: {
+                    deleteMany: {},
+                    create: dto.prices.map(price => price)
                 }
             },
-            include: this.getMenuBasicInfoInclude()
+            include: this.getMenuInclude()
         });
 
         return { menu: this.createDto(updatedMenu) };

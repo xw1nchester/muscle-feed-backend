@@ -9,28 +9,20 @@ export class ValidateMenuPipe implements PipeTransform {
 
         // const dishTypeIds = this.getUniqueDishTypeIds(dto.days[0].dishes);
 
-        dto.menuTypeId = Number(dto.menuTypeId);
-        dto.calories = Number(dto.calories);
-        dto.order = Number(dto.order);
-
-        dto.days = dto.days.map(day => ({
-            ...day,
-            number: Number(day.number)
-        }));
-
         for (const day of dto.days) {
             this.validateDayOrder(day.number, expectedDayNumber);
 
             expectedDayNumber++;
 
-            day.dishes = day.dishes.map(dish => ({
-                ...dish,
-                dishId: Number(dish.dishId),
-                dishTypeId: Number(dish.dishTypeId)
-            }));
-
             // this.validateDishTypesStructure(day.dishes, dishTypeIds);
             this.validateDishes(day.dishes);
+        }
+
+        expectedDayNumber = 1;
+
+        for (const price of dto.prices) {
+            this.validateDayPriceOrder(price.daysCount, expectedDayNumber);
+            expectedDayNumber++;
         }
 
         return dto;
@@ -43,6 +35,17 @@ export class ValidateMenuPipe implements PipeTransform {
     private validateDayOrder(dayNumber: number, expectedDayNumber: number) {
         if (dayNumber !== expectedDayNumber) {
             throw new BadRequestException('Дни идут в неправильном порядке');
+        }
+    }
+
+    private validateDayPriceOrder(
+        dayNumber: number,
+        expectedDayNumber: number
+    ) {
+        if (dayNumber < expectedDayNumber) {
+            throw new BadRequestException(
+                'Дни в ценах идут в неправильном порядке'
+            );
         }
     }
 

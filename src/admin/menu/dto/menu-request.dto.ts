@@ -37,6 +37,29 @@ class MenuDayDto {
     dishes: MenuDayDishDto[];
 }
 
+class MenuPriceDto {
+    @Transform(({ value }) => Number(value))
+    @IsNumber()
+    @Min(1)
+    daysCount: number;
+
+    @IsString()
+    @IsNotEmpty()
+    totalPriceRu: string;
+
+    @IsString()
+    @IsNotEmpty()
+    totalPriceHe: string;
+
+    @IsString()
+    @IsNotEmpty()
+    pricePerDayRu: string;
+
+    @IsString()
+    @IsNotEmpty()
+    pricePerDayHe: string;
+}
+
 export class MenuRequestDto {
     @Transform(({ value }) => Number(value))
     @IsNumber()
@@ -81,4 +104,10 @@ export class MenuRequestDto {
     @ValidateNested({ each: true })
     @Type(() => MenuDayDto)
     days: MenuDayDto[];
+
+    @IsArray()
+    @ArrayMinSize(1)
+    @ValidateNested({ each: true })
+    @Type(() => MenuPriceDto)
+    prices: MenuPriceDto[];
 }

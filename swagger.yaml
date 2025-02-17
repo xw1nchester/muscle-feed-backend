@@ -142,9 +142,9 @@ components:
           type: string
           example: 33/1
         floor:
-          type: number
+          type: integer
         apartment:
-          type: number
+          type: integer
       required:
         - city
         - street
@@ -153,7 +153,7 @@ components:
       type: object
       properties:
         id:
-          type: number
+          type: integer
         city:
           type: string
           example: Новосибирск
@@ -164,16 +164,16 @@ components:
           type: string
           example: 33/1
         floor:
-          type: number
+          type: integer
         apartment:
-          type: number
+          type: integer
         isPrimary:
           type: boolean
     ReviewResponseDto:
       type: object
       properties:
         id:
-          type: number
+          type: integer
         picture:
           type: string
           example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
@@ -251,11 +251,11 @@ components:
         weight:
           type: integer
         proteins:
-          type: number
+          type: integer
         fats:
-          type: number
+          type: integer
         carbohydrates:
-          type: number
+          type: integer
         isPublished:
           type: boolean
         benefit:
@@ -293,11 +293,11 @@ components:
         weight:
           type: integer
         proteins:
-          type: number
+          type: integer
         fats:
-          type: number
+          type: integer
         carbohydrates:
-          type: number
+          type: integer
         isPublished:
           type: boolean
         name:
@@ -437,6 +437,43 @@ components:
             he:
               type: string
               example: "פתרון פשוט"
+    MenuDayRequestDto:
+      type: object
+      properties:
+        number:
+          type: integer
+        dishes:
+          type: array
+          items:
+            type: object
+            properties:
+              dishTypeId:
+                type: integer
+              dishId:
+                type: integer
+              isPrimary:
+                type: boolean
+    MenuPriceRequestDto:
+      type: object
+      properties:
+        daysCount:
+          type: integer
+        totalPriceRu:
+          type: string
+          example: "620 ₪ за заказ"
+          description: "Общая стоимость заказа"
+        totalPriceHe:
+          type: string
+          example: "620 ₪ להזמנה"
+          description: "המחיר הכולל להזמנה"
+        pricePerDayRu:
+          type: string
+          example: "104 ₪ всего за день"
+          description: "Стоимость за день"
+        pricePerDayHe:
+          type: string
+          example: "104 ₪ ליום"
+          description: "המחיר ליום"
     MenuRequestDto:
       type: object
       properties:
@@ -469,21 +506,11 @@ components:
         days:
           type: array
           items:
-            type: object
-            properties:
-              number:
-                type: integer
-              dishes:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    dishTypeId:
-                      type: integer
-                    dishId:
-                      type: integer
-                    isPrimary:
-                      type: boolean
+            $ref: "#/components/schemas/MenuDayRequestDto"
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/MenuPriceRequestDto"
     MenuResponseDto:
       type: object
       properties:
@@ -541,14 +568,14 @@ components:
                   example: "פתרון פשוט"
             daysCount:
               type: integer
-    MenuResponseFullDto:
+    MenuResponseAdminDto:
       type: object
       properties:
         id:
           type: integer
         adminName:
           type: string
-          example: "Сбалансированное меню обнова"
+          example: "Сбалансированное меню"
         name:
           type: object
           properties:
@@ -582,32 +609,16 @@ components:
         updatedAt:
           type: string
           format: date-time
-        menuType:
-          $ref: "#/components/schemas/MenuTypeResponseShortDto"
+        menuTypeId:
+          type: integer
         days:
           type: array
           items:
-            type: object
-            properties:
-              id:
-                type: integer
-              number:
-                type: integer
-              dishes:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    id:
-                      type: integer
-                    dishType:
-                      $ref: "#/components/schemas/DishTypeResponseDto"
-                    dish:
-                      $ref: "#/components/schemas/DishResponseDto"
-                    isPrimary:
-                      type: boolean
-        daysCount:
-          type: integer
+            $ref: "#/components/schemas/MenuDayRequestDto"
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/MenuPriceRequestDto"
     FaqCategoryRequestDto:
       type: object
       properties:
@@ -1480,7 +1491,7 @@ paths:
           in: query
           required: false
           schema:
-            type: number
+            type: integer
       responses:
         "200":
           description: "Success"
@@ -1719,7 +1730,7 @@ paths:
               schema:
                 properties:
                   menu:
-                    $ref: "#/components/schemas/MenuResponseFullDto"
+                    $ref: "#/components/schemas/MenuResponseAdminDto"
     patch:
       tags:
         - Admin Menu

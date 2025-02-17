@@ -144,8 +144,6 @@ export class FaqService {
     }
 
     async create(dto: FaqRequestDto) {
-        dto.faqCategoryId = Number(dto.faqCategoryId);
-
         await this.getCategoryById(dto.faqCategoryId);
 
         const createdFaq = await this.faqRepository.create({
@@ -178,8 +176,6 @@ export class FaqService {
 
     async update(id: number, dto: FaqRequestDto) {
         await this.getById(id);
-
-        dto.faqCategoryId = Number(dto.faqCategoryId);
 
         const updatedFaq = await this.faqRepository.update({
             where: { id },

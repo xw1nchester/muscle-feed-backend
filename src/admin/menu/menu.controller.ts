@@ -81,8 +81,8 @@ export class MenuController {
     }
 
     @Get(':id')
-    async getDtoById(@Param('id', ParseIntPipe) id: number) {
-        return await this.menuService.getDtoById(id);
+    async getAdminDtoById(@Param('id', ParseIntPipe) id: number) {
+        return await this.menuService.getAdminDtoById(id);
     }
 
     @Patch(':id')
