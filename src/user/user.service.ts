@@ -6,17 +6,21 @@ import {
     NotFoundException
 } from '@nestjs/common';
 
-import { Address, User } from '@prisma/client';
+import { Address, City, User } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { RegisterRequestDto } from '@auth/dto/register-request.dto';
+import { CityService } from '@city/city.service';
 
 import { AddressRequestDto } from './dto/address-request.dto';
 import { ProfileRequestDto } from './dto/profile-request.dto';
 
 @Injectable()
 export class UserService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly cityService: CityService
+    ) {}
 
     async getById(id: number) {
         const user = await this.prismaService.user.findFirst({ where: { id } });
@@ -102,17 +106,26 @@ export class UserService {
         return { user: this.createDto(updatedUser) };
     }
 
-    createAddressDto(address: Address) {
+    createAddressDto(address: Address & { city: City }) {
         const { id, city, street, house, floor, apartment, isPrimary } =
             address;
 
-        return { id, city, street, house, floor, apartment, isPrimary };
+        return {
+            id,
+            city: this.cityService.createDto(city),
+            street,
+            house,
+            floor,
+            apartment,
+            isPrimary
+        };
     }
 
     async getAddresses(userId: number) {
         const addresses = await this.prismaService.address.findMany({
             where: { userId },
-            orderBy: { createdAt: 'asc' }
+            orderBy: { createdAt: 'asc' },
+            include: { city: true }
         });
 
         const primaryAddress = addresses.find(address => address.isPrimary);
@@ -141,11 +154,14 @@ export class UserService {
             );
         }
 
+        await this.cityService.getById(dto.cityId);
+
         const createdAddress = await this.prismaService.address.create({
             data: {
                 ...dto,
                 userId
-            }
+            },
+            include: { city: true }
         });
 
         return { address: this.createAddressDto(createdAddress) };
@@ -156,7 +172,8 @@ export class UserService {
             where: {
                 id,
                 userId
-            }
+            },
+            include: { city: true }
         });
 
         if (!address) {
@@ -173,11 +190,14 @@ export class UserService {
     ) {
         await this.getUserAddress(addressId, userId);
 
+        await this.cityService.getById(dto.cityId);
+
         const updatedAddress = await this.prismaService.address.update({
             where: {
                 id: addressId
             },
-            data: dto
+            data: dto,
+            include: { city: true }
         });
 
         return { address: this.createAddressDto(updatedAddress) };
@@ -219,7 +239,8 @@ export class UserService {
 
         const updatedAddress = await this.prismaService.address.update({
             where: { id: addressId },
-            data: { isPrimary: !existingAddress.isPrimary }
+            data: { isPrimary: !existingAddress.isPrimary },
+            include: { city: true }
         });
 
         return { address: this.createAddressDto(updatedAddress) };

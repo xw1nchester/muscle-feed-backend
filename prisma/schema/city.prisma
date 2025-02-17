@@ -1,0 +1,8 @@
+model City {
+    id        Int       @id @default(autoincrement())
+    nameRu    String    @map("name_ru")
+    nameHe    String    @map("name_he")
+    addresses Address[]
+
+    @@map("cities")
+}

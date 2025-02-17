@@ -1,15 +1,16 @@
 model Address {
-    id         Int      @id @default(autoincrement())
-    city String
-    street String
-    house String
-    floor Int?
-    apartment  Int?
-    isPrimary Boolean @map("is_primary") @default(false)
-    createdAt  DateTime @default(now()) @map("created_at")
-    updatedAt  DateTime @updatedAt @map("updated_at")
-    user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId     Int      @map("user_id")
+    id        Int      @id @default(autoincrement())
+    street    String
+    house     String
+    floor     Int?
+    apartment Int?
+    isPrimary Boolean  @default(false) @map("is_primary")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+    cityId    Int      @map("city_id")
+    user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId    Int      @map("user_id")
 
     @@map("addresses")
 }

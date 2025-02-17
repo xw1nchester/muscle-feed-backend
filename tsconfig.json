@@ -49,7 +49,9 @@
             "@menu": ["src/menu"],
             "@menu/*": ["src/menu/*"],
             "@faq": ["src/faq"],
-            "@faq/*": ["src/faq/*"]
+            "@faq/*": ["src/faq/*"],
+            "@city": ["src/city"],
+            "@city/*": ["src/city/*"]
         }
     }
 }

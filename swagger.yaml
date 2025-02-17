@@ -132,9 +132,8 @@ components:
     AddressRequestDto:
       type: object
       properties:
-        city:
-          type: string
-          example: Новосибирск
+        cityId:
+          type: number
         street:
           type: string
           example: ул. Советская
@@ -155,8 +154,7 @@ components:
         id:
           type: integer
         city:
-          type: string
-          example: Новосибирск
+          $ref: "#/components/schemas/CityResponseDto"
         street:
           type: string
           example: ул. Советская
@@ -256,6 +254,8 @@ components:
           type: integer
         carbohydrates:
           type: integer
+        price:
+          type: integer
         isPublished:
           type: boolean
         benefit:
@@ -297,6 +297,8 @@ components:
         fats:
           type: integer
         carbohydrates:
+          type: integer
+        price:
           type: integer
         isPublished:
           type: boolean
@@ -494,6 +496,12 @@ components:
         descriptionHe:
           type: string
           example: "תפריט מאוזן"
+        mealsCountRu:
+          type: string
+          example: "5 приемов пищи в день"
+        mealsCountHe:
+          type: string
+          example: "5 ארוחות ביום"
         calories:
           type: integer
         order:
@@ -537,6 +545,15 @@ components:
             he:
               type: string
               example: "תפריט מאוזן"
+        mealsCount:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "5 приемов пищи в день"
+            he:
+              type: string
+              example: "5 ארוחות ביוםן"
         calories:
           type: integer
         order:
@@ -594,6 +611,15 @@ components:
             he:
               type: string
               example: "תפריט מאוזן"
+        mealsCount:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "5 приемов пищи в день"
+            he:
+              type: string
+              example: "5 ארוחות ביוםן"
         calories:
           type: integer
         order:
@@ -704,6 +730,29 @@ components:
         updatedAt:
           type: string
           format: date-time
+    CityRequestDto:
+      type: object
+      properties:
+        nameRu:
+          type: string
+          example: "Хайфа"
+        nameHe:
+          type: string
+          example: "חיפה"
+    CityResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Хайфа"
+            he:
+              type: string
+              example: "חיפה"
     PaginationBodyFields:
       type: object
       properties:
@@ -772,6 +821,11 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/FaqRequestDto"
+    City:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CityRequestDto"
   securitySchemes:
     BearerAuth:
       type: http
@@ -1993,3 +2047,90 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/FaqResponseDto"
+  /api/admin/city:
+    post:
+      tags:
+        - Admin City
+      requestBody:
+        $ref: "#/components/requestBodies/City"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  city:
+                    $ref: "#/components/schemas/CityResponseDto"
+  /api/admin/city/{cityId}:
+    get:
+      tags:
+        - Admin City
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  city:
+                    $ref: "#/components/schemas/CityResponseDto"
+    patch:
+      tags:
+        - Admin City
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/City"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  city:
+                    $ref: "#/components/schemas/CityResponseDto"
+    delete:
+      tags:
+        - Admin City
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  city:
+                    $ref: "#/components/schemas/CityResponseDto"
+  /api/city:
+    get:
+      tags:
+        -  City
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  cities:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CityResponseDto"

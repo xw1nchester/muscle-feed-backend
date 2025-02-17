@@ -8,11 +8,12 @@ model Dish {
     picture       String
     descriptionRu String        @map("description_ru")
     descriptionHe String        @map("description_he")
-    calories      Int
-    weight        Int
-    proteins      Int
-    fats          Int
-    carbohydrates Int
+    calories      Int           @default(0)
+    weight        Int           @default(0)
+    proteins      Int           @default(0)
+    fats          Int           @default(0)
+    carbohydrates Int           @default(0)
+    price         Int           @default(0)
     benefit       String?
     isPublished   Boolean       @default(false) @map("is_published")
     createdAt     DateTime      @default(now()) @map("created_at")

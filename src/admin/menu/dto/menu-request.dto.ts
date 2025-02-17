@@ -85,6 +85,14 @@ export class MenuRequestDto {
     @IsNotEmpty()
     descriptionHe: string;
 
+    @IsString()
+    @IsNotEmpty()
+    mealsCountRu: string;
+
+    @IsString()
+    @IsNotEmpty()
+    mealsCountHe: string;
+
     @Transform(({ value }) => Number(value))
     @IsNumber()
     calories: number;

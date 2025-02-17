@@ -58,6 +58,10 @@ export class DishRequestDto {
     @IsNumber()
     carbohydrates: number;
 
+    @Transform(({ value }) => Number(value))
+    @IsNumber()
+    price: number;
+
     @IsOptional()
     @IsString()
     benefit: string;

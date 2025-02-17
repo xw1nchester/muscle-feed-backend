@@ -2,9 +2,8 @@ import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class AddressRequestDto {
-    @IsString()
-    @IsNotEmpty()
-    city: string;
+    @IsNumber()
+    cityId: number;
 
     @IsString()
     @IsNotEmpty()
