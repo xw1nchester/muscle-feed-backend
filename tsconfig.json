@@ -51,7 +51,9 @@
             "@faq": ["src/faq"],
             "@faq/*": ["src/faq/*"],
             "@city": ["src/city"],
-            "@city/*": ["src/city/*"]
+            "@city/*": ["src/city/*"],
+            "@order": ["src/order"],
+            "@order/*": ["src/order/*"]
         }
     }
 }

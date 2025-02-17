@@ -1,9 +1,10 @@
 model DishType {
-    id     Int    @id @default(autoincrement())
-    nameRu String @map("name_ru")
-    nameHe String @map("name_he")
-    dishes Dish[]
-    menuDayDishes MenuDayDish[]
+    id             Int            @id @default(autoincrement())
+    nameRu         String         @map("name_ru")
+    nameHe         String         @map("name_he")
+    dishes         Dish[]
+    menuDayDishes  MenuDayDish[]
+    orderDayDishes OrderDayDish[]
 
     @@map("dish_types")
 }

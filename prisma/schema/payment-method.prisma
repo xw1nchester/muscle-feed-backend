@@ -1,0 +1,8 @@
+model PaymentMethod {
+    id     Int     @id @default(autoincrement())
+    nameRu String  @map("name_ru")
+    nameHe String  @map("name_he")
+    orders Order[]
+
+    @@map("payment_methods")
+}

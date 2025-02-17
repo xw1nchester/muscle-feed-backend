@@ -18,6 +18,7 @@ model Menu {
     menuTypeId     Int         @map("menu_type_id")
     menuDays       MenuDay[]
     menuPrices     MenuPrice[]
+    orders         Order[]
 
     @@map("menus")
 }

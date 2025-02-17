@@ -4,7 +4,7 @@ import {
     NotFoundException
 } from '@nestjs/common';
 
-import { Menu, MenuType, Prisma } from '@prisma/client';
+import { Dish, Menu, MenuDay, MenuType, Prisma } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { MenuRequestDto } from '@admin/menu/dto/menu-request.dto';
@@ -445,5 +445,91 @@ export class MenuService {
         }
 
         return await this.find({ page, limit, isPublished: true, menuTypeId });
+    }
+
+    async getMealPlan(id: number, startDate: Date, limit: number) {
+        const existingMenu = await this.menuRepository.findFirst({
+            where: { id, isPublished: true },
+            include: {
+                menuDays: {
+                    include: {
+                        menuDayDishes: {
+                            include: {
+                                dishType: true,
+                                dish: { include: { dishType: true } }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        if (!existingMenu) {
+            throw new NotFoundException('Меню не найдено');
+        }
+
+        const numberOfDays = existingMenu.menuDays.length;
+        const result: any[] = [];
+
+        const msPerDay = 1000 * 60 * 60 * 24;
+
+        let offset =
+            Math.floor(
+                (startDate.getTime() - existingMenu.cycleStartDate.getTime()) /
+                    msPerDay
+            ) % numberOfDays;
+
+        if (offset < 0) {
+            offset = (offset + numberOfDays) % numberOfDays;
+        }
+
+        // TODO: рефакторинг
+        for (let i = 0; i < limit; i++) {
+            const currentDayIndex = (offset + i) % numberOfDays;
+            const date = new Date(startDate);
+            date.setDate(startDate.getDate() + i);
+
+            const targetDishes =
+                existingMenu.menuDays[currentDayIndex].menuDayDishes;
+
+            const checkedDishTypeIds: number[] = [];
+
+            for (const { dishTypeId } of existingMenu.menuDays[currentDayIndex]
+                .menuDayDishes) {
+                if (checkedDishTypeIds.includes(dishTypeId)) {
+                    continue;
+                }
+
+                const targetDishes2 = targetDishes.filter(
+                    menuDish => menuDish.dishTypeId == dishTypeId
+                );
+
+                const primaryDish = targetDishes2.find(
+                    menuDayDish => menuDayDish.isPrimary
+                ).dish;
+
+                const replacementDishes = targetDishes2
+                    .filter(menuDayDish => !menuDayDish.isPrimary)
+                    .map(menuDayDish =>
+                        this.dishService.createDto(menuDayDish.dish)
+                    );
+
+                checkedDishTypeIds.push(dishTypeId);
+
+                result.push({
+                    date,
+                    primaryDish: this.dishService.createDto(primaryDish),
+                    replacementDishes
+                });
+            }
+        }
+
+        return result;
+    }
+
+    async getMealPlanDtoById(id: number, startDate: Date, limit: number) {
+        const mealPlan = await this.getMealPlan(id, startDate, limit);
+
+        return { mealPlan };
     }
 }

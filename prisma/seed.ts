@@ -55,6 +55,41 @@ async function main() {
         console.log('Seeded dishType:', dishType);
     }
 
+    const paymentMethods = [
+        {
+            id: 1,
+            nameRu: 'Картой по телефону, через нашего оператора',
+            nameHe: 'כרטיס אשראי באמצעות הטלפון'
+        },
+        {
+            id: 2,
+            nameRu: 'Картой курьеру, при получении заказа',
+            nameHe: 'בכרטיס אשראי לשליח, ברגע קבלת המשלוח'
+        },
+        {
+            id: 3,
+            nameRu: 'Наличными курьеру',
+            nameHe: 'מזמן לשליח'
+        }
+    ];
+
+    for (const { id, nameRu, nameHe } of paymentMethods) {
+        const paymentMethod = await prisma.paymentMethod.upsert({
+            where: { id },
+            update: {
+                nameRu,
+                nameHe
+            },
+            create: {
+                id,
+                nameRu,
+                nameHe
+            }
+        });
+
+        console.log('Seeded paymentMethod:', paymentMethod);
+    }
+
     console.log('Seeding finished.');
 }
 main()

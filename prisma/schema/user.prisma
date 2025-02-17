@@ -14,6 +14,7 @@ model User {
     tokens     Token[]
     codes      Code[]
     addresses  Address[]
+    orders        Order[]
 
     @@map("users")
 }

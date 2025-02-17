@@ -3,6 +3,7 @@ model City {
     nameRu    String    @map("name_ru")
     nameHe    String    @map("name_he")
     addresses Address[]
+    orders    Order[]
 
     @@map("cities")
 }

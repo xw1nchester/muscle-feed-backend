@@ -1,0 +1,11 @@
+model OrderDay {
+    id             Int            @id @default(autoincrement())
+    date           DateTime
+    isSkippped     Boolean        @default(false) @map("is_skipped")
+    daySkipType    DaySkipType?   @map("day_skip_type")
+    order          Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    orderId        Int            @map("order_id")
+    orderDayDishes OrderDayDish[]
+
+    @@map("order_days")
+}

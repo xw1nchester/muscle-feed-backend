@@ -17,6 +17,7 @@ import { FaqModule } from './faq/faq.module';
 import { LoggerMiddleware } from './logger.midleware';
 import { MailModule } from './mail/mail.module';
 import { MenuModule } from './menu/menu.module';
+import { OrderModule } from './order/order.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ReviewModule } from './review/review.module';
 import { TeamModule } from './team/team.module';
@@ -42,7 +43,8 @@ import { UserModule } from './user/user.module';
         ReviewModule,
         MenuModule,
         FaqModule,
-        CityModule
+        CityModule,
+        OrderModule
     ],
     controllers: [AppController],
     providers: [

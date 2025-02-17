@@ -1,0 +1,32 @@
+model Order {
+    id                 Int            @id @default(autoincrement())
+    fullName           String         @map("full_name")
+    email              String
+    phone              String
+    allergies          String?
+    street             String
+    house              String
+    floor              Int?
+    apartment          Int?
+    comment            String?
+    price              Int
+    paidAmount         Int?           @default(0) @map("paid_amount")
+    promocodeDiscount  Int?           @default(0) @map("promocode_discount")
+    finalPrice         Int            @map("final_price")
+    isProcessed        Boolean        @default(false) @map("is_processed")
+    isAllowedExtendion Boolean        @default(false) @map("is_allowed_extendion")
+    isPaid             Boolean        @default(false) @map("is_paid")
+    createdAt          DateTime       @default(now()) @map("created_at")
+    updatedAt          DateTime       @updatedAt @map("updated_at")
+    user               User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId             Int?           @map("user_id")
+    city               City?          @relation(fields: [cityId], references: [id], onDelete: SetNull)
+    cityId             Int?           @map("city_id")
+    paymentMethod      PaymentMethod? @relation(fields: [paymentMethodId], references: [id], onDelete: SetNull)
+    paymentMethodId    Int?           @map("payment_method_id")
+    menu               Menu?          @relation(fields: [menuId], references: [id], onDelete: SetNull)
+    menuId             Int?           @map("menu_id")
+    orderDays          OrderDay[]
+
+    @@map("orders")
+}
