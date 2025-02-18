@@ -4,7 +4,14 @@ import {
     NotFoundException
 } from '@nestjs/common';
 
-import { Dish, Menu, MenuDay, MenuType, Prisma } from '@prisma/client';
+import {
+    Dish,
+    DishType,
+    Menu,
+    MenuPrice,
+    MenuType,
+    Prisma
+} from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { MenuRequestDto } from '@admin/menu/dto/menu-request.dto';
@@ -153,13 +160,25 @@ export class MenuService {
     }
 
     // Menu
+    createPriceDto(menuPrice: MenuPrice) {
+        const { id, daysCount } = menuPrice;
+
+        const localizedFields = extractLocalizedFields(menuPrice);
+
+        return { id, daysCount, ...localizedFields };
+    }
+
     createDto(
-        menu: Menu & { menuType: Partial<MenuType> },
+        menu: Menu & { menuType: Partial<MenuType>; menuPrices: MenuPrice[] },
         daysCount: number = 0
     ) {
         const localizedFields = extractLocalizedFields(menu);
 
         const menuType = this.createShortTypeDto(menu.menuType);
+
+        const prices = menu.menuPrices.map(menuPrice =>
+            this.createPriceDto(menuPrice)
+        );
 
         return {
             id: menu.id,
@@ -172,7 +191,8 @@ export class MenuService {
             createdAt: menu.createdAt,
             updatedAt: menu.updatedAt,
             menuType,
-            daysCount
+            daysCount,
+            prices
         };
     }
 
@@ -185,6 +205,7 @@ export class MenuService {
                     nameHe: true
                 }
             },
+            menuPrices: true,
             _count: {
                 select: { menuDays: true }
             }
@@ -454,8 +475,9 @@ export class MenuService {
                 menuDays: {
                     include: {
                         menuDayDishes: {
+                            // TODO: возможно пригодится
+                            // orderBy: { dishTypeId: 'asc' },
                             include: {
-                                dishType: true,
                                 dish: { include: { dishType: true } }
                             }
                         }
@@ -469,67 +491,78 @@ export class MenuService {
         }
 
         const numberOfDays = existingMenu.menuDays.length;
-        const result: any[] = [];
 
         const msPerDay = 1000 * 60 * 60 * 24;
 
+        // TODO: разобраться почему нужно добавлять +1 к offset
         let offset =
-            Math.floor(
+            (Math.floor(
                 (startDate.getTime() - existingMenu.cycleStartDate.getTime()) /
                     msPerDay
-            ) % numberOfDays;
+            ) %
+                numberOfDays) +
+            1;
 
         if (offset < 0) {
             offset = (offset + numberOfDays) % numberOfDays;
         }
 
-        // TODO: рефакторинг
+        const planData: {
+            date: Date;
+            dishes: {
+                dishTypeId: number;
+                dish: Dish & { dishType: DishType };
+                isPrimary: boolean;
+            }[];
+        }[] = [];
+
         for (let i = 0; i < limit; i++) {
             const currentDayIndex = (offset + i) % numberOfDays;
             const date = new Date(startDate);
             date.setDate(startDate.getDate() + i);
 
-            const targetDishes =
-                existingMenu.menuDays[currentDayIndex].menuDayDishes;
+            const dishes = existingMenu.menuDays[
+                currentDayIndex
+            ].menuDayDishes.map(({ dishTypeId, dish, isPrimary }) => ({
+                dishTypeId,
+                dish,
+                isPrimary
+            }));
 
-            const checkedDishTypeIds: number[] = [];
-
-            for (const { dishTypeId } of existingMenu.menuDays[currentDayIndex]
-                .menuDayDishes) {
-                if (checkedDishTypeIds.includes(dishTypeId)) {
-                    continue;
-                }
-
-                const targetDishes2 = targetDishes.filter(
-                    menuDish => menuDish.dishTypeId == dishTypeId
-                );
-
-                const primaryDish = targetDishes2.find(
-                    menuDayDish => menuDayDish.isPrimary
-                ).dish;
-
-                const replacementDishes = targetDishes2
-                    .filter(menuDayDish => !menuDayDish.isPrimary)
-                    .map(menuDayDish =>
-                        this.dishService.createDto(menuDayDish.dish)
-                    );
-
-                checkedDishTypeIds.push(dishTypeId);
-
-                result.push({
-                    date,
-                    primaryDish: this.dishService.createDto(primaryDish),
-                    replacementDishes
-                });
-            }
+            planData.push({ date, dishes });
         }
 
-        return result;
+        return planData;
     }
 
-    async getMealPlanDtoById(id: number, startDate: Date, limit: number) {
-        const mealPlan = await this.getMealPlan(id, startDate, limit);
+    async getPrimaryMenuDishesByDate(id: number, date: Date) {
+        const planData = await this.getMealPlan(id, date, 1);
 
-        return { mealPlan };
+        const dishes = planData[0].dishes
+            .filter(menuDish => menuDish.isPrimary)
+            .map(menuDish => this.dishService.createDto(menuDish.dish));
+
+        const total = dishes.reduce(
+            (acc, { calories, proteins, fats, carbohydrates }) => ({
+                calories: acc.calories + calories,
+                proteins: acc.proteins + proteins,
+                fats: acc.fats + fats,
+                carbohydrates: acc.carbohydrates + carbohydrates
+            }),
+            { calories: 0, proteins: 0, fats: 0, carbohydrates: 0 }
+        );
+
+        return { dishes, total };
+    }
+
+    async getReplacementsByDate(id: number, date: Date, dishTypeId: number) {
+        const planData = await this.getMealPlan(id, date, 1);
+
+        const dishes = planData[0].dishes
+            .filter(menuDish => menuDish.dishTypeId == dishTypeId)
+            .filter(menuDish => !menuDish.isPrimary)
+            .map(menuDish => this.dishService.createDto(menuDish.dish));
+
+        return { dishes };
     }
 }

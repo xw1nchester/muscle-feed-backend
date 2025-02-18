@@ -585,6 +585,33 @@ components:
                   example: "פתרון פשוט"
             daysCount:
               type: integer
+        prices:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              daysCount:
+                type: integer
+              totalPrice:
+                type: object
+                properties:
+                  ru:
+                    type: string
+                    example: "620 ₪ за заказ"
+                  he:
+                    type: string
+                    example: "620 ₪ להזמנה"
+              pricePerDay:
+                type: object
+                properties:
+                  ru:
+                    type: string
+                    example: "104 ₪ всего за день"
+                  he:
+                    type: string
+                    example: "104 ₪ ליום אחד בלבד"
     MenuResponseAdminDto:
       type: object
       properties:
@@ -1865,6 +1892,80 @@ paths:
                         items:
                           $ref: "#/components/schemas/MenuResponseDto"
                   - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/menu/{menuId}:
+    get:
+      tags:
+        - Menu
+      security: []
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-02-17
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DishResponseDto"
+                  total:
+                    type: object
+                    properties:
+                      calories:
+                        type: integer
+                      proteins:
+                        type: integer
+                      fats:
+                        type: integer
+                      carbohydrates:
+                        type: integer
+  /api/menu/{menuId}/replacement:
+    get:
+      tags:
+        - Menu
+      security: []
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-02-17
+        - name: dish_type_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DishResponseDto"
   /api/admin/faq/category:
     post:
       tags:
@@ -2123,6 +2224,7 @@ paths:
     get:
       tags:
         -  City
+      security: []
       responses:
         "200":
           description: "Success"
@@ -2134,3 +2236,31 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/CityResponseDto"
+  /api/payment-method:
+    get:
+      tags: 
+       - Order
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  paymentMethods:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: 
+                          type: integer
+                        name:
+                          type: object
+                          properties:
+                            ru:
+                              type: string
+                              example: "Картой курьеру, при получении заказа"
+                            he:
+                              type: string
+                              example: "בכרטיס אשראי לשליח, ברגע קבלת המשלוח"

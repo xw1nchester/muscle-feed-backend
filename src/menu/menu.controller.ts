@@ -36,11 +36,23 @@ export class MenuController {
     }
 
     @Get(':id')
-    async getMealPlanDtoById(
+    async getPrimaryMenuDishesByDate(
         @Param('id', ParseIntPipe) id: number,
-        @Query('start_date', DateValidationPipe) startDate: Date,
-        @Query('limit', new DefaultValuePipe(7), ParseIntPipe) limit: number
+        @Query('date', DateValidationPipe) date: Date
     ) {
-        return await this.menuService.getMealPlanDtoById(id, startDate, limit);
+        return await this.menuService.getPrimaryMenuDishesByDate(id, date);
+    }
+
+    @Get(':id/replacement')
+    async getReplacementsByDate(
+        @Param('id', ParseIntPipe) id: number,
+        @Query('date', DateValidationPipe) date: Date,
+        @Query('dish_type_id', ParseIntPipe) dishTypeId: number
+    ) {
+        return await this.menuService.getReplacementsByDate(
+            id,
+            date,
+            dishTypeId
+        );
     }
 }
