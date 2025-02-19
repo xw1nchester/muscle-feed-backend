@@ -4,6 +4,7 @@ import { CityModule } from '@city/city.module';
 import { DishModule } from '@dish/dish.module';
 import { FaqModule } from '@faq/faq.module';
 import { MenuModule } from '@menu/menu.module';
+import { OrderModule } from '@order/order.module';
 import { ReviewModule } from '@review/review.module';
 import { TeamModule } from '@team/team.module';
 
@@ -11,6 +12,7 @@ import { CityController } from './city/city.controller';
 import { DishController } from './dish/dish.controller';
 import { FaqController } from './faq/faq.controller';
 import { MenuController } from './menu/menu.controller';
+import { OrderController } from './order/order.controller';
 import { ReviewController } from './review/review.controller';
 import { TeamController } from './team/team.controller';
 import { UploadController } from './upload/upload.controller';
@@ -22,7 +24,8 @@ import { UploadController } from './upload/upload.controller';
         ReviewModule,
         MenuModule,
         FaqModule,
-        CityModule
+        CityModule,
+        OrderModule
     ],
     controllers: [
         TeamController,
@@ -31,7 +34,8 @@ import { UploadController } from './upload/upload.controller';
         ReviewController,
         MenuController,
         FaqController,
-        CityController
+        CityController,
+        OrderController
     ]
 })
 export class AdminModule {}

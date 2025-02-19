@@ -59,6 +59,7 @@ export class UserService {
             phone,
             allergies
         } = user;
+
         return {
             id,
             email,

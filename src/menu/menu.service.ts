@@ -197,6 +197,28 @@ export class MenuService {
         };
     }
 
+    createShortDto({
+        id,
+        nameRu,
+        nameHe,
+        descriptionRu,
+        descriptionHe,
+        calories
+    }: Menu) {
+        return {
+            id,
+            name: {
+                ru: nameRu,
+                he: nameHe
+            },
+            description: {
+                ru: descriptionRu,
+                he: descriptionHe
+            },
+            calories
+        };
+    }
+
     private getMenuInclude() {
         return {
             menuType: {
