@@ -1,6 +1,7 @@
 model MenuPrice {
     id            Int    @id @default(autoincrement())
     daysCount     Int    @map("days_count")
+    price         Int
     totalPriceRu  String @map("total_price_ru")
     totalPriceHe  String @map("total_price_he")
     pricePerDayRu String @map("price_per_day_ru")

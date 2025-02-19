@@ -42,6 +42,7 @@ export class DishRequestDto {
     @IsNumber()
     calories: number;
 
+    @IsOptional()
     @Transform(({ value }) => Number(value))
     @IsNumber()
     weight: number;

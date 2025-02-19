@@ -43,6 +43,10 @@ class MenuPriceDto {
     @Min(1)
     daysCount: number;
 
+    @Transform(({ value }) => Number(value))
+    @IsNumber()
+    price: number;
+
     @IsString()
     @IsNotEmpty()
     totalPriceRu: string;

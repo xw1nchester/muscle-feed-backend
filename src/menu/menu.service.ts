@@ -1,5 +1,6 @@
 import {
     BadGatewayException,
+    BadRequestException,
     Injectable,
     NotFoundException
 } from '@nestjs/common';
@@ -161,11 +162,11 @@ export class MenuService {
 
     // Menu
     createPriceDto(menuPrice: MenuPrice) {
-        const { id, daysCount } = menuPrice;
+        const { id, daysCount, price } = menuPrice;
 
         const localizedFields = extractLocalizedFields(menuPrice);
 
-        return { id, daysCount, ...localizedFields };
+        return { id, daysCount, price, ...localizedFields };
     }
 
     createDto(
@@ -212,9 +213,11 @@ export class MenuService {
         };
     }
 
-    async getById(id: number) {
+    async getById(id: number, isPublished?: boolean) {
+        const where = { id, ...(isPublished != undefined && { isPublished }) };
+
         const menu = await this.menuRepository.findFirst({
-            where: { id },
+            where,
             include: this.getMenuInclude()
         });
 
@@ -275,7 +278,7 @@ export class MenuService {
                     }))
                 },
                 menuPrices: {
-                    create: dto.prices.map(price => price)
+                    create: dto.prices
                 }
             },
             include: this.getMenuInclude()
@@ -362,6 +365,7 @@ export class MenuService {
                 menuPrices: {
                     select: {
                         daysCount: true,
+                        price: true,
                         totalPriceRu: true,
                         totalPriceHe: true,
                         pricePerDayRu: true,
@@ -433,7 +437,7 @@ export class MenuService {
                 },
                 menuPrices: {
                     deleteMany: {},
-                    create: dto.prices.map(price => price)
+                    create: dto.prices
                 }
             },
             include: this.getMenuInclude()
@@ -468,10 +472,12 @@ export class MenuService {
         return await this.find({ page, limit, isPublished: true, menuTypeId });
     }
 
+    // TODO: возможно кешировать
     async getMealPlan(id: number, startDate: Date, limit: number) {
         const existingMenu = await this.menuRepository.findFirst({
             where: { id, isPublished: true },
-            include: {
+            select: {
+                cycleStartDate: true,
                 menuDays: {
                     include: {
                         menuDayDishes: {
@@ -564,5 +570,21 @@ export class MenuService {
             .map(menuDish => this.dishService.createDto(menuDish.dish));
 
         return { dishes };
+    }
+
+    async getMenuPriceByDays(id: number, daysCount: number) {
+        const existingMenu = await this.getById(id, true);
+
+        const menuPrice = existingMenu.menuPrices.find(
+            menuPrice => menuPrice.daysCount == daysCount
+        );
+
+        if (!menuPrice) {
+            throw new BadRequestException(
+                'Цена за данное количество дней не определена'
+            );
+        }
+
+        return menuPrice.price;
     }
 }

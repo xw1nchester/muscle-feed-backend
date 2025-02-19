@@ -460,6 +460,8 @@ components:
       properties:
         daysCount:
           type: integer
+        price:
+          type: integer
         totalPriceRu:
           type: string
           example: "620 ₪ за заказ"
@@ -593,6 +595,8 @@ components:
               id:
                 type: integer
               daysCount:
+                type: integer
+              price:
                 type: integer
               totalPrice:
                 type: object
@@ -2236,7 +2240,7 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/CityResponseDto"
-  /api/payment-method:
+  /api/order/payment-method:
     get:
       tags: 
        - Order
