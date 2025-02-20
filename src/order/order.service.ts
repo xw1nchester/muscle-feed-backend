@@ -15,6 +15,7 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
+import { AdminOrderRequestDto } from '@admin/order/dto/admin-order-request.dto';
 import { CityService } from '@city/city.service';
 import { PaginationDto } from '@dto/pagination.dto';
 import { MenuService } from '@menu/menu.service';
@@ -81,7 +82,7 @@ export class OrderService {
         return { paymentMethods };
     }
 
-    getBasicInclude() {
+    getInclude() {
         // TODO: извлекать только нужные поля
         return {
             menu: true,
@@ -95,7 +96,7 @@ export class OrderService {
     async getById(id: number) {
         const order = await this.orderRepository.findFirst({
             where: { id },
-            include: this.getBasicInclude()
+            include: this.getInclude()
         });
 
         if (!order) {
@@ -170,9 +171,9 @@ export class OrderService {
             comment,
             daysCount: notSkippedDays.length,
             daysLeft,
-            deliveryStartDate: orderDays[0].date,
-            deliveryEndDate: orderDays[orderDays.length - 1].date,
-            skippedWeekdays,
+            startDate: orderDays[0].date,
+            endDate: orderDays[orderDays.length - 1].date,
+            skippedWeekdays: [...new Set(skippedWeekdays)],
             paymentMethod: this.createPaymentMethodDto(paymentMethod),
             isPaid
         };
@@ -182,6 +183,13 @@ export class OrderService {
         const order = await this.getById(id);
 
         return { order: this.createDto(order) };
+    }
+
+    // TODO: проверять чтобы дата была не раньше ближайшей даты доставки (вынести дату начала доставки в env)
+    async validateOrderStartDate(startDate: Date) {
+        if (startDate < new Date()) {
+            throw new BadRequestException('Некорректная дата начала заказа');
+        }
     }
 
     async create(
@@ -194,10 +202,7 @@ export class OrderService {
         }: OrderRequestDto,
         userId: number | null
     ) {
-        // TODO: проверять чтобы дата была не раньше ближайшей даты доставки (вынести дату начала доставки в env)
-        if (startDate < new Date()) {
-            throw new BadRequestException('Некорректная дата начала заказа');
-        }
+        await this.validateOrderStartDate(startDate);
 
         await this.cityService.getById(rest.cityId);
 
@@ -478,7 +483,7 @@ export class OrderService {
 
         const ordersData = await this.orderRepository.findMany({
             where,
-            include: this.getBasicInclude(),
+            include: this.getInclude(),
             orderBy: { createdAt: 'desc' },
             take: limit,
             skip
@@ -548,10 +553,95 @@ export class OrderService {
                 menu: this.menuService.createShortDto(menu),
                 daysCount: notSkippedDays.length,
                 daysLeft,
-                deliveryStartDate: orderDays[0].date,
-                deliveryEndDate: orderDays[orderDays.length - 1].date,
+                startDate: orderDays[0].date,
+                endDate: orderDays[orderDays.length - 1].date,
                 skippedWeekdays
             }
         };
+    }
+
+    async adminCreate({
+        startDate,
+        cityId,
+        paymentMethodId,
+        userId,
+        daysCount,
+        skippedWeekdays,
+        menuId,
+        ...rest
+    }: AdminOrderRequestDto) {
+        await this.validateOrderStartDate(startDate);
+
+        await this.cityService.getById(cityId);
+
+        await this.getPaymentMethodById(paymentMethodId);
+
+        await this.userService.getById(userId);
+
+        await this.menuService.getById(menuId, true);
+
+        const createdOrder = await this.orderRepository.create({
+            data: {
+                cityId,
+                paymentMethodId,
+                userId,
+                menuId,
+                ...rest
+            }
+        });
+
+        if (menuId != undefined) {
+            await this.createOrderPlanByMenu(
+                startDate,
+                daysCount,
+                skippedWeekdays,
+                menuId,
+                createdOrder.id
+            );
+        }
+
+        return await this.createDtoById(createdOrder.id);
+    }
+
+    async update(
+        id: number,
+        {
+            startDate,
+            cityId,
+            paymentMethodId,
+            userId,
+            daysCount,
+            skippedWeekdays,
+            menuId,
+            ...rest
+        }: AdminOrderRequestDto
+    ) {
+        const existingOrder = await this.getById(id);
+
+        await this.validateOrderStartDate(startDate);
+
+        await this.cityService.getById(cityId);
+
+        await this.getPaymentMethodById(paymentMethodId);
+
+        await this.userService.getById(userId);
+
+        // await this.menuService.getById(menuId, true);
+
+        const updatedOrder = await this.orderRepository.update({
+            where: { id },
+            data: {
+                cityId,
+                paymentMethodId,
+                userId: userId ?? null,
+                // menuId,
+                ...rest
+            },
+            include: this.getInclude()
+        });
+
+        // TODO: сделать возможность корректировки дней/даты начала в заказе если переданное dayCount отличается от старого значения
+
+        return { order: this.createDto(updatedOrder) };
     }
 }

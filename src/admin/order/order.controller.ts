@@ -1,10 +1,13 @@
 import {
+    Body,
     Controller,
     DefaultValuePipe,
     Get,
     Param,
     ParseEnumPipe,
     ParseIntPipe,
+    Patch,
+    Post,
     Query,
     UseGuards
 } from '@nestjs/common';
@@ -15,6 +18,8 @@ import { Role } from '@auth/decorators';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { OrderStatus } from '@order/enums/order-status.enum';
 import { OrderService } from '@order/order.service';
+
+import { AdminOrderRequestDto } from './dto/admin-order-request.dto';
 
 @UseGuards(RoleGuard)
 @Role(RoleEnum.MODERATOR)
@@ -40,5 +45,18 @@ export class OrderController {
     @Get(':id')
     async getAdminInfoById(@Param('id', ParseIntPipe) id: number) {
         return await this.orderService.getAdminInfoById(id);
+    }
+
+    @Post()
+    async create(@Body() dto: AdminOrderRequestDto) {
+        return await this.orderService.adminCreate(dto);
+    }
+
+    @Patch(':id')
+    async update(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: AdminOrderRequestDto
+    ) {
+        return await this.orderService.update(id, dto);
     }
 }

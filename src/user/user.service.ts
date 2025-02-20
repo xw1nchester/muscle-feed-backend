@@ -6,11 +6,13 @@ import {
     NotFoundException
 } from '@nestjs/common';
 
-import { Address, City, User } from '@prisma/client';
+import { Address, City, Role, User } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
+import { UpdateUserDto } from '@admin/user/dto/update-user.dto';
 import { RegisterRequestDto } from '@auth/dto/register-request.dto';
 import { CityService } from '@city/city.service';
+import { PaginationDto } from '@dto/pagination.dto';
 
 import { AddressRequestDto } from './dto/address-request.dto';
 import { ProfileRequestDto } from './dto/profile-request.dto';
@@ -92,7 +94,7 @@ export class UserService {
         });
     }
 
-    async createDtoById(id: number) {
+    async getDtoById(id: number) {
         const user = await this.getById(id);
 
         return { user: this.createDto(user) };
@@ -245,5 +247,50 @@ export class UserService {
         });
 
         return { address: this.createAddressDto(updatedAddress) };
+    }
+
+    async find(page: number, limit: number) {
+        const skip = (page - 1) * limit;
+
+        const usersData = await this.prismaService.user.findMany({
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+            skip
+        });
+
+        const users = usersData.map(user => this.createDto(user));
+
+        const totalCount = await this.prismaService.user.aggregate({
+            _count: { id: true }
+        });
+
+        return new PaginationDto(
+            'users',
+            users,
+            totalCount._count.id,
+            limit,
+            page
+        );
+    }
+
+    async update(id: number, dto: UpdateUserDto) {
+        const existingUser = await this.getById(id);
+
+        if (
+            existingUser.isVerified &&
+            !dto.isVerified &&
+            existingUser.roles.includes(Role.ADMIN)
+        ) {
+            throw new BadRequestException(
+                'Нельзя выполнить это действие на администраторе'
+            );
+        }
+
+        const updatedUser = await this.prismaService.user.update({
+            where: { id },
+            data: dto
+        });
+
+        return { user: this.createDto(updatedUser) };
     }
 }

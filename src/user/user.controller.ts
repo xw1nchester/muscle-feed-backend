@@ -21,8 +21,8 @@ export class UserController {
     constructor(private readonly userService: UserService) {}
 
     @Get()
-    async createDtoById(@CurrentUser() user: JwtPayload) {
-        return await this.userService.createDtoById(user.id);
+    async getDtoById(@CurrentUser() user: JwtPayload) {
+        return await this.userService.getDtoById(user.id);
     }
 
     @Patch()

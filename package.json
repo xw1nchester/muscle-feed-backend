@@ -6,7 +6,7 @@
     "private": true,
     "license": "UNLICENSED",
     "lint-staged": {
-        "**/*.{ts,json}": "npm run format"
+        "**/*.{ts,json,yaml}": "npm run format"
     },
     "scripts": {
         "build": "nest build",
