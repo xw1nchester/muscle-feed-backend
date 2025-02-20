@@ -509,9 +509,8 @@ components:
         order:
           type: integer
         cycleStartDate:
-            type: string
-            format: date
-            example: 2025-02-17
+          type: string
+          format: date-time
         isPublished:
           type: boolean
         days:
@@ -677,6 +676,104 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MenuPriceRequestDto"
+    MenuResponseShortDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        calories:
+          type: integer
+    PaymentMethodResponseDto:
+      type: object
+      properties:
+        id: 
+          type: integer
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Картой курьеру, при получении заказа"
+            he:
+              type: string
+              example: "בכרטיס אשראי לשליח, ברגע קבלת המשלוח"
+    OrderResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        fullName:
+          type: string
+          example: Иван Ромашов
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          example: +79123456789
+        allergies:
+          type: string
+          example: Орехи
+        finalPrice:
+          type: integer
+        menu:
+          $ref: "#/components/schemas/MenuResponseShortDto"
+        city:
+          $ref: "#/components/schemas/CityResponseDto"
+        street:
+          type: string
+          example: "Ленина"
+        house:
+          type: string
+          example: "10"
+        floor:
+          type: integer
+        apartment:
+          type: integer
+        comment:
+          type: string
+          example: "Позвоните за 10 минут до доставк"
+        daysCount:
+          type: integer
+        daysLeft:
+          type: integer
+        deliveryStartDate:
+          type: string
+          format: date
+          example: 2025-02-17
+        deliveryEndDate:
+          type: string
+          format: date
+          example: 2025-02-17
+        skippedWeekdays:
+          type: array
+          items:
+            type: integer
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethodResponseDto"
+        isPaid:
+          type: boolean
     FaqCategoryRequestDto:
       type: object
       properties:
@@ -811,6 +908,23 @@ components:
       schema:
         type: integer
         default: 5
+    Status:
+      name: status
+      in: query
+      required: false
+      description: all - все заказы (по умолчанию), active - активные, frozen - замороженные, unpaid - неоплаченные, completed - завершенные, pending - ожидающие, terminating - завершающиеся, unprocessed - необработанные
+      schema:
+        type: string
+        default: all
+        enum:
+          - all
+          - active
+          - frozen
+          - unpaid
+          - completed
+          - pending
+          - terminating
+          - unprocessed
   requestBodies:
     Team:
       content:
@@ -2241,6 +2355,148 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/CityResponseDto"
+  /api/admin/order/stats:
+    get:
+      tags:
+        - Admin Order
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  stats:
+                    type: object
+                    properties:
+                      allCount:
+                        type: integer
+                      activeCount:
+                        type: integer
+                      frozenCount:
+                        type: integer
+                      unpaidCount:
+                        type: integer
+                      completedCount:
+                        type: integer
+                      pendingCount:
+                        type: integer
+                      terminatingCount:
+                        type: integer
+                      unprocessedCount:
+                        type: integer
+  /api/admin/order:
+    get:
+      tags: 
+       - Admin Order
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Status"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      orders:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/OrderResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields" 
+  /api/admin/order/{orderId}:
+    get:
+      tags: 
+       - Admin Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  order:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      fullName:
+                        type: string
+                        example: "Иван Иванов"
+                      email:
+                        type: string
+                        format: email
+                      phone:
+                        type: string
+                        example: "+79876543210"
+                      allergies:
+                        type: string
+                        example: "Орехи"
+                      street:
+                        type: string
+                        example: "Ленина"
+                      house:
+                        type: string
+                        example: "10"
+                      floor:
+                        type: integer
+                      apartment:
+                        type: integer
+                      comment:
+                        type: string
+                        example: "Позвоните за 10 минут до доставки"
+                      price:
+                        type: integer
+                      paidAmount:
+                        type: integer
+                      promocodeDiscount:
+                        type: integer
+                      finalPrice:
+                        type: integer
+                      isProcessed:
+                        type: boolean
+                      isAllowedExtendion:
+                        type: boolean
+                      isPaid:
+                        type: boolean
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+                      user:
+                        $ref: "#/components/schemas/UserDto"
+                      city:
+                        $ref: "#/components/schemas/CityResponseDto"
+                      paymentMethod:
+                        $ref: "#/components/schemas/PaymentMethodResponseDto"
+                      menu:
+                        $ref: "#/components/schemas/MenuResponseShortDto"
+                      daysCount:
+                        type: integer
+                      daysLeft:
+                        type: integer
+                      deliveryStartDate:
+                        type: string
+                        format: date
+                        example: 2025-02-17
+                      deliveryEndDate:
+                        type: string
+                        format: date
+                        example: 2025-02-17
+                      skippedWeekdays:
+                        type: array
+                        items:
+                          type: integer
   /api/order/payment-method:
     get:
       tags: 
@@ -2256,16 +2512,97 @@ paths:
                   paymentMethods:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        id: 
-                          type: integer
-                        name:
-                          type: object
-                          properties:
-                            ru:
-                              type: string
-                              example: "Картой курьеру, при получении заказа"
-                            he:
-                              type: string
-                              example: "בכרטיס אשראי לשליח, ברגע קבלת המשלוח"
+                      $ref: "#/components/schemas/PaymentMethodResponseDto"
+  /api/order:
+    post:
+      tags: 
+       - Order
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                menuId:
+                  type: integer
+                startDate:
+                  type: string
+                  format: date
+                  example: 2025-02-17
+                daysCount:
+                  type: integer
+                skippedWeekdays:
+                  description: Numbers from 1 to 7 (1 - Mon, 2 Tues, etc.). It may be empty.
+                  type: array
+                  items:
+                    type: integer
+                paymentMethodId:
+                  type: integer
+                fullName:
+                  type: string
+                  example: "Иван Иванов"
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                  example: "+79876543210"
+                allergies:
+                  type: string
+                  example: "Орехи"
+                cityId:
+                  type: integer
+                street:
+                  type: string
+                  example: "Ленина"
+                house:
+                  type: string
+                  example: "10"
+                floor:
+                  type: integer
+                apartment:
+                  type: integer
+                comment:
+                  type: string
+                  example: "Позвоните за 10 минут до доставки"
+              required:
+                - menuId
+                - startDate
+                - daysCount
+                - skippedWeekdays
+                - paymentMethodId
+                - fullName
+                - email
+                - phone
+                - cityId
+                - street
+                - house
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  order:
+                    $ref: "#/components/schemas/OrderResponseDto"
+    get:
+      tags: 
+       - Order
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Status"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      orders:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/OrderResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"      

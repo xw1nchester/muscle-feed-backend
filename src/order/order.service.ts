@@ -10,7 +10,8 @@ import {
     Menu,
     Order,
     OrderDay,
-    PaymentMethod
+    PaymentMethod,
+    Prisma
 } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
@@ -84,7 +85,7 @@ export class OrderService {
         // TODO: извлекать только нужные поля
         return {
             menu: true,
-            orderDays: true,
+            orderDays: { orderBy: { date: Prisma.SortOrder.asc } },
             paymentMethod: true,
             city: true,
             user: true
@@ -385,6 +386,7 @@ export class OrderService {
         } = this.getStatusesConditions();
 
         const [
+            allCount,
             activeCount,
             frozenCount,
             unpaidCount,
@@ -393,6 +395,9 @@ export class OrderService {
             terminatingCount,
             unprocessedCount
         ] = await Promise.all([
+            this.orderRepository.aggregate({
+                _count: { id: true }
+            }),
             this.orderRepository.aggregate({
                 _count: { id: true },
                 where: activeCondition
@@ -425,6 +430,7 @@ export class OrderService {
 
         return {
             stats: {
+                allCount: allCount._count.id,
                 activeCount: activeCount._count.id,
                 frozenCount: frozenCount._count.id,
                 unpaidCount: unpaidCount._count.id,
