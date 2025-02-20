@@ -17,11 +17,13 @@ import { PrismaService } from '@prisma/prisma.service';
 
 import { AdminOrderRequestDto } from '@admin/order/dto/admin-order-request.dto';
 import { CityService } from '@city/city.service';
+import { DishService } from '@dish/dish.service';
 import { PaginationDto } from '@dto/pagination.dto';
 import { MenuService } from '@menu/menu.service';
 import { UserService } from '@user/user.service';
 
 import { OrderRequestDto } from './dto/order-request.dto';
+import { SelectDishDto } from './dto/select-dish.dto';
 import { OrderStatus } from './enums/order-status.enum';
 import { WeekDay } from './enums/weekday.enum';
 
@@ -31,7 +33,8 @@ export class OrderService {
         private readonly prismaService: PrismaService,
         private readonly menuService: MenuService,
         private readonly cityService: CityService,
-        private readonly userService: UserService
+        private readonly userService: UserService,
+        private readonly dishService: DishService
     ) {}
 
     private get paymentMethodRepository() {
@@ -479,6 +482,8 @@ export class OrderService {
             ...(status == OrderStatus.UNPROCESSED && unprocessedCondition)
         };
 
+        console.log({ where });
+
         const skip = (page - 1) * limit;
 
         const ordersData = await this.orderRepository.findMany({
@@ -643,5 +648,127 @@ export class OrderService {
         // TODO: сделать возможность корректировки дней/даты начала в заказе если переданное dayCount отличается от старого значения
 
         return { order: this.createDto(updatedOrder) };
+    }
+
+    async findOrderDays(id: number, userId: number) {
+        const existingOrder = await this.orderRepository.findFirst({
+            where: { id, userId },
+            select: {
+                orderDays: {
+                    select: {
+                        id: true,
+                        date: true,
+                        isSkipped: true,
+                        daySkipType: true
+                    },
+                    orderBy: { date: 'asc' }
+                }
+            }
+        });
+
+        if (!existingOrder) {
+            throw new NotFoundException('Заказ не найден');
+        }
+
+        return { days: existingOrder.orderDays };
+    }
+
+    async getSelectedOrderDayDishes(dayId: number, userId: number) {
+        const existingOrderDay = await this.orderDayRepository.findFirst({
+            where: {
+                id: dayId,
+                order: { userId }
+            },
+            select: {
+                orderDayDishes: {
+                    where: { isSelected: true },
+                    select: { dish: { include: { dishType: true } } },
+                    orderBy: { dishTypeId: 'asc' }
+                }
+            }
+        });
+
+        if (!existingOrderDay) {
+            throw new NotFoundException('День не найден');
+        }
+
+        const dishes = existingOrderDay.orderDayDishes.map(orderDayDish =>
+            this.dishService.createDto(orderDayDish.dish)
+        );
+
+        return { dishes };
+    }
+
+    async getReplacementOrderDayDishes(
+        dayId: number,
+        dishTypeId: number,
+        userId: number
+    ) {
+        const existingOrderDay = await this.orderDayRepository.findFirst({
+            where: {
+                id: dayId,
+                order: { userId }
+            },
+            select: {
+                orderDayDishes: {
+                    where: { dishTypeId, isSelected: false },
+                    select: { dish: { include: { dishType: true } } }
+                }
+            }
+        });
+
+        if (!existingOrderDay) {
+            throw new NotFoundException('День не найден');
+        }
+
+        const dishes = existingOrderDay.orderDayDishes.map(orderDayDish =>
+            this.dishService.createDto(orderDayDish.dish)
+        );
+
+        return { dishes };
+    }
+
+    async selectDish(
+        { dayId, dishTypeId, dishId }: SelectDishDto,
+        userId: number
+    ) {
+        const existingOrderDish = await this.orderDayDishRepository.findFirst({
+            where: {
+                dishTypeId,
+                dishId,
+                orderDay: { id: dayId, order: { userId } }
+            },
+            select: { isSelected: true, dish: { include: { dishType: true } } }
+        });
+
+        if (!existingOrderDish) {
+            throw new NotFoundException('Блюдо не найдено');
+        }
+
+        if (!existingOrderDish.isSelected) {
+            await this.orderDayDishRepository.updateMany({
+                where: {
+                    dishTypeId,
+                    isSelected: true,
+                    orderDay: { id: dayId }
+                },
+                data: {
+                    isSelected: false
+                }
+            });
+
+            await this.orderDayDishRepository.updateMany({
+                where: {
+                    dishTypeId,
+                    dishId,
+                    orderDay: { id: dayId }
+                },
+                data: {
+                    isSelected: true
+                }
+            });
+        }
+
+        return { dish: this.dishService.createDto(existingOrderDish.dish) };
     }
 }

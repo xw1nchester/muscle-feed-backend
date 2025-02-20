@@ -503,8 +503,7 @@ export class MenuService {
                 menuDays: {
                     include: {
                         menuDayDishes: {
-                            // TODO: возможно пригодится
-                            // orderBy: { dishTypeId: 'asc' },
+                            orderBy: { dishTypeId: 'asc' },
                             include: {
                                 dish: { include: { dishType: true } }
                             }
@@ -584,8 +583,10 @@ export class MenuService {
         const planData = await this.getMealPlan(id, date, 1);
 
         const dishes = planData[0].dishes
-            .filter(menuDish => menuDish.dishTypeId == dishTypeId)
-            .filter(menuDish => !menuDish.isPrimary)
+            .filter(
+                menuDish =>
+                    menuDish.dishTypeId == dishTypeId && !menuDish.isPrimary
+            )
             .map(menuDish => this.dishService.createDto(menuDish.dish));
 
         return { dishes };

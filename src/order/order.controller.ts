@@ -3,6 +3,7 @@ import {
     Controller,
     DefaultValuePipe,
     Get,
+    Param,
     ParseEnumPipe,
     ParseIntPipe,
     Post,
@@ -15,6 +16,7 @@ import { OptionalJwtAuthGuard } from '@auth/guards/optional-jwt-auth.guard';
 import { JwtPayload } from '@auth/interfaces';
 
 import { OrderRequestDto } from './dto/order-request.dto';
+import { SelectDishDto } from './dto/select-dish.dto';
 import { OrderStatus } from './enums/order-status.enum';
 import { OrderService } from './order.service';
 import { OrderPipe } from './pipes/order.pipe';
@@ -53,5 +55,45 @@ export class OrderController {
             userId: user.id,
             status
         });
+    }
+
+    @Get(':id/day')
+    async findOrderDays(
+        @Param('id', ParseIntPipe) id: number,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.orderService.findOrderDays(id, user.id);
+    }
+
+    @Get('day/:id')
+    async getSelectedOrderDayDishes(
+        @Param('id', ParseIntPipe) dayId: number,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.orderService.getSelectedOrderDayDishes(
+            dayId,
+            user.id
+        );
+    }
+
+    @Get('day/:id/replacement')
+    async getReplacementOrderDayDishes(
+        @Param('id', ParseIntPipe) dayId: number,
+        @Query('dish_type_id', ParseIntPipe) dishTypeId: number,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.orderService.getReplacementOrderDayDishes(
+            dayId,
+            dishTypeId,
+            user.id
+        );
+    }
+
+    @Post('select')
+    async selectDish(
+        @Body() dto: SelectDishDto,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.orderService.selectDish(dto, user.id);
     }
 }

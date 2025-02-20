@@ -201,7 +201,7 @@ components:
                 updatedAt:
                     type: string
                     format: date-time
-        AdminReviewRequestDto:
+        ReviewRequestAdminDto:
             type: object
             properties:
                 picture:
@@ -1022,7 +1022,7 @@ components:
             content:
                 application/json:
                     schema:
-                        $ref: '#/components/schemas/AdminReviewRequestDto'
+                        $ref: '#/components/schemas/ReviewRequestAdminDto'
         Dish:
             content:
                 application/json:
@@ -2675,6 +2675,111 @@ paths:
                                               items:
                                                   $ref: '#/components/schemas/OrderResponseDto'
                                     - $ref: '#/components/schemas/PaginationBodyFields'
+    /api/order/{orderId}/day:
+        get:
+            tags:
+                - Order
+            parameters:
+                - name: orderId
+                  in: path
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    days:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                id:
+                                                    type: integer
+                                                date:
+                                                    type: string
+                                                    format: date-time
+                                                isSkipped:
+                                                    type: boolean
+                                                daySkipType:
+                                                    type: string
+                                                    enum:
+                                                        - WEEKDAY_SKIPPED
+                                                        - FROZEN
+    /api/order/day/{dayId}:
+        get:
+            tags:
+                - Order
+            parameters:
+                - name: dayId
+                  in: path
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    dishes:
+                                        type: array
+                                        items:
+                                            $ref: '#/components/schemas/DishResponseDto'
+    /api/order/day/{dayId}/replacement:
+        get:
+            tags:
+                - Order
+            parameters:
+                - name: dayId
+                  in: path
+                  required: true
+                  schema:
+                      type: integer
+                - name: dish_type_id
+                  in: query
+                  required: true
+                  schema:
+                      type: integer
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    dishes:
+                                        type: array
+                                        items:
+                                            $ref: '#/components/schemas/DishResponseDto'
+    /api/order/select:
+        post:
+            tags:
+                - Order
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            properties:
+                                dayId:
+                                    type: integer
+                                dishTypeId:
+                                    type: integer
+                                dishId:
+                                    type: integer
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    dish:
+                                        $ref: '#/components/schemas/DishResponseDto'
     /admin/user:
         get:
             tags:
