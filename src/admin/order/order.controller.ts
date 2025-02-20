@@ -22,6 +22,11 @@ import { OrderService } from '@order/order.service';
 export class OrderController {
     constructor(private readonly orderService: OrderService) {}
 
+    @Get('stats')
+    async getStats() {
+        return await this.orderService.getStats();
+    }
+
     @Get()
     async find(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,

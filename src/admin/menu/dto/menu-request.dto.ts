@@ -3,7 +3,7 @@ import {
     ArrayMinSize,
     IsArray,
     IsBoolean,
-    IsDateString,
+    IsDate,
     IsNotEmpty,
     IsNumber,
     IsString,
@@ -105,7 +105,8 @@ export class MenuRequestDto {
     @IsNumber()
     order: number;
 
-    @IsDateString()
+    @Transform(({ value }) => new Date(value))
+    @IsDate()
     cycleStartDate: Date;
 
     @IsBoolean()

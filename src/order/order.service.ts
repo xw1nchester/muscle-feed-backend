@@ -303,6 +303,139 @@ export class OrderService {
         }
     }
 
+    private getStatusesConditions() {
+        // TODO: возможно придется создавать новую дату через строку вида 2025-10-27
+        // при получении getMonth() прибавлять 1
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        today.setTime(today.getTime() - today.getTimezoneOffset() * 60000);
+
+        // TODO: возможно стоит вынести 4 в env
+        const expiryDate = new Date(today);
+        expiryDate.setDate(today.getDate() + 4);
+
+        return {
+            activeCondition: {
+                isProcessed: true,
+                orderDays: {
+                    some: {
+                        OR: [
+                            { date: today, daySkipType: null },
+                            {
+                                date: today,
+                                daySkipType: DaySkipType.WEEKDAY_SKIPPED
+                            }
+                        ]
+                    }
+                }
+            },
+            frozenCondition: {
+                isProcessed: true,
+                orderDays: {
+                    some: {
+                        date: today,
+                        daySkipType: DaySkipType.FROZEN
+                    }
+                }
+            },
+            unpaidCondition: {
+                isProcessed: true,
+                isPaid: false
+            },
+            completedCondition: {
+                orderDays: { every: { date: { lt: today } } }
+            },
+            pendingCondition: {
+                isProcessed: true,
+                orderDays: { every: { date: { gt: today } } }
+            },
+            terminatingCondition: {
+                isProcessed: true,
+                AND: [
+                    {
+                        orderDays: {
+                            some: {
+                                date: { gte: today }
+                            }
+                        }
+                    },
+                    {
+                        orderDays: {
+                            every: {
+                                date: { lte: expiryDate }
+                            }
+                        }
+                    }
+                ]
+            },
+            unprocessedCondition: { isProcessed: false }
+        };
+    }
+
+    // TODO: пользователь тоже может запрашивать статистику?
+    async getStats() {
+        const {
+            activeCondition,
+            frozenCondition,
+            unpaidCondition,
+            completedCondition,
+            pendingCondition,
+            terminatingCondition,
+            unprocessedCondition
+        } = this.getStatusesConditions();
+
+        const [
+            activeCount,
+            frozenCount,
+            unpaidCount,
+            completedCount,
+            pendingCount,
+            terminatingCount,
+            unprocessedCount
+        ] = await Promise.all([
+            this.orderRepository.aggregate({
+                _count: { id: true },
+                where: activeCondition
+            }),
+            this.orderRepository.aggregate({
+                _count: { id: true },
+                where: frozenCondition
+            }),
+            this.orderRepository.aggregate({
+                _count: { id: true },
+                where: unpaidCondition
+            }),
+            this.orderRepository.aggregate({
+                _count: { id: true },
+                where: completedCondition
+            }),
+            this.orderRepository.aggregate({
+                _count: { id: true },
+                where: pendingCondition
+            }),
+            this.orderRepository.aggregate({
+                _count: { id: true },
+                where: terminatingCondition
+            }),
+            this.orderRepository.aggregate({
+                _count: { id: true },
+                where: unprocessedCondition
+            })
+        ]);
+
+        return {
+            stats: {
+                activeCount: activeCount._count.id,
+                frozenCount: frozenCount._count.id,
+                unpaidCount: unpaidCount._count.id,
+                completedCount: completedCount._count.id,
+                pendingCount: pendingCount._count.id,
+                terminatingCount: terminatingCount._count.id,
+                unprocessedCount: unprocessedCount._count.id
+            }
+        };
+    }
+
     async find({
         page,
         limit,
@@ -314,34 +447,26 @@ export class OrderService {
         userId?: number;
         status?: OrderStatus;
     }) {
-        const currentDate = new Date();
+        const {
+            activeCondition,
+            frozenCondition,
+            unpaidCondition,
+            completedCondition,
+            pendingCondition,
+            terminatingCondition,
+            unprocessedCondition
+        } = this.getStatusesConditions();
 
-        // TODO: FROZEN (на сегодняшнюю дату isSkipped по причине FROZEN)
-        // TODO: TERMINATING (истекают через 4 дня)
         const where = {
             ...(userId != undefined && { userId }),
-            ...(status == OrderStatus.ACTIVE && {
-                isProcessed: true,
-                AND: [
-                    { orderDays: { some: { date: { gte: currentDate } } } },
-                    { orderDays: { some: { date: { lte: currentDate } } } }
-                ]
-            }),
-            ...(status == OrderStatus.UNPAID && {
-                isProcessed: true,
-                isPaid: false
-            }),
-            ...(status == OrderStatus.COMPLETED && {
-                orderDays: { every: { date: { lt: currentDate } } }
-            }),
-            ...(status == OrderStatus.PENDING && {
-                isProcessed: true,
-                orderDays: { every: { date: { gt: currentDate } } }
-            }),
-            ...(status == OrderStatus.UNPROCESSED && { isProcessed: false })
+            ...(status == OrderStatus.ACTIVE && activeCondition),
+            ...(status == OrderStatus.FROZEN && frozenCondition),
+            ...(status == OrderStatus.UNPAID && unpaidCondition),
+            ...(status == OrderStatus.COMPLETED && completedCondition),
+            ...(status == OrderStatus.PENDING && pendingCondition),
+            ...(status == OrderStatus.TERMINATING && terminatingCondition),
+            ...(status == OrderStatus.UNPROCESSED && unprocessedCondition)
         };
-
-        console.log({ getOrdersWhere: where });
 
         const skip = (page - 1) * limit;
 

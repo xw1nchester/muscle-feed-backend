@@ -522,14 +522,11 @@ export class MenuService {
 
         const msPerDay = 1000 * 60 * 60 * 24;
 
-        // TODO: разобраться почему нужно добавлять +1 к offset
         let offset =
-            (Math.floor(
+            Math.floor(
                 (startDate.getTime() - existingMenu.cycleStartDate.getTime()) /
                     msPerDay
-            ) %
-                numberOfDays) +
-            1;
+            ) % numberOfDays;
 
         if (offset < 0) {
             offset = (offset + numberOfDays) % numberOfDays;

@@ -509,8 +509,9 @@ components:
         order:
           type: integer
         cycleStartDate:
-          type: string
-          format: date-time
+            type: string
+            format: date
+            example: 2025-02-17
         isPublished:
           type: boolean
         days:
