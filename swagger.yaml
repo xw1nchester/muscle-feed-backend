@@ -856,6 +856,17 @@ components:
                     $ref: '#/components/schemas/PaymentMethodResponseDto'
                 isPaid:
                     type: boolean
+        TotalDto:
+            type: object
+            properties:
+                calories:
+                    type: integer
+                proteins:
+                    type: integer
+                fats:
+                    type: integer
+                carbohydrates:
+                    type: integer
         FaqCategoryRequestDto:
             type: object
             properties:
@@ -2133,16 +2144,7 @@ paths:
                                         items:
                                             $ref: '#/components/schemas/DishResponseDto'
                                     total:
-                                        type: object
-                                        properties:
-                                            calories:
-                                                type: integer
-                                            proteins:
-                                                type: integer
-                                            fats:
-                                                type: integer
-                                            carbohydrates:
-                                                type: integer
+                                        $ref: '#/components/schemas/TotalDto'
     /api/menu/{menuId}/replacement:
         get:
             tags:
@@ -2623,6 +2625,62 @@ paths:
                                 properties:
                                     order:
                                         $ref: '#/components/schemas/OrderResponseDto'
+    /api/admin/order/route-list:
+        get:
+            tags:
+                - Admin Order
+            parameters:
+                - name: start_date
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                      format: date
+                      example: 2025-02-17
+                - name: end_date
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                      format: date
+                      example: 2025-02-17
+            responses:
+                '200':
+                    description: 'Success'
+    /api/admin/order/dish-list:
+        get:
+            tags:
+                - Admin Order
+            parameters:
+                - name: date
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                      format: date
+                      example: 2025-02-17
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    orders:
+                                        type: array
+                                        items:
+                                            type: object
+                                            properties:
+                                                id:
+                                                    type: integer
+                                                menu:
+                                                    $ref: '#/components/schemas/MenuResponseShortDto'
+                                                dishes:
+                                                    type: array
+                                                    items:
+                                                        $ref: '#/components/schemas/DishResponseDto'
+                                                total:
+                                                    $ref: '#/components/schemas/TotalDto'
     /api/order/payment-method:
         get:
             tags:
@@ -2730,6 +2788,8 @@ paths:
                                         type: array
                                         items:
                                             $ref: '#/components/schemas/DishResponseDto'
+                                    total:
+                                        $ref: '#/components/schemas/TotalDto'
     /api/order/day/{dayId}/replacement:
         get:
             tags:

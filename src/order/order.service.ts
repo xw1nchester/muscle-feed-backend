@@ -699,7 +699,9 @@ export class OrderService {
             this.dishService.createDto(orderDayDish.dish)
         );
 
-        return { dishes };
+        const total = this.menuService.calculateTotalNutrients(dishes);
+
+        return { dishes, total };
     }
 
     async getReplacementOrderDayDishes(
@@ -886,5 +888,54 @@ export class OrderService {
         return res
             .set('Content-Disposition', `attachment; filename=route_list.xlsx`)
             .send(buffer);
+    }
+
+    async getDishList(date: Date) {
+        const ordersData = await this.orderRepository.findMany({
+            select: {
+                id: true,
+                menu: true,
+                orderDays: {
+                    where: {
+                        date
+                    },
+                    select: {
+                        orderDayDishes: {
+                            where: { isSelected: true },
+                            select: { dish: { include: { dishType: true } } },
+                            orderBy: { dishTypeId: 'asc' }
+                        }
+                    }
+                }
+            },
+            where: {
+                orderDays: {
+                    some: {
+                        date,
+                        isSkipped: false,
+                        daySkipType: null
+                    }
+                }
+            }
+        });
+
+        const orders = ordersData.map(({ id, menu, orderDays }) => {
+            const dishes = orderDays.flatMap(({ orderDayDishes }) =>
+                orderDayDishes.map(({ dish }) =>
+                    this.dishService.createDto(dish)
+                )
+            );
+
+            const total = this.menuService.calculateTotalNutrients(dishes);
+
+            return {
+                id,
+                menu: this.menuService.createShortDto(menu),
+                dishes,
+                total
+            };
+        });
+
+        return { orders };
     }
 }

@@ -559,14 +559,8 @@ export class MenuService {
         return planData;
     }
 
-    async getPrimaryMenuDishesByDate(id: number, date: Date) {
-        const planData = await this.getMealPlan(id, date, 1);
-
-        const dishes = planData[0].dishes
-            .filter(menuDish => menuDish.isPrimary)
-            .map(menuDish => this.dishService.createDto(menuDish.dish));
-
-        const total = dishes.reduce(
+    calculateTotalNutrients(dishes: Partial<Dish>[]) {
+        return dishes.reduce(
             (acc, { calories, proteins, fats, carbohydrates }) => ({
                 calories: acc.calories + calories,
                 proteins: acc.proteins + proteins,
@@ -575,6 +569,16 @@ export class MenuService {
             }),
             { calories: 0, proteins: 0, fats: 0, carbohydrates: 0 }
         );
+    }
+
+    async getPrimaryMenuDishesByDate(id: number, date: Date) {
+        const planData = await this.getMealPlan(id, date, 1);
+
+        const dishes = planData[0].dishes
+            .filter(menuDish => menuDish.isPrimary)
+            .map(menuDish => this.dishService.createDto(menuDish.dish));
+
+        const total = this.calculateTotalNutrients(dishes);
 
         return { dishes, total };
     }

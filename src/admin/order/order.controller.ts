@@ -27,6 +27,7 @@ import { AdminOrderRequestDto } from './dto/admin-order-request.dto';
 
 @UseGuards(RoleGuard)
 @Role(RoleEnum.MODERATOR)
+// @Public()
 @Controller('admin/order')
 export class OrderController {
     constructor(private readonly orderService: OrderService) {}
@@ -44,6 +45,11 @@ export class OrderController {
         @Query('end_date', DateValidationPipe) endDate: Date
     ) {
         return await this.orderService.getRouteList(res, startDate, endDate);
+    }
+
+    @Get('dish-list')
+    async getDishList(@Query('date', DateValidationPipe) date: Date) {
+        return await this.orderService.getDishList(date);
     }
 
     @Get()
