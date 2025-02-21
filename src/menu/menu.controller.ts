@@ -8,9 +8,9 @@ import {
 } from '@nestjs/common';
 
 import { Public } from '@auth/decorators';
+import { DateValidationPipe } from '@validators';
 
 import { MenuService } from './menu.service';
-import { DateValidationPipe } from './pipes/date-validation.pipe';
 
 @Public()
 @Controller('menu')

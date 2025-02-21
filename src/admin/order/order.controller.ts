@@ -1,3 +1,5 @@
+import { Response } from 'express';
+
 import {
     Body,
     Controller,
@@ -9,15 +11,17 @@ import {
     Patch,
     Post,
     Query,
+    Res,
     UseGuards
 } from '@nestjs/common';
 
 import { Role as RoleEnum } from '@prisma/client';
 
-import { Role } from '@auth/decorators';
+import { Public, Role } from '@auth/decorators';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { OrderStatus } from '@order/enums/order-status.enum';
 import { OrderService } from '@order/order.service';
+import { DateValidationPipe } from '@validators';
 
 import { AdminOrderRequestDto } from './dto/admin-order-request.dto';
 
@@ -30,6 +34,16 @@ export class OrderController {
     @Get('stats')
     async getStats() {
         return await this.orderService.getStats();
+    }
+
+    // @Public()
+    @Get('route-list')
+    async getRouteList(
+        @Res() res: Response,
+        @Query('start_date', DateValidationPipe) startDate: Date,
+        @Query('end_date', DateValidationPipe) endDate: Date
+    ) {
+        return await this.orderService.getRouteList(res, startDate, endDate);
     }
 
     @Get()

@@ -1,3 +1,6 @@
+import { Border, Workbook } from 'exceljs';
+import { Response } from 'express';
+
 import {
     BadRequestException,
     Injectable,
@@ -770,5 +773,118 @@ export class OrderService {
         }
 
         return { dish: this.dishService.createDto(existingOrderDish.dish) };
+    }
+
+    async getRouteList(res: Response, startDate: Date, endDate: Date) {
+        const orders = await this.orderRepository.findMany({
+            select: {
+                id: true,
+                fullName: true,
+                phone: true,
+                city: true,
+                street: true,
+                house: true,
+                floor: true,
+                apartment: true,
+                comment: true
+            },
+            where: {
+                orderDays: { some: { date: { gte: startDate, lte: endDate } } }
+            }
+        });
+
+        const workbook = new Workbook();
+
+        const worksheet = workbook.addWorksheet();
+
+        worksheet.columns = [
+            { header: '#', key: 'id' },
+            { header: 'Заказчик', key: 'fullName', width: 20 },
+            { header: 'Телефон', key: 'phone', width: 20 },
+            { header: 'Адрес', key: 'address', width: 50 },
+            { header: 'Комментарий', key: 'comment', width: 100 }
+        ];
+
+        worksheet.spliceRows(1, 0, []);
+
+        const dateRange = `${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+
+        const titleRow = worksheet.getRow(1);
+        titleRow.getCell(1).value = dateRange;
+
+        worksheet.mergeCells(1, 1, 1, worksheet.columns.length);
+
+        titleRow.eachCell(cell => {
+            cell.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+            };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        });
+
+        const headerRow = worksheet.getRow(2);
+
+        headerRow.eachCell(cell => {
+            cell.border = {
+                top: { style: 'thin' },
+                left: { style: 'thin' },
+                bottom: { style: 'thin' },
+                right: { style: 'thin' }
+            };
+            cell.font = { bold: true };
+            cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        });
+
+        for (const {
+            id,
+            fullName,
+            phone,
+            city,
+            street,
+            house,
+            floor,
+            apartment,
+            comment
+        } of orders) {
+            let address = `${city.nameHe}, ${street} ${house}`;
+
+            if (floor) {
+                address += `, ${floor} этаж`;
+            }
+
+            if (apartment) {
+                address += `, кв. ${apartment}`;
+            }
+
+            const row = worksheet.addRow({
+                id,
+                fullName,
+                phone,
+                address,
+                comment
+            });
+
+            row.eachCell(cell => {
+                cell.border = {
+                    top: { style: 'thin' },
+                    left: { style: 'thin' },
+                    bottom: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+                cell.alignment = {
+                    horizontal: 'center',
+                    vertical: 'middle',
+                    wrapText: true
+                };
+            });
+        }
+
+        const buffer = await workbook.xlsx.writeBuffer();
+
+        return res
+            .set('Content-Disposition', `attachment; filename=route_list.xlsx`)
+            .send(buffer);
     }
 }
