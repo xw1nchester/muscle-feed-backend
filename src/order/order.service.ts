@@ -555,7 +555,7 @@ export class OrderService {
         return {
             order: {
                 ...rest,
-                user: this.userService.createDto(user),
+                user: userId ? this.userService.createDto(user) : null,
                 city: this.cityService.createDto(city),
                 paymentMethod: this.createPaymentMethodDto(paymentMethod),
                 menu: this.menuService.createShortDto(menu),
