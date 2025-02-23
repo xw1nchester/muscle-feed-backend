@@ -1,0 +1,15 @@
+.husky
+dist
+node_modules
+test
+uploads
+.dockerignore
+.env
+.env.example
+.gitignore
+.prettierrc
+Dockerfile
+er.drawio
+README.md
+.DS_Store
+.git

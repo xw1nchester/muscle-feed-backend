@@ -25,9 +25,9 @@ import { DateValidationPipe } from '@validators';
 
 import { AdminOrderRequestDto } from './dto/admin-order-request.dto';
 
-@UseGuards(RoleGuard)
-@Role(RoleEnum.MODERATOR)
-// @Public()
+// @UseGuards(RoleGuard)
+// @Role(RoleEnum.MODERATOR)
+@Public()
 @Controller('admin/order')
 export class OrderController {
     constructor(private readonly orderService: OrderService) {}
@@ -37,7 +37,6 @@ export class OrderController {
         return await this.orderService.getStats();
     }
 
-    // @Public()
     @Get('route-list')
     async getRouteList(
         @Res() res: Response,
@@ -47,9 +46,18 @@ export class OrderController {
         return await this.orderService.getRouteList(res, startDate, endDate);
     }
 
-    @Get('dish-list')
-    async getDishList(@Query('date', DateValidationPipe) date: Date) {
-        return await this.orderService.getDishList(date);
+    @Get('insert')
+    async getInserts(@Query('date', DateValidationPipe) date: Date) {
+        return await this.orderService.getInserts(date);
+    }
+
+    @Get('dish-report')
+    async getDishReport(
+        @Res() res: Response,
+        @Query('start_date', DateValidationPipe) startDate: Date,
+        @Query('end_date', DateValidationPipe) endDate: Date
+    ) {
+        return await this.orderService.getDishReport(res, startDate, endDate);
     }
 
     @Get()
