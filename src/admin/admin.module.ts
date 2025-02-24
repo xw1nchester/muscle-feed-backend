@@ -14,6 +14,8 @@ import { DishController } from './dish/dish.controller';
 import { FaqController } from './faq/faq.controller';
 import { MenuController } from './menu/menu.controller';
 import { OrderController } from './order/order.controller';
+import { ReportController } from './report/report.controller';
+import { ReportService } from './report/report.service';
 import { ReviewController } from './review/review.controller';
 import { TeamController } from './team/team.controller';
 import { UploadController } from './upload/upload.controller';
@@ -39,7 +41,9 @@ import { UserController } from './user/user.controller';
         FaqController,
         CityController,
         OrderController,
-        UserController
-    ]
+        UserController,
+        ReportController
+    ],
+    providers: [ReportService]
 })
 export class AdminModule {}

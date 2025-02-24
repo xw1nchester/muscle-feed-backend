@@ -1303,6 +1303,30 @@ paths:
                                         type: array
                                         items:
                                             $ref: '#/components/schemas/FileDto'
+    /api/admin/upload/map:
+        post:
+            tags:
+                - Admin Upload
+            requestBody:
+                content:
+                    multipart/form-data:
+                        schema:
+                            type: object
+                            properties:
+                                file:
+                                    type: string
+                                    format: binary
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/json:
+                            schema:
+                                properties:
+                                    files:
+                                        type: array
+                                        items:
+                                            $ref: '#/components/schemas/FileDto'
     /api/upload:
         post:
             tags:
@@ -1343,6 +1367,19 @@ paths:
                   schema:
                       type: string
                       example: 42c193f6-1ccc-4376-aef7-4f302817adc3.png
+            responses:
+                '200':
+                    description: 'Success'
+                    content:
+                        application/octet-stream:
+                            schema:
+                                type: string
+                                format: binary
+    /static/map.png:
+        get:
+            tags:
+                - File
+            security: []
             responses:
                 '200':
                     description: 'Success'
@@ -2625,10 +2662,10 @@ paths:
                                 properties:
                                     order:
                                         $ref: '#/components/schemas/OrderResponseDto'
-    /api/admin/order/route-list:
+    /api/admin/report/route-list:
         get:
             tags:
-                - Admin Order
+                - Admin Report
             parameters:
                 - name: start_date
                   in: query
@@ -2647,10 +2684,10 @@ paths:
             responses:
                 '200':
                     description: 'Success'
-    /api/admin/order/dish-list:
+    /api/admin/report/insert:
         get:
             tags:
-                - Admin Order
+                - Admin Report
             parameters:
                 - name: date
                   in: query
@@ -2681,6 +2718,28 @@ paths:
                                                         $ref: '#/components/schemas/DishResponseDto'
                                                 total:
                                                     $ref: '#/components/schemas/TotalDto'
+    /api/admin/report/dish:
+        get:
+            tags:
+                - Admin Report
+            parameters:
+                - name: start_date
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                      format: date
+                      example: 2025-02-17
+                - name: end_date
+                  in: query
+                  required: true
+                  schema:
+                      type: string
+                      format: date
+                      example: 2025-02-17
+            responses:
+                '200':
+                    description: 'Success'
     /api/order/payment-method:
         get:
             tags:

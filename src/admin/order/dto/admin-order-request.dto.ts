@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsNotEmpty, IsNumber, IsOptional } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional } from 'class-validator';
 
 import { OrderRequestDto } from '@order/dto/order-request.dto';
 
@@ -7,7 +7,6 @@ export class AdminOrderRequestDto extends OrderRequestDto {
     @Transform(({ value }) => Number(value))
     @IsOptional()
     @IsNumber()
-    @IsNotEmpty()
     userId: number;
 
     @Transform(({ value }) => Number(value))

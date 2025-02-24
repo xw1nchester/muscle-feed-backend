@@ -5,18 +5,24 @@ import { v4 } from 'uuid';
 import {
     BadRequestException,
     Controller,
+    FileTypeValidator,
+    ParseFilePipe,
     Post,
+    UploadedFile,
     UploadedFiles,
     UseGuards,
     UseInterceptors
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { FilesInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 import { Role as RoleEnum } from '@prisma/client';
 
 import { Role } from '@auth/decorators';
 import { RoleGuard } from '@auth/guards/role.guard';
+import { UploadedFile as UploadedFileDto } from '@upload/interfaces';
+
+import { MapPipe } from './pipes/map.pipe';
 
 @Controller('admin/upload')
 export class UploadController {
@@ -53,5 +59,19 @@ export class UploadController {
                 size
             }))
         };
+    }
+
+    @UseInterceptors(FileInterceptor('file'))
+    @Post('map')
+    async uploadMap(
+        @UploadedFile(
+            new ParseFilePipe({
+                validators: [new FileTypeValidator({ fileType: 'image/*' })]
+            }),
+            MapPipe
+        )
+        file: UploadedFileDto
+    ) {
+        return { file };
     }
 }
