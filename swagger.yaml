@@ -1,2965 +1,2965 @@
 openapi: 3.0.0
 info:
-    title: Muscle Feed
-    version: 1.0.0
-    description: API Documentation for Muscle Feed backend
+  title: Muscle Feed
+  version: 1.0.0
+  description: API Documentation for Muscle Feed backend
 components:
-    schemas:
-        UserDto:
+  schemas:
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        email:
+          type: string
+          format: email
+        isVerified:
+          type: boolean
+        roles:
+          type: array
+          items:
+            enum:
+              - ADMIN
+              - MODERATOR
+        firstName:
+          type: string
+          example: Rob
+        lastName:
+          type: string
+          example: Top
+        phone:
+          type: string
+          example: +79123456789
+        allergies:
+          type: string
+          example: "Морковь"
+    AuthDto:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/UserDto"
+        accessToken:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ4Y3Jvd25sZXNzQG1haWwucnUiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3Mzg1OTQxNzMsImV4cCI6ODgxMzg1OTQxNzN9.dmQAXWl2nvmgrKjL41XsuQXkC7efWpaNwYD9yuW9Bfc
+    FileDto:
+      type: object
+      properties:
+        url:
+          type: string
+          example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        name:
+          type: string
+          example: dog.jpeg
+        type:
+          type: string
+          example: image/png
+        size:
+          type: integer
+          example: 100500
+    TeamRequestDto:
+      type: object
+      properties:
+        picture:
+          type: string
+          example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        roleRu:
+          type: string
+          example: Бармен
+        roleHe:
+          type: string
+          example: ברמן
+        nameRu:
+          type: string
+          example: Дмитрий Сидоров
+        nameHe:
+          type: string
+          example: דימיטרי סידורוב
+        descriptionRu:
+          type: string
+          example: Профессиональный бармен, который умеет создавать уникальные коктейли и всегда поддерживает атмосферу в баре.
+        descriptionHe:
+          type: string
+          example: ברמן מקצועי שיודע ליצור קוקטיילים ייחודיים ומתחזק את האווירה בבר
+      required:
+        - picture
+        - roleRu
+        - roleHe
+        - nameRu
+        - nameHe
+        - descriptionRu
+        - descriptionHe
+    TeamResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        picture:
+          type: string
+          example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        role:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Бармен
+            he:
+              type: string
+              example: ברמן
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Дмитрий Сидоров
+            he:
+              type: string
+              example: דימיטרי סידורוב
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Профессиональный бармен, который умеет создавать уникальные коктейли и всегда поддерживает атмосферу в баре.
+            he:
+              type: string
+              example: ברמן מקצועי שיודע ליצור קוקטיילים ייחודיים ומתחזק את האווירה בבר
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    AddressRequestDto:
+      type: object
+      properties:
+        cityId:
+          type: number
+        street:
+          type: string
+          example: ул. Советская
+        house:
+          type: string
+          example: 33/1
+        floor:
+          type: integer
+        apartment:
+          type: integer
+      required:
+        - city
+        - street
+        - house
+    AddressResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        city:
+          $ref: "#/components/schemas/CityResponseDto"
+        street:
+          type: string
+          example: ул. Советская
+        house:
+          type: string
+          example: 33/1
+        floor:
+          type: integer
+        apartment:
+          type: integer
+        isPrimary:
+          type: boolean
+    ReviewResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        picture:
+          type: string
+          example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        author:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Иван
+            he:
+              type: string
+              example: יִשְׂרָאֵל
+        text:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Прекрасный отзыв!
+            he:
+              type: string
+              example: ביקורת נהדרת!
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ReviewRequestAdminDto:
+      type: object
+      properties:
+        picture:
+          type: string
+          example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        authorRu:
+          type: string
+          example: Иван
+        authorHe:
+          type: string
+          example: יִשְׂרָאֵל
+        textRu:
+          type: string
+          example: Прекрасный отзыв!
+        textHe:
+          type: string
+          example: ביקורת נהדרת!
+        isPublished:
+          type: boolean
+    DishRequestDto:
+      type: object
+      properties:
+        adminName:
+          type: string
+          example: "Стейк с картофелем"
+        nameRu:
+          type: string
+          example: "Стейк с картофелем"
+        nameHe:
+          type: string
+          example: "סטייק עם תפוחי אדמה"
+        dishTypeId:
+          type: integer
+        picture:
+          type: string
+          example: "http://localhost:8080/static/7fbe6f80-800e-4520-9580-e60e3c93fc20.png"
+        descriptionRu:
+          type: string
+          example: "Сочный стейк с картофельным пюре и овощами."
+        descriptionHe:
+          type: string
+          example: "סטייק עסיסי עם פירה תפוחי אדמה וירקות."
+        calories:
+          type: integer
+        weight:
+          type: integer
+        proteins:
+          type: integer
+        fats:
+          type: integer
+        carbohydrates:
+          type: integer
+        price:
+          type: integer
+        isPublished:
+          type: boolean
+        benefit:
+          type: string
+          example: "Польза"
+    DishTypeResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Завтрак"
+            he:
+              type: string
+              example: "ארוחת בוקר"
+    DishResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        adminName:
+          type: string
+          example: "Стейк с картофелем"
+        dishType:
+          $ref: "#/components/schemas/DishTypeResponseDto"
+        picture:
+          type: string
+          example: "http://localhost:8080/static/7fbe6f80-800e-4520-9580-e60e3c93fc20.png"
+        calories:
+          type: integer
+        weight:
+          type: integer
+        proteins:
+          type: integer
+        fats:
+          type: integer
+        carbohydrates:
+          type: integer
+        price:
+          type: integer
+        isPublished:
+          type: boolean
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Стейк с картофелем"
+            he:
+              type: string
+              example: "סטייק עם תפוחי אדמה"
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сочный стейк с картофельным пюре и овощами."
+            he:
+              type: string
+              example: "סטייק עסיסי עם פירה תפוחי אדמה וירקות."
+        benefit:
+          type: string
+          example: "Польза"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    MenuTypeRequestDto:
+      type: object
+      properties:
+        adminName:
+          type: string
+          example: "Программа питания"
+        nameRu:
+          type: string
+          example: "Программа питания"
+        nameHe:
+          type: string
+          example: "תוכנית תזונה"
+        descriptionRu:
+          type: string
+          example: "Рациональное питание для поддержания здорового образа жизни."
+        descriptionHe:
+          type: string
+          example: "תזונה מאוזנת לשמירה על אורח חיים בריא."
+        shortDescriptionRu:
+          type: string
+          example: "Краткое описание программы питания."
+        shortDescriptionHe:
+          type: string
+          example: "תיאור קצר של תוכנית התזונה."
+        initialPriceRu:
+          type: string
+          example: "3500"
+        initialPriceHe:
+          type: string
+          example: "3500"
+        backgroundPicture:
+          type: string
+          example: "http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png"
+        order:
+          type: integer
+        isPublished:
+          type: boolean
+    MenuTypeResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        adminName:
+          type: string
+          example: "Простое решение"
+        backgroundPicture:
+          type: string
+          example: "http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png"
+        order:
+          type: integer
+        isPublished:
+          type: boolean
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Простое решение"
+            he:
+              type: string
+              example: "פתרון פשוט"
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Базовое сбалансированное меню на каждый день."
+            he:
+              type: string
+              example: "תפריט בסיסי ומאוזן לכל יום."
+        shortDescription:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Простое и вкусное меню."
+            he:
+              type: string
+              example: "תפריט פשוט וטעים."
+        initialPrice:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "От 1000 руб."
+            he:
+              type: string
+              example: "מ-1000 רובל"
+        menusCount:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    MenuTypeResponseShortDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Простое решение"
+            he:
+              type: string
+              example: "פתרון פשוט"
+    MenuDayRequestDto:
+      type: object
+      properties:
+        number:
+          type: integer
+        dishes:
+          type: array
+          items:
             type: object
             properties:
-                id:
-                    type: integer
-                email:
-                    type: string
-                    format: email
-                isVerified:
-                    type: boolean
-                roles:
-                    type: array
-                    items:
-                        enum:
-                            - ADMIN
-                            - MODERATOR
-                firstName:
-                    type: string
-                    example: Rob
-                lastName:
-                    type: string
-                    example: Top
-                phone:
-                    type: string
-                    example: +79123456789
-                allergies:
-                    type: string
-                    example: 'Морковь'
-        AuthDto:
-            type: object
-            properties:
-                user:
-                    $ref: '#/components/schemas/UserDto'
-                accessToken:
-                    type: string
-                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ4Y3Jvd25sZXNzQG1haWwucnUiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3Mzg1OTQxNzMsImV4cCI6ODgxMzg1OTQxNzN9.dmQAXWl2nvmgrKjL41XsuQXkC7efWpaNwYD9yuW9Bfc
-        FileDto:
-            type: object
-            properties:
-                url:
-                    type: string
-                    example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
-                name:
-                    type: string
-                    example: dog.jpeg
-                type:
-                    type: string
-                    example: image/png
-                size:
-                    type: integer
-                    example: 100500
-        TeamRequestDto:
-            type: object
-            properties:
-                picture:
-                    type: string
-                    example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
-                roleRu:
-                    type: string
-                    example: Бармен
-                roleHe:
-                    type: string
-                    example: ברמן
-                nameRu:
-                    type: string
-                    example: Дмитрий Сидоров
-                nameHe:
-                    type: string
-                    example: דימיטרי סידורוב
-                descriptionRu:
-                    type: string
-                    example: Профессиональный бармен, который умеет создавать уникальные коктейли и всегда поддерживает атмосферу в баре.
-                descriptionHe:
-                    type: string
-                    example: ברמן מקצועי שיודע ליצור קוקטיילים ייחודיים ומתחזק את האווירה בבר
-            required:
-                - picture
-                - roleRu
-                - roleHe
-                - nameRu
-                - nameHe
-                - descriptionRu
-                - descriptionHe
-        TeamResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                picture:
-                    type: string
-                    example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
-                role:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: Бармен
-                        he:
-                            type: string
-                            example: ברמן
-                name:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: Дмитрий Сидоров
-                        he:
-                            type: string
-                            example: דימיטרי סידורוב
-                description:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: Профессиональный бармен, который умеет создавать уникальные коктейли и всегда поддерживает атмосферу в баре.
-                        he:
-                            type: string
-                            example: ברמן מקצועי שיודע ליצור קוקטיילים ייחודיים ומתחזק את האווירה בבר
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-        AddressRequestDto:
-            type: object
-            properties:
-                cityId:
-                    type: number
-                street:
-                    type: string
-                    example: ул. Советская
-                house:
-                    type: string
-                    example: 33/1
-                floor:
-                    type: integer
-                apartment:
-                    type: integer
-            required:
-                - city
-                - street
-                - house
-        AddressResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                city:
-                    $ref: '#/components/schemas/CityResponseDto'
-                street:
-                    type: string
-                    example: ул. Советская
-                house:
-                    type: string
-                    example: 33/1
-                floor:
-                    type: integer
-                apartment:
-                    type: integer
-                isPrimary:
-                    type: boolean
-        ReviewResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                picture:
-                    type: string
-                    example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
-                author:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: Иван
-                        he:
-                            type: string
-                            example: יִשְׂרָאֵל
-                text:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: Прекрасный отзыв!
-                        he:
-                            type: string
-                            example: ביקורת נהדרת!
-                isPublished:
-                    type: boolean
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-        ReviewRequestAdminDto:
-            type: object
-            properties:
-                picture:
-                    type: string
-                    example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
-                authorRu:
-                    type: string
-                    example: Иван
-                authorHe:
-                    type: string
-                    example: יִשְׂרָאֵל
-                textRu:
-                    type: string
-                    example: Прекрасный отзыв!
-                textHe:
-                    type: string
-                    example: ביקורת נהדרת!
-                isPublished:
-                    type: boolean
-        DishRequestDto:
-            type: object
-            properties:
-                adminName:
-                    type: string
-                    example: 'Стейк с картофелем'
-                nameRu:
-                    type: string
-                    example: 'Стейк с картофелем'
-                nameHe:
-                    type: string
-                    example: 'סטייק עם תפוחי אדמה'
-                dishTypeId:
-                    type: integer
-                picture:
-                    type: string
-                    example: 'http://localhost:8080/static/7fbe6f80-800e-4520-9580-e60e3c93fc20.png'
-                descriptionRu:
-                    type: string
-                    example: 'Сочный стейк с картофельным пюре и овощами.'
-                descriptionHe:
-                    type: string
-                    example: 'סטייק עסיסי עם פירה תפוחי אדמה וירקות.'
-                calories:
-                    type: integer
-                weight:
-                    type: integer
-                proteins:
-                    type: integer
-                fats:
-                    type: integer
-                carbohydrates:
-                    type: integer
-                price:
-                    type: integer
-                isPublished:
-                    type: boolean
-                benefit:
-                    type: string
-                    example: 'Польза'
-        DishTypeResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                name:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Завтрак'
-                        he:
-                            type: string
-                            example: 'ארוחת בוקר'
-        DishResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                adminName:
-                    type: string
-                    example: 'Стейк с картофелем'
-                dishType:
-                    $ref: '#/components/schemas/DishTypeResponseDto'
-                picture:
-                    type: string
-                    example: 'http://localhost:8080/static/7fbe6f80-800e-4520-9580-e60e3c93fc20.png'
-                calories:
-                    type: integer
-                weight:
-                    type: integer
-                proteins:
-                    type: integer
-                fats:
-                    type: integer
-                carbohydrates:
-                    type: integer
-                price:
-                    type: integer
-                isPublished:
-                    type: boolean
-                name:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Стейк с картофелем'
-                        he:
-                            type: string
-                            example: 'סטייק עם תפוחי אדמה'
-                description:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Сочный стейк с картофельным пюре и овощами.'
-                        he:
-                            type: string
-                            example: 'סטייק עסיסי עם פירה תפוחי אדמה וירקות.'
-                benefit:
-                    type: string
-                    example: 'Польза'
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-        MenuTypeRequestDto:
-            type: object
-            properties:
-                adminName:
-                    type: string
-                    example: 'Программа питания'
-                nameRu:
-                    type: string
-                    example: 'Программа питания'
-                nameHe:
-                    type: string
-                    example: 'תוכנית תזונה'
-                descriptionRu:
-                    type: string
-                    example: 'Рациональное питание для поддержания здорового образа жизни.'
-                descriptionHe:
-                    type: string
-                    example: 'תזונה מאוזנת לשמירה על אורח חיים בריא.'
-                shortDescriptionRu:
-                    type: string
-                    example: 'Краткое описание программы питания.'
-                shortDescriptionHe:
-                    type: string
-                    example: 'תיאור קצר של תוכנית התזונה.'
-                initialPriceRu:
-                    type: string
-                    example: '3500'
-                initialPriceHe:
-                    type: string
-                    example: '3500'
-                backgroundPicture:
-                    type: string
-                    example: 'http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png'
-                order:
-                    type: integer
-                isPublished:
-                    type: boolean
-        MenuTypeResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                adminName:
-                    type: string
-                    example: 'Простое решение'
-                backgroundPicture:
-                    type: string
-                    example: 'http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png'
-                order:
-                    type: integer
-                isPublished:
-                    type: boolean
-                name:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Простое решение'
-                        he:
-                            type: string
-                            example: 'פתרון פשוט'
-                description:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Базовое сбалансированное меню на каждый день.'
-                        he:
-                            type: string
-                            example: 'תפריט בסיסי ומאוזן לכל יום.'
-                shortDescription:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Простое и вкусное меню.'
-                        he:
-                            type: string
-                            example: 'תפריט פשוט וטעים.'
-                initialPrice:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'От 1000 руб.'
-                        he:
-                            type: string
-                            example: 'מ-1000 רובל'
-                menusCount:
-                    type: integer
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-        MenuTypeResponseShortDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                name:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Простое решение'
-                        he:
-                            type: string
-                            example: 'פתרון פשוט'
-        MenuDayRequestDto:
-            type: object
-            properties:
-                number:
-                    type: integer
-                dishes:
-                    type: array
-                    items:
-                        type: object
-                        properties:
-                            dishTypeId:
-                                type: integer
-                            dishId:
-                                type: integer
-                            isPrimary:
-                                type: boolean
-        MenuPriceRequestDto:
-            type: object
-            properties:
-                daysCount:
-                    type: integer
-                price:
-                    type: integer
-                totalPriceRu:
-                    type: string
-                    example: '620 ₪ за заказ'
-                    description: 'Общая стоимость заказа'
-                totalPriceHe:
-                    type: string
-                    example: '620 ₪ להזמנה'
-                    description: 'המחיר הכולל להזמנה'
-                pricePerDayRu:
-                    type: string
-                    example: '104 ₪ всего за день'
-                    description: 'Стоимость за день'
-                pricePerDayHe:
-                    type: string
-                    example: '104 ₪ ליום'
-                    description: 'המחיר ליום'
-        MenuRequestDto:
-            type: object
-            properties:
-                menuTypeId:
-                    type: integer
-                adminName:
-                    type: string
-                    example: 'Сбалансированное меню'
-                nameRu:
-                    type: string
-                    example: 'Сбалансированное меню'
-                nameHe:
-                    type: string
-                    example: 'תפריט מאוזן'
-                descriptionRu:
-                    type: string
-                    example: 'Сбалансированное меню'
-                descriptionHe:
-                    type: string
-                    example: 'תפריט מאוזן'
-                mealsCountRu:
-                    type: string
-                    example: '5 приемов пищи в день'
-                mealsCountHe:
-                    type: string
-                    example: '5 ארוחות ביום'
-                calories:
-                    type: integer
-                order:
-                    type: integer
-                cycleStartDate:
-                    type: string
-                    format: date-time
-                isPublished:
-                    type: boolean
-                days:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/MenuDayRequestDto'
-                prices:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/MenuPriceRequestDto'
-        MenuResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                adminName:
-                    type: string
-                    example: 'Сбалансированное меню'
-                name:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Сбалансированное меню'
-                        he:
-                            type: string
-                            example: 'תפריט מאוזן'
-                description:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Сбалансированное меню'
-                        he:
-                            type: string
-                            example: 'תפריט מאוזן'
-                mealsCount:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: '5 приемов пищи в день'
-                        he:
-                            type: string
-                            example: '5 ארוחות ביוםן'
-                calories:
-                    type: integer
-                order:
-                    type: integer
-                cycleStartDate:
-                    type: string
-                    format: date-time
-                isPublished:
-                    type: boolean
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-                menuType:
-                    type: object
-                    properties:
-                        id:
-                            type: integer
-                        name:
-                            type: object
-                            properties:
-                                ru:
-                                    type: string
-                                    example: 'Простое решение'
-                                he:
-                                    type: string
-                                    example: 'פתרון פשוט'
-                        daysCount:
-                            type: integer
-                prices:
-                    type: array
-                    items:
-                        type: object
-                        properties:
-                            id:
-                                type: integer
-                            daysCount:
-                                type: integer
-                            price:
-                                type: integer
-                            totalPrice:
-                                type: object
-                                properties:
-                                    ru:
-                                        type: string
-                                        example: '620 ₪ за заказ'
-                                    he:
-                                        type: string
-                                        example: '620 ₪ להזמנה'
-                            pricePerDay:
-                                type: object
-                                properties:
-                                    ru:
-                                        type: string
-                                        example: '104 ₪ всего за день'
-                                    he:
-                                        type: string
-                                        example: '104 ₪ ליום אחד בלבד'
-        MenuResponseAdminDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                adminName:
-                    type: string
-                    example: 'Сбалансированное меню'
-                name:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Сбалансированное меню'
-                        he:
-                            type: string
-                            example: 'תפריט מאוזן'
-                description:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Сбалансированное меню'
-                        he:
-                            type: string
-                            example: 'תפריט מאוזן'
-                mealsCount:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: '5 приемов пищи в день'
-                        he:
-                            type: string
-                            example: '5 ארוחות ביוםן'
-                calories:
-                    type: integer
-                order:
-                    type: integer
-                cycleStartDate:
-                    type: string
-                    format: date-time
-                isPublished:
-                    type: boolean
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-                menuTypeId:
-                    type: integer
-                days:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/MenuDayRequestDto'
-                prices:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/MenuPriceRequestDto'
-        MenuResponseShortDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                name:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Сбалансированное меню'
-                        he:
-                            type: string
-                            example: 'תפריט מאוזן'
-                description:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Сбалансированное меню'
-                        he:
-                            type: string
-                            example: 'תפריט מאוזן'
-                calories:
-                    type: integer
-        PaymentMethodResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                name:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Картой курьеру, при получении заказа'
-                        he:
-                            type: string
-                            example: 'בכרטיס אשראי לשליח, ברגע קבלת המשלוח'
-        OrderRequestDto:
-            properties:
-                menuId:
-                    type: integer
-                startDate:
-                    type: string
-                    format: date
-                    example: 2025-02-17
-                daysCount:
-                    type: integer
-                skippedWeekdays:
-                    description: Numbers from 1 to 7 (1 - Mon, 2 Tues, etc.). It may be empty.
-                    type: array
-                    items:
-                        type: integer
-                paymentMethodId:
-                    type: integer
-                fullName:
-                    type: string
-                    example: 'Иван Иванов'
-                email:
-                    type: string
-                    format: email
-                phone:
-                    type: string
-                    example: '+79876543210'
-                allergies:
-                    type: string
-                    example: 'Орехи'
-                cityId:
-                    type: integer
-                street:
-                    type: string
-                    example: 'Ленина'
-                house:
-                    type: string
-                    example: '10'
-                floor:
-                    type: integer
-                apartment:
-                    type: integer
-                comment:
-                    type: string
-                    example: 'Позвоните за 10 минут до доставки'
-            required:
-                - menuId
-                - startDate
-                - daysCount
-                - skippedWeekdays
-                - paymentMethodId
-                - fullName
-                - email
-                - phone
-                - cityId
-                - street
-                - house
-        OrderRequestAdminDto:
-            allOf:
-                - $ref: '#/components/schemas/OrderRequestDto'
-                - properties:
-                      userId:
-                          type: integer
-                      price:
-                          type: integer
-                      paidAmount:
-                          type: integer
-                      promocodeDiscount:
-                          type: integer
-                      finalPrice:
-                          type: integer
-                      isProcessed:
-                          type: boolean
-                      isAllowedExtendion:
-                          type: boolean
-                      isPaid:
-                          type: boolean
-                  required:
-                      - price
-                      - finalPrice
-                      - isProcessed
-                      - isAllowedExtendion
-                      - isPaid
-        OrderResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                createdAt:
-                    type: string
-                    format: date-time
-                fullName:
-                    type: string
-                    example: Иван Ромашов
-                email:
-                    type: string
-                    format: email
-                phone:
-                    type: string
-                    example: +79123456789
-                allergies:
-                    type: string
-                    example: Орехи
-                finalPrice:
-                    type: integer
-                menu:
-                    $ref: '#/components/schemas/MenuResponseShortDto'
-                city:
-                    $ref: '#/components/schemas/CityResponseDto'
-                street:
-                    type: string
-                    example: 'Ленина'
-                house:
-                    type: string
-                    example: '10'
-                floor:
-                    type: integer
-                apartment:
-                    type: integer
-                comment:
-                    type: string
-                    example: 'Позвоните за 10 минут до доставк'
-                daysCount:
-                    type: integer
-                daysLeft:
-                    type: integer
-                startDate:
-                    type: string
-                    format: date
-                    example: 2025-02-17
-                endDate:
-                    type: string
-                    format: date
-                    example: 2025-02-17
-                skippedWeekdays:
-                    type: array
-                    items:
-                        type: integer
-                paymentMethod:
-                    $ref: '#/components/schemas/PaymentMethodResponseDto'
-                isPaid:
-                    type: boolean
-        TotalDto:
-            type: object
-            properties:
-                calories:
-                    type: integer
-                proteins:
-                    type: integer
-                fats:
-                    type: integer
-                carbohydrates:
-                    type: integer
-        FaqCategoryRequestDto:
-            type: object
-            properties:
-                picture:
-                    type: string
-                    example: 'http://localhost:8080/static/bcdc9636-1696-4455-af0b-9c43310d9805.jpeg'
-                nameRu:
-                    type: string
-                    example: 'Оплата'
-                nameHe:
-                    type: string
-                    example: 'משלוח'
-        FaqCategoryResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                picture:
-                    type: string
-                    example: 'http://localhost:8080/static/bcdc9636-1696-4455-af0b-9c43310d9805.jpeg'
-                name:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Оплата'
-                        he:
-                            type: string
-                            example: 'משלוח'
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-                faqCount:
-                    type: integer
-        FaqRequestDto:
-            type: object
-            properties:
-                faqCategoryId:
-                    type: integer
-                questionRu:
-                    type: string
-                    example: 'Какие способы оплаты доступны?'
-                questionHe:
-                    type: string
-                    example: 'אילו אמצעי תשלום זמינים?'
-                answerRu:
-                    type: string
-                    example: 'Вы можете оплатить заказ картой, через Apple Pay, Google Pay или наличными курьеру.'
-                answerHe:
-                    type: string
-                    example: 'ניתן לשלם עבור ההזמנה בכרטיס אשראי, Apple Pay, Google Pay או במזומן לשליח.'
-        FaqResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                question:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Какие способы оплаты доступны?'
-                        he:
-                            type: string
-                            example: 'אילו אמצעי תשלום זמינים?'
-                answer:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Вы можете оплатить заказ картой, через Apple Pay, Google Pay или наличными курьеру.'
-                        he:
-                            type: string
-                            example: 'ניתן לשלם עבור ההזמנה בכרטיס אשראי, Apple Pay, Google Pay או במזומן לשליח.'
-                faqCategory:
-                    $ref: '#/components/schemas/FaqCategoryResponseDto'
-                createdAt:
-                    type: string
-                    format: date-time
-                updatedAt:
-                    type: string
-                    format: date-time
-        CityRequestDto:
-            type: object
-            properties:
-                nameRu:
-                    type: string
-                    example: 'Хайфа'
-                nameHe:
-                    type: string
-                    example: 'חיפה'
-        CityResponseDto:
-            type: object
-            properties:
-                id:
-                    type: integer
-                name:
-                    type: object
-                    properties:
-                        ru:
-                            type: string
-                            example: 'Хайфа'
-                        he:
-                            type: string
-                            example: 'חיפה'
-        PaginationBodyFields:
-            type: object
-            properties:
-                totalCount:
-                    type: integer
-                page:
-                    type: integer
-                totalPages:
-                    type: integer
-                isLast:
-                    type: boolean
-    parameters:
-        Page:
-            name: page
-            in: query
-            required: false
-            schema:
+              dishTypeId:
                 type: integer
-                default: 1
-        Limit:
-            name: limit
-            in: query
-            required: false
-            schema:
+              dishId:
                 type: integer
-                default: 5
-        Status:
-            name: status
-            in: query
-            required: false
-            description: all - все заказы (по умолчанию), active - активные, frozen - замороженные, unpaid - неоплаченные, completed - завершенные, pending - ожидающие, terminating - завершающиеся, unprocessed - необработанные
-            schema:
-                type: string
-                default: all
-                enum:
-                    - all
-                    - active
-                    - frozen
-                    - unpaid
-                    - completed
-                    - pending
-                    - terminating
-                    - unprocessed
-    requestBodies:
-        Team:
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/TeamRequestDto'
-        Address:
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/AddressRequestDto'
-        AdminReview:
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/ReviewRequestAdminDto'
-        Dish:
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/DishRequestDto'
-        MenuType:
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/MenuTypeRequestDto'
-        Menu:
-            description: The days should go in the order 1, 2, 3, etc. Within one meal, all dishes must be unique, and there must be exactly one main course.
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/MenuRequestDto'
-        FaqCategory:
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/FaqCategoryRequestDto'
-        Faq:
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/FaqRequestDto'
-        City:
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/CityRequestDto'
-        Order:
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/OrderRequestDto'
-        AdminOrder:
-            content:
-                application/json:
-                    schema:
-                        $ref: '#/components/schemas/OrderRequestAdminDto'
-    securitySchemes:
-        BearerAuth:
-            type: http
-            scheme: bearer
+              isPrimary:
+                type: boolean
+    MenuPriceRequestDto:
+      type: object
+      properties:
+        daysCount:
+          type: integer
+        price:
+          type: integer
+        totalPriceRu:
+          type: string
+          example: "620 ₪ за заказ"
+          description: "Общая стоимость заказа"
+        totalPriceHe:
+          type: string
+          example: "620 ₪ להזמנה"
+          description: "המחיר הכולל להזמנה"
+        pricePerDayRu:
+          type: string
+          example: "104 ₪ всего за день"
+          description: "Стоимость за день"
+        pricePerDayHe:
+          type: string
+          example: "104 ₪ ליום"
+          description: "המחיר ליום"
+    MenuRequestDto:
+      type: object
+      properties:
+        menuTypeId:
+          type: integer
+        adminName:
+          type: string
+          example: "Сбалансированное меню"
+        nameRu:
+          type: string
+          example: "Сбалансированное меню"
+        nameHe:
+          type: string
+          example: "תפריט מאוזן"
+        descriptionRu:
+          type: string
+          example: "Сбалансированное меню"
+        descriptionHe:
+          type: string
+          example: "תפריט מאוזן"
+        mealsCountRu:
+          type: string
+          example: "5 приемов пищи в день"
+        mealsCountHe:
+          type: string
+          example: "5 ארוחות ביום"
+        calories:
+          type: integer
+        order:
+          type: integer
+        cycleStartDate:
+          type: string
+          format: date-time
+        isPublished:
+          type: boolean
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/MenuDayRequestDto"
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/MenuPriceRequestDto"
+    MenuResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        adminName:
+          type: string
+          example: "Сбалансированное меню"
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        mealsCount:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "5 приемов пищи в день"
+            he:
+              type: string
+              example: "5 ארוחות ביוםן"
+        calories:
+          type: integer
+        order:
+          type: integer
+        cycleStartDate:
+          type: string
+          format: date-time
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        menuType:
+          type: object
+          properties:
+            id:
+              type: integer
+            name:
+              type: object
+              properties:
+                ru:
+                  type: string
+                  example: "Простое решение"
+                he:
+                  type: string
+                  example: "פתרון פשוט"
+            daysCount:
+              type: integer
+        prices:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              daysCount:
+                type: integer
+              price:
+                type: integer
+              totalPrice:
+                type: object
+                properties:
+                  ru:
+                    type: string
+                    example: "620 ₪ за заказ"
+                  he:
+                    type: string
+                    example: "620 ₪ להזמנה"
+              pricePerDay:
+                type: object
+                properties:
+                  ru:
+                    type: string
+                    example: "104 ₪ всего за день"
+                  he:
+                    type: string
+                    example: "104 ₪ ליום אחד בלבד"
+    MenuResponseAdminDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        adminName:
+          type: string
+          example: "Сбалансированное меню"
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        mealsCount:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "5 приемов пищи в день"
+            he:
+              type: string
+              example: "5 ארוחות ביוםן"
+        calories:
+          type: integer
+        order:
+          type: integer
+        cycleStartDate:
+          type: string
+          format: date-time
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        menuTypeId:
+          type: integer
+        days:
+          type: array
+          items:
+            $ref: "#/components/schemas/MenuDayRequestDto"
+        prices:
+          type: array
+          items:
+            $ref: "#/components/schemas/MenuPriceRequestDto"
+    MenuResponseShortDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Сбалансированное меню"
+            he:
+              type: string
+              example: "תפריט מאוזן"
+        calories:
+          type: integer
+    PaymentMethodResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Картой курьеру, при получении заказа"
+            he:
+              type: string
+              example: "בכרטיס אשראי לשליח, ברגע קבלת המשלוח"
+    OrderRequestDto:
+      properties:
+        menuId:
+          type: integer
+        startDate:
+          type: string
+          format: date
+          example: 2025-02-17
+        daysCount:
+          type: integer
+        skippedWeekdays:
+          description: Numbers from 1 to 7 (1 - Mon, 2 Tues, etc.). It may be empty.
+          type: array
+          items:
+            type: integer
+        paymentMethodId:
+          type: integer
+        fullName:
+          type: string
+          example: "Иван Иванов"
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          example: "+79876543210"
+        allergies:
+          type: string
+          example: "Орехи"
+        cityId:
+          type: integer
+        street:
+          type: string
+          example: "Ленина"
+        house:
+          type: string
+          example: "10"
+        floor:
+          type: integer
+        apartment:
+          type: integer
+        comment:
+          type: string
+          example: "Позвоните за 10 минут до доставки"
+      required:
+        - menuId
+        - startDate
+        - daysCount
+        - skippedWeekdays
+        - paymentMethodId
+        - fullName
+        - email
+        - phone
+        - cityId
+        - street
+        - house
+    OrderRequestAdminDto:
+      allOf:
+        - $ref: "#/components/schemas/OrderRequestDto"
+        - properties:
+            userId:
+              type: integer
+            price:
+              type: integer
+            paidAmount:
+              type: integer
+            promocodeDiscount:
+              type: integer
+            finalPrice:
+              type: integer
+            isProcessed:
+              type: boolean
+            isAllowedExtendion:
+              type: boolean
+            isPaid:
+              type: boolean
+          required:
+            - price
+            - finalPrice
+            - isProcessed
+            - isAllowedExtendion
+            - isPaid
+    OrderResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        createdAt:
+          type: string
+          format: date-time
+        fullName:
+          type: string
+          example: Иван Ромашов
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          example: +79123456789
+        allergies:
+          type: string
+          example: Орехи
+        finalPrice:
+          type: integer
+        menu:
+          $ref: "#/components/schemas/MenuResponseShortDto"
+        city:
+          $ref: "#/components/schemas/CityResponseDto"
+        street:
+          type: string
+          example: "Ленина"
+        house:
+          type: string
+          example: "10"
+        floor:
+          type: integer
+        apartment:
+          type: integer
+        comment:
+          type: string
+          example: "Позвоните за 10 минут до доставк"
+        daysCount:
+          type: integer
+        daysLeft:
+          type: integer
+        startDate:
+          type: string
+          format: date
+          example: 2025-02-17
+        endDate:
+          type: string
+          format: date
+          example: 2025-02-17
+        skippedWeekdays:
+          type: array
+          items:
+            type: integer
+        paymentMethod:
+          $ref: "#/components/schemas/PaymentMethodResponseDto"
+        isPaid:
+          type: boolean
+    TotalDto:
+      type: object
+      properties:
+        calories:
+          type: integer
+        proteins:
+          type: integer
+        fats:
+          type: integer
+        carbohydrates:
+          type: integer
+    FaqCategoryRequestDto:
+      type: object
+      properties:
+        picture:
+          type: string
+          example: "http://localhost:8080/static/bcdc9636-1696-4455-af0b-9c43310d9805.jpeg"
+        nameRu:
+          type: string
+          example: "Оплата"
+        nameHe:
+          type: string
+          example: "משלוח"
+    FaqCategoryResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        picture:
+          type: string
+          example: "http://localhost:8080/static/bcdc9636-1696-4455-af0b-9c43310d9805.jpeg"
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Оплата"
+            he:
+              type: string
+              example: "משלוח"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        faqCount:
+          type: integer
+    FaqRequestDto:
+      type: object
+      properties:
+        faqCategoryId:
+          type: integer
+        questionRu:
+          type: string
+          example: "Какие способы оплаты доступны?"
+        questionHe:
+          type: string
+          example: "אילו אמצעי תשלום זמינים?"
+        answerRu:
+          type: string
+          example: "Вы можете оплатить заказ картой, через Apple Pay, Google Pay или наличными курьеру."
+        answerHe:
+          type: string
+          example: "ניתן לשלם עבור ההזמנה בכרטיס אשראי, Apple Pay, Google Pay או במזומן לשליח."
+    FaqResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        question:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Какие способы оплаты доступны?"
+            he:
+              type: string
+              example: "אילו אמצעי תשלום זמינים?"
+        answer:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Вы можете оплатить заказ картой, через Apple Pay, Google Pay или наличными курьеру."
+            he:
+              type: string
+              example: "ניתן לשלם עבור ההזמנה בכרטיס אשראי, Apple Pay, Google Pay או במזומן לשליח."
+        faqCategory:
+          $ref: "#/components/schemas/FaqCategoryResponseDto"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CityRequestDto:
+      type: object
+      properties:
+        nameRu:
+          type: string
+          example: "Хайфа"
+        nameHe:
+          type: string
+          example: "חיפה"
+    CityResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Хайфа"
+            he:
+              type: string
+              example: "חיפה"
+    PaginationBodyFields:
+      type: object
+      properties:
+        totalCount:
+          type: integer
+        page:
+          type: integer
+        totalPages:
+          type: integer
+        isLast:
+          type: boolean
+  parameters:
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 1
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 5
+    Status:
+      name: status
+      in: query
+      required: false
+      description: all - все заказы (по умолчанию), active - активные, frozen - замороженные, unpaid - неоплаченные, completed - завершенные, pending - ожидающие, terminating - завершающиеся, unprocessed - необработанные
+      schema:
+        type: string
+        default: all
+        enum:
+          - all
+          - active
+          - frozen
+          - unpaid
+          - completed
+          - pending
+          - terminating
+          - unprocessed
+  requestBodies:
+    Team:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TeamRequestDto"
+    Address:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/AddressRequestDto"
+    AdminReview:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReviewRequestAdminDto"
+    Dish:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/DishRequestDto"
+    MenuType:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MenuTypeRequestDto"
+    Menu:
+      description: The days should go in the order 1, 2, 3, etc. Within one meal, all dishes must be unique, and there must be exactly one main course.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/MenuRequestDto"
+    FaqCategory:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FaqCategoryRequestDto"
+    Faq:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/FaqRequestDto"
+    City:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/CityRequestDto"
+    Order:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/OrderRequestDto"
+    AdminOrder:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/OrderRequestAdminDto"
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
 
 security:
-    - BearerAuth: []
+  - BearerAuth: []
 
 paths:
-    /api/ping:
-        get:
-            tags:
-                - Health
-            security: []
-            responses:
-                '200':
-                    description: 'Success'
-    /api/auth/register:
-        post:
-            tags:
-                - Auth
-            security: []
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                email:
-                                    type: string
-                                    format: email
-                                password:
-                                    type: string
-                                    example: 2LQ9VRVCQ
-                                language:
-                                    type: string
-                                    enum:
-                                        - RU
-                                        - HE
-                            required:
-                                - email
-                                - password
-                                - language
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AuthDto'
-    /api/auth/login:
-        post:
-            tags:
-                - Auth
-            security: []
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                email:
-                                    type: string
-                                    format: email
-                                password:
-                                    type: string
-                                    example: 2LQ9VRVCQ
-                            required:
-                                - email
-                                - password
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/AuthDto'
-    /api/auth/refresh:
-        get:
-            tags:
-                - Auth
-            security: []
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    accessToken:
-                                        type: string
-                                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ4Y3Jvd25sZXNzQG1haWwucnUiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3Mzg1OTQxNzMsImV4cCI6ODgxMzg1OTQxNzN9.dmQAXWl2nvmgrKjL41XsuQXkC7efWpaNwYD9yuW9Bfc
-    /api/auth/logout:
-        get:
-            tags:
-                - Auth
-            security: []
-            responses:
-                '200':
-                    description: 'Success'
-    /api/auth/resend-verification:
-        get:
-            tags:
-                - Auth
-            responses:
-                '200':
-                    description: 'Success'
-    /api/auth/verify-email:
-        post:
-            tags:
-                - Auth
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                code:
-                                    type: string
-                                    example: 157014
-            responses:
-                '200':
-                    description: 'Success'
-    /api/auth/send-recovery:
-        post:
-            tags:
-                - Auth
-            security: []
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                email:
-                                    type: string
-                                    format: email
-            responses:
-                '200':
-                    description: 'Success'
-    /api/auth/verify-recovery:
-        post:
-            tags:
-                - Auth
-            security: []
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                email:
-                                    type: string
-                                    format: email
-                                code:
-                                    type: string
-                                    example: 157014
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    code:
-                                        type: string
-                                        example: 157014
-    /api/auth/recovery-password:
-        post:
-            tags:
-                - Auth
-            security: []
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                email:
-                                    type: string
-                                    format: email
-                                code:
-                                    type: string
-                                    example: 157014
-                                password:
-                                    type: string
-                                    example: 2LQ9VRVCQ
-            responses:
-                '200':
-                    description: 'Success'
-    /api/auth/change-password:
-        post:
-            tags:
-                - Auth
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                oldPassword:
-                                    type: string
-                                    example: 2LQ9VRVCQ
-                                newPassword:
-                                    type: string
-                                    example: 9YYUCCPLO
-            responses:
-                '200':
-                    description: 'Success'
-    /api/admin/upload:
-        post:
-            tags:
-                - Admin Upload
-            requestBody:
-                content:
-                    multipart/form-data:
-                        schema:
-                            type: object
-                            properties:
-                                file:
-                                    type: array
-                                    items:
-                                        type: string
-                                        format: binary
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    files:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/FileDto'
-    /api/admin/upload/map:
-        post:
-            tags:
-                - Admin Upload
-            requestBody:
-                content:
-                    multipart/form-data:
-                        schema:
-                            type: object
-                            properties:
-                                file:
-                                    type: string
-                                    format: binary
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    files:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/FileDto'
-    /api/upload:
-        post:
-            tags:
-                - File
-            security: []
-            requestBody:
-                content:
-                    multipart/form-data:
-                        schema:
-                            type: object
-                            properties:
-                                file:
-                                    description: The file must be an image of up to 2 MB
-                                    type: array
-                                    items:
-                                        type: string
-                                        format: binary
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    files:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/FileDto'
-    /static/{fileName}:
-        get:
-            tags:
-                - File
-            security: []
-            parameters:
-                - name: fileName
-                  in: path
-                  required: true
-                  schema:
-                      type: string
-                      example: 42c193f6-1ccc-4376-aef7-4f302817adc3.png
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/octet-stream:
-                            schema:
-                                type: string
-                                format: binary
-    /static/map.png:
-        get:
-            tags:
-                - File
-            security: []
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/octet-stream:
-                            schema:
-                                type: string
-                                format: binary
-    /api/admin/team:
-        post:
-            tags:
-                - Admin Team
-            requestBody:
-                $ref: '#/components/requestBodies/Team'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    employee:
-                                        $ref: '#/components/schemas/TeamResponseDto'
-    /api/admin/team/{teamId}:
-        get:
-            tags:
-                - Admin Team
-            parameters:
-                - name: teamId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    employee:
-                                        $ref: '#/components/schemas/TeamResponseDto'
-        patch:
-            tags:
-                - Admin Team
-            parameters:
-                - name: teamId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            requestBody:
-                $ref: '#/components/requestBodies/Team'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    employee:
-                                        $ref: '#/components/schemas/TeamResponseDto'
-        delete:
-            tags:
-                - Admin Team
-            parameters:
-                - name: teamId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    employee:
-                                        $ref: '#/components/schemas/TeamResponseDto'
-    /api/team/:
-        get:
-            tags:
-                - Team
-            security: []
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    team:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/TeamResponseDto'
-    /api/user:
-        get:
-            tags:
-                - User
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    user:
-                                        $ref: '#/components/schemas/UserDto'
-        patch:
-            tags:
-                - User
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                firstName:
-                                    type: string
-                                    example: Rob
-                                lastName:
-                                    type: string
-                                    example: Top
-                                phone:
-                                    type: string
-                                    example: +79123456789
-                                allergies:
-                                    type: string
-                                    example: 'Морковь'
-                            required:
-                                - firstName
-                                - lastName
-                                - phone
-                                - allergies
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    user:
-                                        $ref: '#/components/schemas/UserDto'
-    /api/user/address:
-        get:
-            tags:
-                - User
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    primaryAddress:
-                                        $ref: '#/components/schemas/AddressResponseDto'
-                                    otherAddresses:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/AddressResponseDto'
-        post:
-            tags:
-                - User
-            requestBody:
-                $ref: '#/components/requestBodies/Address'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    address:
-                                        $ref: '#/components/schemas/AddressResponseDto'
-    /api/user/address/{addressId}:
-        patch:
-            tags:
-                - User
-            parameters:
-                - name: addressId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            requestBody:
-                $ref: '#/components/requestBodies/Address'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    address:
-                                        $ref: '#/components/schemas/AddressResponseDto'
-        delete:
-            tags:
-                - User
-            parameters:
-                - name: addressId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    address:
-                                        $ref: '#/components/schemas/AddressResponseDto'
-    /api/user/address/{addressId}/toggle-primary:
-        patch:
-            tags:
-                - User
-            parameters:
-                - name: addressId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    address:
-                                        $ref: '#/components/schemas/AddressResponseDto'
-    /api/review:
-        post:
-            tags:
-                - Review
-            security: []
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                picture:
-                                    type: string
-                                    example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
-                                author:
-                                    type: string
-                                    example: Иван Иванов
-                                text:
-                                    type: string
-                                    example: Отзыв
-                                language:
-                                    type: string
-                                    enum:
-                                        - RU
-                                        - HE
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    review:
-                                        $ref: '#/components/schemas/ReviewResponseDto'
-        get:
-            tags:
-                - Review
-            security: []
-            parameters:
-                - $ref: '#/components/parameters/Page'
-                - $ref: '#/components/parameters/Limit'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                allOf:
-                                    - properties:
-                                          reviews:
-                                              type: array
-                                              items:
-                                                  $ref: '#/components/schemas/ReviewResponseDto'
-                                    - $ref: '#/components/schemas/PaginationBodyFields'
-    /api/admin/review:
-        post:
-            tags:
-                - Admin Review
-            requestBody:
-                $ref: '#/components/requestBodies/AdminReview'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    review:
-                                        $ref: '#/components/schemas/ReviewResponseDto'
-        get:
-            tags:
-                - Admin Review
-            parameters:
-                - $ref: '#/components/parameters/Page'
-                - $ref: '#/components/parameters/Limit'
-                - name: published
-                  in: query
-                  required: false
-                  schema:
-                      type: boolean
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                allOf:
-                                    - properties:
-                                          reviews:
-                                              type: array
-                                              items:
-                                                  $ref: '#/components/schemas/ReviewResponseDto'
-                                    - $ref: '#/components/schemas/PaginationBodyFields'
-    /api/admin/review/{reviewId}:
-        get:
-            tags:
-                - Admin Review
-            parameters:
-                - name: reviewId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    review:
-                                        $ref: '#/components/schemas/ReviewResponseDto'
-        patch:
-            tags:
-                - Admin Review
-            parameters:
-                - name: reviewId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            requestBody:
-                $ref: '#/components/requestBodies/AdminReview'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    review:
-                                        $ref: '#/components/schemas/ReviewResponseDto'
-        delete:
-            tags:
-                - Admin Review
-            parameters:
-                - name: reviewId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    review:
-                                        $ref: '#/components/schemas/ReviewResponseDto'
-    /api/admin/review/{reviewId}/toggle-publish:
-        patch:
-            tags:
-                - Admin Review
-            parameters:
-                - name: reviewId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    review:
-                                        $ref: '#/components/schemas/ReviewResponseDto'
-    /api/dish/type:
-        get:
-            tags:
-                - Dish
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    dishTypes:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/DishTypeResponseDto'
-    /api/admin/dish:
-        post:
-            tags:
-                - Admin Dish
-            requestBody:
-                $ref: '#/components/requestBodies/Dish'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    dish:
-                                        $ref: '#/components/schemas/DishResponseDto'
-        get:
-            tags:
-                - Admin Dish
-            parameters:
-                - $ref: '#/components/parameters/Page'
-                - $ref: '#/components/parameters/Limit'
-                - name: published
-                  in: query
-                  required: false
-                  schema:
-                      type: boolean
-                - name: search
-                  in: query
-                  required: false
-                  schema:
-                      type: string
-                      example: Цезарь
-                - name: dish_type_id
-                  in: query
-                  required: false
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                allOf:
-                                    - properties:
-                                          dishes:
-                                              type: array
-                                              items:
-                                                  $ref: '#/components/schemas/DishResponseDto'
-                                    - $ref: '#/components/schemas/PaginationBodyFields'
-    /api/admin/dish/{dishId}:
-        get:
-            tags:
-                - Admin Dish
-            parameters:
-                - name: dishId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    dish:
-                                        $ref: '#/components/schemas/DishResponseDto'
-        patch:
-            tags:
-                - Admin Dish
-            parameters:
-                - name: dishId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            requestBody:
-                $ref: '#/components/requestBodies/Dish'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    dish:
-                                        $ref: '#/components/schemas/DishResponseDto'
-        delete:
-            tags:
-                - Admin Dish
-            parameters:
-                - name: dishId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    dish:
-                                        $ref: '#/components/schemas/DishResponseDto'
-    /api/admin/dish/{dishId}/copy:
-        post:
-            tags:
-                - Admin Dish
-            parameters:
-                - name: dishId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    dish:
-                                        $ref: '#/components/schemas/DishResponseDto'
-    /api/admin/menu/type:
-        post:
-            tags:
-                - Admin Menu
-            requestBody:
-                $ref: '#/components/requestBodies/MenuType'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    menuType:
-                                        $ref: '#/components/schemas/MenuTypeResponseDto'
-        get:
-            tags:
-                - Admin Menu
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    menuTypes:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/MenuTypeResponseDto'
-    /api/admin/menu/type/{menuTypeId}:
-        get:
-            tags:
-                - Admin Menu
-            parameters:
-                - name: menuTypeId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    menuType:
-                                        $ref: '#/components/schemas/MenuTypeResponseDto'
-        patch:
-            tags:
-                - Admin Menu
-            parameters:
-                - name: menuTypeId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            requestBody:
-                $ref: '#/components/requestBodies/MenuType'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    menuType:
-                                        $ref: '#/components/schemas/MenuTypeResponseDto'
-        delete:
-            tags:
-                - Admin Menu
-            parameters:
-                - name: menuTypeId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    menuType:
-                                        $ref: '#/components/schemas/MenuTypeResponseDto'
-    /api/admin/menu:
-        post:
-            tags:
-                - Admin Menu
-            requestBody:
-                $ref: '#/components/requestBodies/Menu'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    menu:
-                                        $ref: '#/components/schemas/MenuResponseDto'
-        get:
-            tags:
-                - Admin Menu
-            parameters:
-                - $ref: '#/components/parameters/Page'
-                - $ref: '#/components/parameters/Limit'
-                - name: published
-                  in: query
-                  required: false
-                  schema:
-                      type: boolean
-                - name: search
-                  in: query
-                  required: false
-                  schema:
-                      type: string
-                      example: баланс
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                allOf:
-                                    - properties:
-                                          menus:
-                                              type: array
-                                              items:
-                                                  $ref: '#/components/schemas/MenuResponseDto'
-                                    - $ref: '#/components/schemas/PaginationBodyFields'
-    /api/admin/menu/{menuId}:
-        get:
-            tags:
-                - Admin Menu
-            parameters:
-                - name: menuId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    menu:
-                                        $ref: '#/components/schemas/MenuResponseAdminDto'
-        patch:
-            tags:
-                - Admin Menu
-            parameters:
-                - name: menuId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            requestBody:
-                $ref: '#/components/requestBodies/Menu'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    menu:
-                                        $ref: '#/components/schemas/MenuResponseDto'
-        delete:
-            tags:
-                - Admin Menu
-            parameters:
-                - name: menuId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    menu:
-                                        $ref: '#/components/schemas/MenuResponseDto'
-    /api/menu/type:
-        get:
-            tags:
-                - Menu
-            security: []
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    menuTypes:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/MenuTypeResponseDto'
-    /api/menu:
-        get:
-            tags:
-                - Menu
-            security: []
-            parameters:
-                - $ref: '#/components/parameters/Page'
-                - $ref: '#/components/parameters/Limit'
-                - name: menu_type_id
-                  in: query
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                allOf:
-                                    - properties:
-                                          menus:
-                                              type: array
-                                              items:
-                                                  $ref: '#/components/schemas/MenuResponseDto'
-                                    - $ref: '#/components/schemas/PaginationBodyFields'
-    /api/menu/{menuId}:
-        get:
-            tags:
-                - Menu
-            security: []
-            parameters:
-                - name: menuId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-                - name: date
-                  in: query
-                  required: true
-                  schema:
-                      type: string
-                      format: date
-                      example: 2025-02-17
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    dishes:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/DishResponseDto'
-                                    total:
-                                        $ref: '#/components/schemas/TotalDto'
-    /api/menu/{menuId}/replacement:
-        get:
-            tags:
-                - Menu
-            security: []
-            parameters:
-                - name: menuId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-                - name: date
-                  in: query
-                  required: true
-                  schema:
-                      type: string
-                      format: date
-                      example: 2025-02-17
-                - name: dish_type_id
-                  in: query
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    dishes:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/DishResponseDto'
-    /api/admin/faq/category:
-        post:
-            tags:
-                - Admin Faq
-            requestBody:
-                $ref: '#/components/requestBodies/FaqCategory'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    faqCategory:
-                                        $ref: '#/components/schemas/FaqCategoryResponseDto'
-    /api/admin/faq/category/{categoryId}:
-        get:
-            tags:
-                - Admin Faq
-            parameters:
-                - name: categoryId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    faqCategory:
-                                        $ref: '#/components/schemas/FaqCategoryResponseDto'
-        patch:
-            tags:
-                - Admin Faq
-            parameters:
-                - name: categoryId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            requestBody:
-                $ref: '#/components/requestBodies/FaqCategory'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    faqCategory:
-                                        $ref: '#/components/schemas/FaqCategoryResponseDto'
-        delete:
-            tags:
-                - Admin Faq
-            parameters:
-                - name: categoryId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    faqCategory:
-                                        $ref: '#/components/schemas/FaqCategoryResponseDto'
-    /api/admin/faq:
-        post:
-            tags:
-                - Admin Faq
-            requestBody:
-                $ref: '#/components/requestBodies/Faq'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    faq:
-                                        $ref: '#/components/schemas/FaqResponseDto'
-    /api/admin/faq/{faqId}:
-        get:
-            tags:
-                - Admin Faq
-            parameters:
-                - name: faqId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    faq:
-                                        $ref: '#/components/schemas/FaqResponseDto'
-        patch:
-            tags:
-                - Admin Faq
-            parameters:
-                - name: faqId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            requestBody:
-                $ref: '#/components/requestBodies/Faq'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    faq:
-                                        $ref: '#/components/schemas/FaqResponseDto'
-        delete:
-            tags:
-                - Admin Faq
-            parameters:
-                - name: faqId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    faq:
-                                        $ref: '#/components/schemas/FaqResponseDto'
-    /api/faq/category:
-        get:
-            tags:
-                - Faq
-            security: []
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    faqCategories:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/FaqCategoryResponseDto'
-    /api/faq:
-        get:
-            tags:
-                - Faq
-            security: []
-            parameters:
-                - name: faq_category_id
-                  in: query
-                  required: false
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    faq:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/FaqResponseDto'
-    /api/admin/city:
-        post:
-            tags:
-                - Admin City
-            requestBody:
-                $ref: '#/components/requestBodies/City'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    city:
-                                        $ref: '#/components/schemas/CityResponseDto'
-    /api/admin/city/{cityId}:
-        get:
-            tags:
-                - Admin City
-            parameters:
-                - name: cityId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    city:
-                                        $ref: '#/components/schemas/CityResponseDto'
-        patch:
-            tags:
-                - Admin City
-            parameters:
-                - name: cityId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            requestBody:
-                $ref: '#/components/requestBodies/City'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    city:
-                                        $ref: '#/components/schemas/CityResponseDto'
-        delete:
-            tags:
-                - Admin City
-            parameters:
-                - name: cityId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    city:
-                                        $ref: '#/components/schemas/CityResponseDto'
-    /api/city:
-        get:
-            tags:
-                - City
-            security: []
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    cities:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/CityResponseDto'
-    /api/admin/order/stats:
-        get:
-            tags:
-                - Admin Order
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    stats:
-                                        type: object
-                                        properties:
-                                            allCount:
-                                                type: integer
-                                            activeCount:
-                                                type: integer
-                                            frozenCount:
-                                                type: integer
-                                            unpaidCount:
-                                                type: integer
-                                            completedCount:
-                                                type: integer
-                                            pendingCount:
-                                                type: integer
-                                            terminatingCount:
-                                                type: integer
-                                            unprocessedCount:
-                                                type: integer
-    /api/admin/order:
-        get:
-            tags:
-                - Admin Order
-            parameters:
-                - $ref: '#/components/parameters/Page'
-                - $ref: '#/components/parameters/Limit'
-                - $ref: '#/components/parameters/Status'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                allOf:
-                                    - properties:
-                                          orders:
-                                              type: array
-                                              items:
-                                                  $ref: '#/components/schemas/OrderResponseDto'
-                                    - $ref: '#/components/schemas/PaginationBodyFields'
-        post:
-            tags:
-                - Admin Order
-            requestBody:
-                $ref: '#/components/requestBodies/AdminOrder'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    order:
-                                        $ref: '#/components/schemas/OrderResponseDto'
-    /api/admin/order/{orderId}:
-        get:
-            tags:
-                - Admin Order
-            parameters:
-                - name: orderId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    order:
-                                        type: object
-                                        properties:
-                                            id:
-                                                type: integer
-                                            fullName:
-                                                type: string
-                                                example: 'Иван Иванов'
-                                            email:
-                                                type: string
-                                                format: email
-                                            phone:
-                                                type: string
-                                                example: '+79876543210'
-                                            allergies:
-                                                type: string
-                                                example: 'Орехи'
-                                            street:
-                                                type: string
-                                                example: 'Ленина'
-                                            house:
-                                                type: string
-                                                example: '10'
-                                            floor:
-                                                type: integer
-                                            apartment:
-                                                type: integer
-                                            comment:
-                                                type: string
-                                                example: 'Позвоните за 10 минут до доставки'
-                                            price:
-                                                type: integer
-                                            paidAmount:
-                                                type: integer
-                                            promocodeDiscount:
-                                                type: integer
-                                            finalPrice:
-                                                type: integer
-                                            isProcessed:
-                                                type: boolean
-                                            isAllowedExtendion:
-                                                type: boolean
-                                            isPaid:
-                                                type: boolean
-                                            createdAt:
-                                                type: string
-                                                format: date-time
-                                            updatedAt:
-                                                type: string
-                                                format: date-time
-                                            user:
-                                                $ref: '#/components/schemas/UserDto'
-                                            city:
-                                                $ref: '#/components/schemas/CityResponseDto'
-                                            paymentMethod:
-                                                $ref: '#/components/schemas/PaymentMethodResponseDto'
-                                            menu:
-                                                $ref: '#/components/schemas/MenuResponseShortDto'
-                                            daysCount:
-                                                type: integer
-                                            daysLeft:
-                                                type: integer
-                                            startDate:
-                                                type: string
-                                                format: date
-                                                example: 2025-02-17
-                                            endDate:
-                                                type: string
-                                                format: date
-                                                example: 2025-02-17
-                                            skippedWeekdays:
-                                                type: array
-                                                items:
-                                                    type: integer
-        patch:
-            tags:
-                - Admin Order
-            parameters:
-                - name: orderId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            requestBody:
-                $ref: '#/components/requestBodies/AdminOrder'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    order:
-                                        $ref: '#/components/schemas/OrderResponseDto'
-    /api/admin/report/route-list:
-        get:
-            tags:
-                - Admin Report
-            parameters:
-                - name: start_date
-                  in: query
-                  required: true
-                  schema:
-                      type: string
-                      format: date
-                      example: 2025-02-17
-                - name: end_date
-                  in: query
-                  required: true
-                  schema:
-                      type: string
-                      format: date
-                      example: 2025-02-17
-            responses:
-                '200':
-                    description: 'Success'
-    /api/admin/report/insert:
-        get:
-            tags:
-                - Admin Report
-            parameters:
-                - name: date
-                  in: query
-                  required: true
-                  schema:
-                      type: string
-                      format: date
-                      example: 2025-02-17
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    orders:
-                                        type: array
-                                        items:
-                                            type: object
-                                            properties:
-                                                id:
-                                                    type: integer
-                                                menu:
-                                                    $ref: '#/components/schemas/MenuResponseShortDto'
-                                                dishes:
-                                                    type: array
-                                                    items:
-                                                        $ref: '#/components/schemas/DishResponseDto'
-                                                total:
-                                                    $ref: '#/components/schemas/TotalDto'
-    /api/admin/report/dish:
-        get:
-            tags:
-                - Admin Report
-            parameters:
-                - name: start_date
-                  in: query
-                  required: true
-                  schema:
-                      type: string
-                      format: date
-                      example: 2025-02-17
-                - name: end_date
-                  in: query
-                  required: true
-                  schema:
-                      type: string
-                      format: date
-                      example: 2025-02-17
-            responses:
-                '200':
-                    description: 'Success'
-    /api/order/payment-method:
-        get:
-            tags:
-                - Order
-            security: []
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    paymentMethods:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/PaymentMethodResponseDto'
-    /api/order:
-        post:
-            tags:
-                - Order
-            security: []
-            requestBody:
-                $ref: '#/components/requestBodies/Order'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    order:
-                                        $ref: '#/components/schemas/OrderResponseDto'
-        get:
-            tags:
-                - Order
-            parameters:
-                - $ref: '#/components/parameters/Page'
-                - $ref: '#/components/parameters/Limit'
-                - $ref: '#/components/parameters/Status'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                allOf:
-                                    - properties:
-                                          orders:
-                                              type: array
-                                              items:
-                                                  $ref: '#/components/schemas/OrderResponseDto'
-                                    - $ref: '#/components/schemas/PaginationBodyFields'
-    /api/order/{orderId}/day:
-        get:
-            tags:
-                - Order
-            parameters:
-                - name: orderId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    days:
-                                        type: array
-                                        items:
-                                            type: object
-                                            properties:
-                                                id:
-                                                    type: integer
-                                                date:
-                                                    type: string
-                                                    format: date-time
-                                                isSkipped:
-                                                    type: boolean
-                                                daySkipType:
-                                                    type: string
-                                                    enum:
-                                                        - WEEKDAY_SKIPPED
-                                                        - FROZEN
-    /api/order/day/{dayId}:
-        get:
-            tags:
-                - Order
-            parameters:
-                - name: dayId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    dishes:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/DishResponseDto'
-                                    total:
-                                        $ref: '#/components/schemas/TotalDto'
-    /api/order/day/{dayId}/replacement:
-        get:
-            tags:
-                - Order
-            parameters:
-                - name: dayId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-                - name: dish_type_id
-                  in: query
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    dishes:
-                                        type: array
-                                        items:
-                                            $ref: '#/components/schemas/DishResponseDto'
-    /api/order/select:
-        post:
-            tags:
-                - Order
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                dayId:
-                                    type: integer
-                                dishTypeId:
-                                    type: integer
-                                dishId:
-                                    type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    dish:
-                                        $ref: '#/components/schemas/DishResponseDto'
-    /admin/user:
-        get:
-            tags:
-                - Admin User
-            parameters:
-                - $ref: '#/components/parameters/Page'
-                - $ref: '#/components/parameters/Limit'
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                allOf:
-                                    - properties:
-                                          users:
-                                              type: array
-                                              items:
-                                                  $ref: '#/components/schemas/UserDto'
-                                    - $ref: '#/components/schemas/PaginationBodyFields'
-    /admin/user/{userId}:
-        get:
-            tags:
-                - Admin User
-            parameters:
-                - name: userId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    user:
-                                        $ref: '#/components/schemas/UserDto'
-        patch:
-            tags:
-                - Admin User
-            parameters:
-                - name: userId
-                  in: path
-                  required: true
-                  schema:
-                      type: integer
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            properties:
-                                isVerified:
-                                    type: boolean
-            responses:
-                '200':
-                    description: 'Success'
-                    content:
-                        application/json:
-                            schema:
-                                properties:
-                                    user:
-                                        $ref: '#/components/schemas/UserDto'
+  /api/ping:
+    get:
+      tags:
+        - Health
+      security: []
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/register:
+    post:
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  example: 2LQ9VRVCQ
+                language:
+                  type: string
+                  enum:
+                    - RU
+                    - HE
+              required:
+                - email
+                - password
+                - language
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthDto"
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  example: 2LQ9VRVCQ
+              required:
+                - email
+                - password
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthDto"
+  /api/auth/refresh:
+    get:
+      tags:
+        - Auth
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  accessToken:
+                    type: string
+                    example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiZW1haWwiOiJ4Y3Jvd25sZXNzQG1haWwucnUiLCJyb2xlcyI6WyJBRE1JTiJdLCJpYXQiOjE3Mzg1OTQxNzMsImV4cCI6ODgxMzg1OTQxNzN9.dmQAXWl2nvmgrKjL41XsuQXkC7efWpaNwYD9yuW9Bfc
+  /api/auth/logout:
+    get:
+      tags:
+        - Auth
+      security: []
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/resend-verification:
+    get:
+      tags:
+        - Auth
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/verify-email:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                code:
+                  type: string
+                  example: 157014
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/send-recovery:
+    post:
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/verify-recovery:
+    post:
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                  example: 157014
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  code:
+                    type: string
+                    example: 157014
+  /api/auth/recovery-password:
+    post:
+      tags:
+        - Auth
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  format: email
+                code:
+                  type: string
+                  example: 157014
+                password:
+                  type: string
+                  example: 2LQ9VRVCQ
+      responses:
+        "200":
+          description: "Success"
+  /api/auth/change-password:
+    post:
+      tags:
+        - Auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                oldPassword:
+                  type: string
+                  example: 2LQ9VRVCQ
+                newPassword:
+                  type: string
+                  example: 9YYUCCPLO
+      responses:
+        "200":
+          description: "Success"
+  /api/admin/upload:
+    post:
+      tags:
+        - Admin Upload
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  files:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FileDto"
+  /api/admin/upload/map:
+    post:
+      tags:
+        - Admin Upload
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  files:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FileDto"
+  /api/upload:
+    post:
+      tags:
+        - File
+      security: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  description: The file must be an image of up to 2 MB
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  files:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FileDto"
+  /static/{fileName}:
+    get:
+      tags:
+        - File
+      security: []
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+            example: 42c193f6-1ccc-4376-aef7-4f302817adc3.png
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /static/map.png:
+    get:
+      tags:
+        - File
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+  /api/admin/team:
+    post:
+      tags:
+        - Admin Team
+      requestBody:
+        $ref: "#/components/requestBodies/Team"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  employee:
+                    $ref: "#/components/schemas/TeamResponseDto"
+  /api/admin/team/{teamId}:
+    get:
+      tags:
+        - Admin Team
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  employee:
+                    $ref: "#/components/schemas/TeamResponseDto"
+    patch:
+      tags:
+        - Admin Team
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/Team"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  employee:
+                    $ref: "#/components/schemas/TeamResponseDto"
+    delete:
+      tags:
+        - Admin Team
+      parameters:
+        - name: teamId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  employee:
+                    $ref: "#/components/schemas/TeamResponseDto"
+  /api/team/:
+    get:
+      tags:
+        - Team
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  team:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/TeamResponseDto"
+  /api/user:
+    get:
+      tags:
+        - User
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserDto"
+    patch:
+      tags:
+        - User
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                firstName:
+                  type: string
+                  example: Rob
+                lastName:
+                  type: string
+                  example: Top
+                phone:
+                  type: string
+                  example: +79123456789
+                allergies:
+                  type: string
+                  example: "Морковь"
+              required:
+                - firstName
+                - lastName
+                - phone
+                - allergies
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserDto"
+  /api/user/address:
+    get:
+      tags:
+        - User
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  primary:
+                    $ref: "#/components/schemas/AddressResponseDto"
+                  addresses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AddressResponseDto"
+    post:
+      tags:
+        - User
+      requestBody:
+        $ref: "#/components/requestBodies/Address"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    $ref: "#/components/schemas/AddressResponseDto"
+  /api/user/address/{addressId}:
+    patch:
+      tags:
+        - User
+      parameters:
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/Address"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    $ref: "#/components/schemas/AddressResponseDto"
+    delete:
+      tags:
+        - User
+      parameters:
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    $ref: "#/components/schemas/AddressResponseDto"
+  /api/user/address/{addressId}/toggle-primary:
+    patch:
+      tags:
+        - User
+      parameters:
+        - name: addressId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  address:
+                    $ref: "#/components/schemas/AddressResponseDto"
+  /api/review:
+    post:
+      tags:
+        - Review
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                picture:
+                  type: string
+                  example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+                author:
+                  type: string
+                  example: Иван Иванов
+                text:
+                  type: string
+                  example: Отзыв
+                language:
+                  type: string
+                  enum:
+                    - RU
+                    - HE
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
+    get:
+      tags:
+        - Review
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      reviews:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ReviewResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/review:
+    post:
+      tags:
+        - Admin Review
+      requestBody:
+        $ref: "#/components/requestBodies/AdminReview"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
+    get:
+      tags:
+        - Admin Review
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: published
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      reviews:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ReviewResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/review/{reviewId}:
+    get:
+      tags:
+        - Admin Review
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
+    patch:
+      tags:
+        - Admin Review
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/AdminReview"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
+    delete:
+      tags:
+        - Admin Review
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
+  /api/admin/review/{reviewId}/toggle-publish:
+    patch:
+      tags:
+        - Admin Review
+      parameters:
+        - name: reviewId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  review:
+                    $ref: "#/components/schemas/ReviewResponseDto"
+  /api/dish/type:
+    get:
+      tags:
+        - Dish
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DishTypeResponseDto"
+  /api/admin/dish:
+    post:
+      tags:
+        - Admin Dish
+      requestBody:
+        $ref: "#/components/requestBodies/Dish"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dish:
+                    $ref: "#/components/schemas/DishResponseDto"
+    get:
+      tags:
+        - Admin Dish
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: published
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            example: Цезарь
+        - name: dish_type_id
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      dishes:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/DishResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/dish/{dishId}:
+    get:
+      tags:
+        - Admin Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dish:
+                    $ref: "#/components/schemas/DishResponseDto"
+    patch:
+      tags:
+        - Admin Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/Dish"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dish:
+                    $ref: "#/components/schemas/DishResponseDto"
+    delete:
+      tags:
+        - Admin Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dish:
+                    $ref: "#/components/schemas/DishResponseDto"
+  /api/admin/dish/{dishId}/copy:
+    post:
+      tags:
+        - Admin Dish
+      parameters:
+        - name: dishId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dish:
+                    $ref: "#/components/schemas/DishResponseDto"
+  /api/admin/menu/type:
+    post:
+      tags:
+        - Admin Menu
+      requestBody:
+        $ref: "#/components/requestBodies/MenuType"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuType:
+                    $ref: "#/components/schemas/MenuTypeResponseDto"
+    get:
+      tags:
+        - Admin Menu
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MenuTypeResponseDto"
+  /api/admin/menu/type/{menuTypeId}:
+    get:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuTypeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuType:
+                    $ref: "#/components/schemas/MenuTypeResponseDto"
+    patch:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuTypeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/MenuType"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuType:
+                    $ref: "#/components/schemas/MenuTypeResponseDto"
+    delete:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuTypeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuType:
+                    $ref: "#/components/schemas/MenuTypeResponseDto"
+  /api/admin/menu:
+    post:
+      tags:
+        - Admin Menu
+      requestBody:
+        $ref: "#/components/requestBodies/Menu"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menu:
+                    $ref: "#/components/schemas/MenuResponseDto"
+    get:
+      tags:
+        - Admin Menu
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: published
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            example: баланс
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      menus:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/MenuResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/menu/{menuId}:
+    get:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menu:
+                    $ref: "#/components/schemas/MenuResponseAdminDto"
+    patch:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/Menu"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menu:
+                    $ref: "#/components/schemas/MenuResponseDto"
+    delete:
+      tags:
+        - Admin Menu
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menu:
+                    $ref: "#/components/schemas/MenuResponseDto"
+  /api/menu/type:
+    get:
+      tags:
+        - Menu
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menuTypes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MenuTypeResponseDto"
+  /api/menu:
+    get:
+      tags:
+        - Menu
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: menu_type_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      menus:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/MenuResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/menu/{menuId}:
+    get:
+      tags:
+        - Menu
+      security: []
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-02-17
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DishResponseDto"
+                  total:
+                    $ref: "#/components/schemas/TotalDto"
+  /api/menu/{menuId}/replacement:
+    get:
+      tags:
+        - Menu
+      security: []
+      parameters:
+        - name: menuId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-02-17
+        - name: dish_type_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DishResponseDto"
+  /api/admin/faq/category:
+    post:
+      tags:
+        - Admin Faq
+      requestBody:
+        $ref: "#/components/requestBodies/FaqCategory"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faqCategory:
+                    $ref: "#/components/schemas/FaqCategoryResponseDto"
+  /api/admin/faq/category/{categoryId}:
+    get:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faqCategory:
+                    $ref: "#/components/schemas/FaqCategoryResponseDto"
+    patch:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/FaqCategory"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faqCategory:
+                    $ref: "#/components/schemas/FaqCategoryResponseDto"
+    delete:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: categoryId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faqCategory:
+                    $ref: "#/components/schemas/FaqCategoryResponseDto"
+  /api/admin/faq:
+    post:
+      tags:
+        - Admin Faq
+      requestBody:
+        $ref: "#/components/requestBodies/Faq"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faq:
+                    $ref: "#/components/schemas/FaqResponseDto"
+  /api/admin/faq/{faqId}:
+    get:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: faqId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faq:
+                    $ref: "#/components/schemas/FaqResponseDto"
+    patch:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: faqId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/Faq"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faq:
+                    $ref: "#/components/schemas/FaqResponseDto"
+    delete:
+      tags:
+        - Admin Faq
+      parameters:
+        - name: faqId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faq:
+                    $ref: "#/components/schemas/FaqResponseDto"
+  /api/faq/category:
+    get:
+      tags:
+        - Faq
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faqCategories:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FaqCategoryResponseDto"
+  /api/faq:
+    get:
+      tags:
+        - Faq
+      security: []
+      parameters:
+        - name: faq_category_id
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  faq:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/FaqResponseDto"
+  /api/admin/city:
+    post:
+      tags:
+        - Admin City
+      requestBody:
+        $ref: "#/components/requestBodies/City"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  city:
+                    $ref: "#/components/schemas/CityResponseDto"
+  /api/admin/city/{cityId}:
+    get:
+      tags:
+        - Admin City
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  city:
+                    $ref: "#/components/schemas/CityResponseDto"
+    patch:
+      tags:
+        - Admin City
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/City"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  city:
+                    $ref: "#/components/schemas/CityResponseDto"
+    delete:
+      tags:
+        - Admin City
+      parameters:
+        - name: cityId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  city:
+                    $ref: "#/components/schemas/CityResponseDto"
+  /api/city:
+    get:
+      tags:
+        - City
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  cities:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CityResponseDto"
+  /api/admin/order/stats:
+    get:
+      tags:
+        - Admin Order
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  stats:
+                    type: object
+                    properties:
+                      allCount:
+                        type: integer
+                      activeCount:
+                        type: integer
+                      frozenCount:
+                        type: integer
+                      unpaidCount:
+                        type: integer
+                      completedCount:
+                        type: integer
+                      pendingCount:
+                        type: integer
+                      terminatingCount:
+                        type: integer
+                      unprocessedCount:
+                        type: integer
+  /api/admin/order:
+    get:
+      tags:
+        - Admin Order
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Status"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      orders:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/OrderResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+    post:
+      tags:
+        - Admin Order
+      requestBody:
+        $ref: "#/components/requestBodies/AdminOrder"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  order:
+                    $ref: "#/components/schemas/OrderResponseDto"
+  /api/admin/order/{orderId}:
+    get:
+      tags:
+        - Admin Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  order:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      fullName:
+                        type: string
+                        example: "Иван Иванов"
+                      email:
+                        type: string
+                        format: email
+                      phone:
+                        type: string
+                        example: "+79876543210"
+                      allergies:
+                        type: string
+                        example: "Орехи"
+                      street:
+                        type: string
+                        example: "Ленина"
+                      house:
+                        type: string
+                        example: "10"
+                      floor:
+                        type: integer
+                      apartment:
+                        type: integer
+                      comment:
+                        type: string
+                        example: "Позвоните за 10 минут до доставки"
+                      price:
+                        type: integer
+                      paidAmount:
+                        type: integer
+                      promocodeDiscount:
+                        type: integer
+                      finalPrice:
+                        type: integer
+                      isProcessed:
+                        type: boolean
+                      isAllowedExtendion:
+                        type: boolean
+                      isPaid:
+                        type: boolean
+                      createdAt:
+                        type: string
+                        format: date-time
+                      updatedAt:
+                        type: string
+                        format: date-time
+                      user:
+                        $ref: "#/components/schemas/UserDto"
+                      city:
+                        $ref: "#/components/schemas/CityResponseDto"
+                      paymentMethod:
+                        $ref: "#/components/schemas/PaymentMethodResponseDto"
+                      menu:
+                        $ref: "#/components/schemas/MenuResponseShortDto"
+                      daysCount:
+                        type: integer
+                      daysLeft:
+                        type: integer
+                      startDate:
+                        type: string
+                        format: date
+                        example: 2025-02-17
+                      endDate:
+                        type: string
+                        format: date
+                        example: 2025-02-17
+                      skippedWeekdays:
+                        type: array
+                        items:
+                          type: integer
+    patch:
+      tags:
+        - Admin Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/AdminOrder"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  order:
+                    $ref: "#/components/schemas/OrderResponseDto"
+  /api/admin/report/route-list:
+    get:
+      tags:
+        - Admin Report
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-02-17
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-02-17
+      responses:
+        "200":
+          description: "Success"
+  /api/admin/report/insert:
+    get:
+      tags:
+        - Admin Report
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-02-17
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  orders:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        menu:
+                          $ref: "#/components/schemas/MenuResponseShortDto"
+                        dishes:
+                          type: array
+                          items:
+                            $ref: "#/components/schemas/DishResponseDto"
+                        total:
+                          $ref: "#/components/schemas/TotalDto"
+  /api/admin/report/dish:
+    get:
+      tags:
+        - Admin Report
+      parameters:
+        - name: start_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-02-17
+        - name: end_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-02-17
+      responses:
+        "200":
+          description: "Success"
+  /api/order/payment-method:
+    get:
+      tags:
+        - Order
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  paymentMethods:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/PaymentMethodResponseDto"
+  /api/order:
+    post:
+      tags:
+        - Order
+      security: []
+      requestBody:
+        $ref: "#/components/requestBodies/Order"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  order:
+                    $ref: "#/components/schemas/OrderResponseDto"
+    get:
+      tags:
+        - Order
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Status"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      orders:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/OrderResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/order/{orderId}/day:
+    get:
+      tags:
+        - Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  days:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        date:
+                          type: string
+                          format: date-time
+                        isSkipped:
+                          type: boolean
+                        daySkipType:
+                          type: string
+                          enum:
+                            - WEEKDAY_SKIPPED
+                            - FROZEN
+  /api/order/day/{dayId}:
+    get:
+      tags:
+        - Order
+      parameters:
+        - name: dayId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DishResponseDto"
+                  total:
+                    $ref: "#/components/schemas/TotalDto"
+  /api/order/day/{dayId}/replacement:
+    get:
+      tags:
+        - Order
+      parameters:
+        - name: dayId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: dish_type_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DishResponseDto"
+  /api/order/select:
+    post:
+      tags:
+        - Order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                dayId:
+                  type: integer
+                dishTypeId:
+                  type: integer
+                dishId:
+                  type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dish:
+                    $ref: "#/components/schemas/DishResponseDto"
+  /admin/user:
+    get:
+      tags:
+        - Admin User
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/UserDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /admin/user/{userId}:
+    get:
+      tags:
+        - Admin User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserDto"
+    patch:
+      tags:
+        - Admin User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                isVerified:
+                  type: boolean
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserDto"

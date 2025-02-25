@@ -133,15 +133,11 @@ export class UserService {
 
         const primaryAddress = addresses.find(address => address.isPrimary);
 
-        const otherAddresses = addresses.filter(address => !address.isPrimary);
-
         return {
-            primaryAddress: primaryAddress
+            primary: primaryAddress
                 ? this.createAddressDto(primaryAddress)
                 : null,
-            otherAddresses: otherAddresses.map(address =>
-                this.createAddressDto(address)
-            )
+            addresses: addresses.map(address => this.createAddressDto(address))
         };
     }
 
@@ -162,7 +158,8 @@ export class UserService {
         const createdAddress = await this.prismaService.address.create({
             data: {
                 ...dto,
-                userId
+                userId,
+                isPrimary: addressesCountData._count.id === 0
             },
             include: { city: true }
         });
@@ -214,6 +211,17 @@ export class UserService {
         }
 
         await this.prismaService.address.delete({ where: { id: addressId } });
+
+        const adressesData = await this.prismaService.address.findMany({
+            where: { userId }
+        });
+
+        if (existingAddress.isPrimary && adressesData.length > 0) {
+            await this.prismaService.address.update({
+                where: { id: adressesData[0].id },
+                data: { isPrimary: true }
+            });
+        }
 
         return { address: this.createAddressDto(existingAddress) };
     }
