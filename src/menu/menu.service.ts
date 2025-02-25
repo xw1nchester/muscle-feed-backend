@@ -203,8 +203,9 @@ export class MenuService {
         nameHe,
         descriptionRu,
         descriptionHe,
-        calories
-    }: Menu) {
+        calories,
+        menuType
+    }: Menu & { menuType: Partial<MenuType> }) {
         return {
             id,
             name: {
@@ -215,7 +216,8 @@ export class MenuService {
                 ru: descriptionRu,
                 he: descriptionHe
             },
-            calories
+            calories,
+            backgroundPicture: menuType.backgroundPicture
         };
     }
 

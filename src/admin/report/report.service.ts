@@ -20,7 +20,11 @@ export class ReportService {
         const ordersData = await this.prismaService.order.findMany({
             select: {
                 id: true,
-                menu: true,
+                menu: {
+                    include: {
+                        menuType: { select: { backgroundPicture: true } }
+                    }
+                },
                 orderDays: {
                     where: {
                         date
@@ -77,7 +81,11 @@ export class ReportService {
                 house: true,
                 floor: true,
                 apartment: true,
-                comment: true
+                comment: true,
+                isPaid: true,
+                paidAmount: true,
+                finalPrice: true,
+                paymentMethod: true
             },
             where: {
                 isProcessed: true,
@@ -94,7 +102,9 @@ export class ReportService {
             { header: 'Заказчик', key: 'fullName', width: 20 },
             { header: 'Телефон', key: 'phone', width: 20 },
             { header: 'Адрес', key: 'address', width: 50 },
-            { header: 'Комментарий', key: 'comment', width: 100 }
+            { header: 'Комментарий', key: 'comment', width: 100 },
+            { header: 'Цена', key: 'price', width: 10 },
+            { header: 'Способ оплаты', key: 'paymentMethod', width: 40 }
         ];
 
         worksheet.spliceRows(1, 0, []);
@@ -138,7 +148,11 @@ export class ReportService {
             house,
             floor,
             apartment,
-            comment
+            comment,
+            isPaid,
+            paidAmount,
+            finalPrice,
+            paymentMethod
         } of orders) {
             let address = `${city.nameHe}, ${street} ${house}`;
 
@@ -150,12 +164,16 @@ export class ReportService {
                 address += `, кв. ${apartment}`;
             }
 
+            const price = !isPaid ? finalPrice - paidAmount : 0;
+
             const row = worksheet.addRow({
                 id,
                 fullName,
                 phone,
                 address,
-                comment
+                comment,
+                price,
+                paymentMethod: paymentMethod.nameRu
             });
 
             row.eachCell(cell => {

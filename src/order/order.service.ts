@@ -8,6 +8,7 @@ import {
     City,
     DaySkipType,
     Menu,
+    MenuType,
     Order,
     OrderDay,
     PaymentMethod,
@@ -88,7 +89,9 @@ export class OrderService {
     getInclude() {
         // TODO: извлекать только нужные поля
         return {
-            menu: true,
+            menu: {
+                include: { menuType: { select: { backgroundPicture: true } } }
+            },
             orderDays: { orderBy: { date: Prisma.SortOrder.asc } },
             paymentMethod: true,
             city: true,
@@ -110,7 +113,9 @@ export class OrderService {
     }
 
     createDto(
-        order: Order & { menu: Menu } & { orderDays: OrderDay[] } & {
+        order: Order & { menu: Menu & { menuType: Partial<MenuType> } } & {
+            orderDays: OrderDay[];
+        } & {
             paymentMethod: PaymentMethod;
         } & { city: City }
     ) {
@@ -188,13 +193,6 @@ export class OrderService {
         return { order: this.createDto(order) };
     }
 
-    // TODO: проверять чтобы дата была не раньше ближайшей даты доставки (вынести дату начала доставки в env)
-    async validateOrderStartDate(startDate: Date) {
-        if (startDate < new Date()) {
-            throw new BadRequestException('Некорректная дата начала заказа');
-        }
-    }
-
     async create(
         {
             startDate,
@@ -205,7 +203,10 @@ export class OrderService {
         }: OrderRequestDto,
         userId: number | null
     ) {
-        await this.validateOrderStartDate(startDate);
+        // TODO: проверять чтобы дата была не раньше ближайшей даты доставки (вынести дату начала доставки в env)
+        if (startDate < new Date()) {
+            throw new BadRequestException('Некорректная дата начала заказа');
+        }
 
         await this.cityService.getById(rest.cityId);
 
@@ -482,8 +483,6 @@ export class OrderService {
             ...(status == OrderStatus.UNPROCESSED && unprocessedCondition)
         };
 
-        console.log({ where });
-
         const skip = (page - 1) * limit;
 
         const ordersData = await this.orderRepository.findMany({
@@ -575,8 +574,6 @@ export class OrderService {
         menuId,
         ...rest
     }: AdminOrderRequestDto) {
-        await this.validateOrderStartDate(startDate);
-
         await this.cityService.getById(cityId);
 
         await this.getPaymentMethodById(paymentMethodId);
@@ -623,8 +620,6 @@ export class OrderService {
     ) {
         const existingOrder = await this.getById(id);
 
-        await this.validateOrderStartDate(startDate);
-
         await this.cityService.getById(cityId);
 
         await this.getPaymentMethodById(paymentMethodId);
@@ -650,9 +645,11 @@ export class OrderService {
         return { order: this.createDto(updatedOrder) };
     }
 
-    async findOrderDays(id: number, userId: number) {
+    async findOrderDays(id: number, userId?: number) {
+        const where = { id, ...(userId != undefined && { userId }) };
+
         const existingOrder = await this.orderRepository.findFirst({
-            where: { id, userId },
+            where,
             select: {
                 orderDays: {
                     select: {
@@ -673,12 +670,14 @@ export class OrderService {
         return { days: existingOrder.orderDays };
     }
 
-    async getSelectedOrderDayDishes(dayId: number, userId: number) {
+    async getSelectedOrderDayDishes(dayId: number, userId?: number) {
+        const where = {
+            id: dayId,
+            ...(userId != undefined && { order: { userId } })
+        };
+
         const existingOrderDay = await this.orderDayRepository.findFirst({
-            where: {
-                id: dayId,
-                order: { userId }
-            },
+            where,
             select: {
                 orderDayDishes: {
                     where: { isSelected: true },
@@ -704,13 +703,15 @@ export class OrderService {
     async getReplacementOrderDayDishes(
         dayId: number,
         dishTypeId: number,
-        userId: number
+        userId?: number
     ) {
+        const where = {
+            id: dayId,
+            ...(userId != undefined && { order: { userId } })
+        };
+
         const existingOrderDay = await this.orderDayRepository.findFirst({
-            where: {
-                id: dayId,
-                order: { userId }
-            },
+            where,
             select: {
                 orderDayDishes: {
                     where: { dishTypeId, isSelected: false },
@@ -732,14 +733,19 @@ export class OrderService {
 
     async selectDish(
         { dayId, dishTypeId, dishId }: SelectDishDto,
-        userId: number
+        userId?: number
     ) {
+        const where = {
+            dishTypeId,
+            dishId,
+            orderDay: {
+                id: dayId,
+                ...(userId != undefined && { order: { userId } })
+            }
+        };
+
         const existingOrderDish = await this.orderDayDishRepository.findFirst({
-            where: {
-                dishTypeId,
-                dishId,
-                orderDay: { id: dayId, order: { userId } }
-            },
+            where,
             select: { isSelected: true, dish: { include: { dishType: true } } }
         });
 

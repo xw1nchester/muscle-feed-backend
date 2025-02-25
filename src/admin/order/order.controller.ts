@@ -16,6 +16,7 @@ import { Role as RoleEnum } from '@prisma/client';
 
 import { Role } from '@auth/decorators';
 import { RoleGuard } from '@auth/guards/role.guard';
+import { SelectDishDto } from '@order/dto/select-dish.dto';
 import { OrderStatus } from '@order/enums/order-status.enum';
 import { OrderService } from '@order/order.service';
 
@@ -58,5 +59,31 @@ export class OrderController {
         @Body() dto: AdminOrderRequestDto
     ) {
         return await this.orderService.update(id, dto);
+    }
+
+    @Get(':id/day')
+    async findOrderDays(@Param('id', ParseIntPipe) id: number) {
+        return await this.orderService.findOrderDays(id);
+    }
+
+    @Get('day/:id')
+    async getSelectedOrderDayDishes(@Param('id', ParseIntPipe) dayId: number) {
+        return await this.orderService.getSelectedOrderDayDishes(dayId);
+    }
+
+    @Get('day/:id/replacement')
+    async getReplacementOrderDayDishes(
+        @Param('id', ParseIntPipe) dayId: number,
+        @Query('dish_type_id', ParseIntPipe) dishTypeId: number
+    ) {
+        return await this.orderService.getReplacementOrderDayDishes(
+            dayId,
+            dishTypeId
+        );
+    }
+
+    @Post('select')
+    async selectDish(@Body() dto: SelectDishDto) {
+        return await this.orderService.selectDish(dto);
     }
 }
