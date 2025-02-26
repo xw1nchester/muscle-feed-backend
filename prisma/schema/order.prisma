@@ -18,6 +18,7 @@ model Order {
     isAllowedExtendion  Boolean              @default(false) @map("is_allowed_extendion")
     isPaid              Boolean              @default(false) @map("is_paid")
     isCompleted         Boolean              @default(false) @map("is_completed")
+    isIndividual        Boolean              @default(false) @map("is_individual")
     createdAt           DateTime             @default(now()) @map("created_at")
     updatedAt           DateTime             @updatedAt @map("updated_at")
     user                User?                @relation(fields: [userId], references: [id], onDelete: SetNull)

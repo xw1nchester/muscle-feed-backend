@@ -1,12 +1,13 @@
 model OrderDayDish {
-    id         Int      @id @default(autoincrement())
-    isSelected Boolean  @default(false) @map("is_selected")
-    orderDay   OrderDay @relation(fields: [orderDayId], references: [id], onDelete: Cascade)
-    orderDayId Int      @map("order_day_id")
-    dishType   DishType @relation(fields: [dishTypeId], references: [id], onDelete: Cascade)
-    dishTypeId Int      @map("dish_type_id")
-    dish       Dish     @relation(fields: [dishId], references: [id], onDelete: Cascade)
-    dishId     Int      @map("dish_id")
+    id         Int       @id @default(autoincrement())
+    count      Int       @default(1)
+    isSelected Boolean   @default(false) @map("is_selected")
+    orderDay   OrderDay  @relation(fields: [orderDayId], references: [id], onDelete: Cascade)
+    orderDayId Int       @map("order_day_id")
+    dishType   DishType? @relation(fields: [dishTypeId], references: [id], onDelete: Cascade)
+    dishTypeId Int?      @map("dish_type_id")
+    dish       Dish      @relation(fields: [dishId], references: [id], onDelete: Cascade)
+    dishId     Int       @map("dish_id")
 
     @@map("order_day_dishes")
 }

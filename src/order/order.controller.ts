@@ -15,6 +15,7 @@ import { CurrentUser, Public } from '@auth/decorators';
 import { OptionalJwtAuthGuard } from '@auth/guards/optional-jwt-auth.guard';
 import { JwtPayload } from '@auth/interfaces';
 
+import { IndividualOrderRequestDto } from './dto/individual-order-request.dto';
 import { OrderChangeRequestDto } from './dto/order-change-request.dto';
 import { OrderRequestDto } from './dto/order-request.dto';
 import { SelectDishDto } from './dto/select-dish.dto';
@@ -110,5 +111,15 @@ export class OrderController {
         @Body() dto: OrderChangeRequestDto
     ) {
         return await this.orderService.createChangeRequest(id, user.id, dto);
+    }
+
+    @Public()
+    @UseGuards(OptionalJwtAuthGuard)
+    @Post('individual')
+    async createIndividual(
+        @Body() dto: IndividualOrderRequestDto,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.orderService.createIndividual(dto, user.id);
     }
 }

@@ -67,6 +67,7 @@ export class DishService {
             carbohydrates,
             price,
             isPublished,
+            isIndividualOrderAvailable,
             benefit,
             createdAt,
             updatedAt
@@ -86,6 +87,7 @@ export class DishService {
             carbohydrates,
             price,
             isPublished,
+            isIndividualOrderAvailable,
             ...localizedFields,
             benefit,
             createdAt,
@@ -121,13 +123,15 @@ export class DishService {
         limit,
         search,
         isPublished,
-        dishTypeId
+        dishTypeId,
+        isIndividualOrderAvailable
     }: {
         limit: number;
         page: number;
-        search: string;
+        search?: string;
         isPublished?: boolean;
         dishTypeId?: number;
+        isIndividualOrderAvailable?: boolean;
     }) {
         const where = {
             ...(isPublished != undefined && { isPublished }),
@@ -137,7 +141,10 @@ export class DishService {
                     mode: 'insensitive'
                 } as Prisma.StringFilter
             }),
-            ...(dishTypeId != undefined && { dishTypeId })
+            ...(dishTypeId != undefined && { dishTypeId }),
+            ...(isIndividualOrderAvailable != undefined && {
+                isIndividualOrderAvailable
+            })
         };
 
         const skip = (page - 1) * limit;
@@ -217,6 +224,7 @@ export class DishService {
         }
     }
 
+    // TODO: добавить опциональные параметры isPublished, isIndividualOrderAvailable
     async validateDishesIds(dishIds: number[]) {
         const dishesCount = await this.dishRepository.count({
             where: { id: { in: dishIds } }
@@ -225,6 +233,19 @@ export class DishService {
         if (dishesCount != new Set(dishIds).size) {
             throw new NotFoundException('Блюдо не найдено');
         }
+    }
+
+    async getPublishedAndIndividualOrderAvailableDishesByIds(
+        dishIds: number[]
+    ) {
+        return await this.dishRepository.findMany({
+            select: { id: true, price: true },
+            where: {
+                id: { in: dishIds },
+                isPublished: true,
+                isIndividualOrderAvailable: true
+            }
+        });
     }
 
     async copy(id: number) {

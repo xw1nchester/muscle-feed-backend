@@ -70,4 +70,8 @@ export class DishRequestDto {
     @IsBoolean()
     @IsNotEmpty()
     isPublished: boolean;
+
+    @IsBoolean()
+    @IsNotEmpty()
+    isIndividualOrderAvailable: boolean;
 }

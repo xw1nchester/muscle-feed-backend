@@ -37,8 +37,7 @@ export class DishController {
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
         @Query('published', new ParseBoolPipe({ optional: true })) isPublished,
-        @Query('search')
-        search: string,
+        @Query('search') search: string,
         @Query(
             'dish_type_id',
             new DefaultValuePipe(undefined),

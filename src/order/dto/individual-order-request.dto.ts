@@ -1,34 +1,37 @@
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+    ArrayMinSize,
     IsArray,
     IsDate,
-    IsEnum,
     IsNotEmpty,
     IsNumber,
     IsOptional,
     IsString,
-    Min
+    Min,
+    ValidateNested
 } from 'class-validator';
 
-import { WeekDay } from '@order/enums/weekday.enum';
-
-export class OrderRequestDto {
+class IndividualOrderDishDto {
     @Transform(({ value }) => Number(value))
     @IsNumber()
-    menuId: number;
-
-    @Transform(({ value }) => new Date(value))
-    @IsDate()
-    startDate: Date;
+    id: number;
 
     @Transform(({ value }) => Number(value))
     @IsNumber()
     @Min(1)
-    daysCount: number;
+    count: number;
+}
 
+export class IndividualOrderRequestDto {
     @IsArray()
-    @IsEnum(WeekDay, { each: true })
-    skippedWeekdays: WeekDay[];
+    @ArrayMinSize(1)
+    @ValidateNested({ each: true })
+    @Type(() => IndividualOrderDishDto)
+    dishes: IndividualOrderDishDto[];
+
+    @Transform(({ value }) => new Date(value))
+    @IsDate()
+    date: Date;
 
     @Transform(({ value }) => Number(value))
     @IsNumber()

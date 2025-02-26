@@ -3,6 +3,7 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import {
     City,
@@ -25,6 +26,7 @@ import { PaginationDto } from '@dto/pagination.dto';
 import { MenuService } from '@menu/menu.service';
 import { UserService } from '@user/user.service';
 
+import { IndividualOrderRequestDto } from './dto/individual-order-request.dto';
 import { OrderChangeRequestDto } from './dto/order-change-request.dto';
 import { OrderRequestDto } from './dto/order-request.dto';
 import { SelectDishDto } from './dto/select-dish.dto';
@@ -38,7 +40,8 @@ export class OrderService {
         private readonly menuService: MenuService,
         private readonly cityService: CityService,
         private readonly userService: UserService,
-        private readonly dishService: DishService
+        private readonly dishService: DishService,
+        private readonly configService: ConfigService
     ) {}
 
     private get paymentMethodRepository() {
@@ -140,11 +143,13 @@ export class OrderService {
             house,
             floor,
             apartment,
+            menuId,
             menu,
             comment,
             skippedWeekdays,
             paymentMethod,
-            isPaid
+            isPaid,
+            isIndividual
         } = order;
 
         const notSkippedDays = orderDays.filter(
@@ -165,7 +170,7 @@ export class OrderService {
             phone,
             allergies,
             finalPrice,
-            menu: this.menuService.createShortDto(menu),
+            menu: menuId ? this.menuService.createShortDto(menu) : null,
             city: this.cityService.createDto(city),
             street,
             house,
@@ -178,7 +183,8 @@ export class OrderService {
             startDate: orderDays[0].date,
             endDate: orderDays[orderDays.length - 1].date,
             paymentMethod: this.createPaymentMethodDto(paymentMethod),
-            isPaid
+            isPaid,
+            isIndividual
         };
     }
 
@@ -212,7 +218,7 @@ export class OrderService {
             daysCount
         );
 
-        // // TODO: в будущем определять promocodeDiscount, finalPrice в зависимости от промокода
+        // TODO: в будущем определять promocodeDiscount, finalPrice в зависимости от промокода
 
         const createdOrder = await this.orderRepository.create({
             data: {
@@ -221,19 +227,18 @@ export class OrderService {
                 menuId,
                 userId,
                 price,
-                finalPrice: price
+                finalPrice: price,
+                isIndividual: false
             }
         });
 
-        if (menuId != undefined) {
-            await this.createOrderPlanByMenu(
-                startDate,
-                daysCount,
-                skippedWeekdays,
-                menuId,
-                createdOrder.id
-            );
-        }
+        await this.createOrderPlanByMenu(
+            startDate,
+            daysCount,
+            skippedWeekdays,
+            menuId,
+            createdOrder.id
+        );
 
         return await this.createDtoById(createdOrder.id);
     }
@@ -877,5 +882,73 @@ export class OrderService {
         return {
             changeRequest: this.createChangeRequestDto(updatedChangeRequest)
         };
+    }
+
+    async createIndividual(dto: IndividualOrderRequestDto, userId: number) {
+        const { dishes, date, ...rest } = dto;
+
+        // TODO: проверять чтобы дата была не раньше ближайшей даты доставки (вынести дату начала доставки в env)
+        if (date < new Date()) {
+            throw new BadRequestException('Некорректная дата начала заказа');
+        }
+
+        await this.cityService.getById(rest.cityId);
+
+        await this.getPaymentMethodById(rest.paymentMethodId);
+
+        const dishIds = dishes.map(dish => dish.id);
+
+        const existingAvailableDishes =
+            await this.dishService.getPublishedAndIndividualOrderAvailableDishesByIds(
+                dishIds
+            );
+
+        if (existingAvailableDishes.length != new Set(dishIds).size) {
+            throw new NotFoundException('Блюдо не найдено');
+        }
+
+        let totalPrice = 0;
+        const minOrderAmount = Number(
+            this.configService.get('MIN_ORDER_AMOUNT')
+        );
+
+        for (const { id, price } of existingAvailableDishes) {
+            const count = dishes.find(dish => dish.id == id).count;
+
+            totalPrice += count * price;
+        }
+
+        if (totalPrice < minOrderAmount) {
+            throw new BadRequestException(
+                `Минимальная сумма заказа — ${minOrderAmount}. Текущая сумма: ${totalPrice}.`
+            );
+        }
+
+        const { id: orderId } = await this.orderRepository.create({
+            data: {
+                ...rest,
+                userId,
+                price: totalPrice,
+                finalPrice: totalPrice,
+                isIndividual: true
+            }
+        });
+
+        const { id: orderDayId } = await this.orderDayRepository.create({
+            data: {
+                date,
+                orderId
+            }
+        });
+
+        for (const { id: dishId } of existingAvailableDishes) {
+            const count = dishes.find(dish => dish.id == dishId).count;
+
+            await this.orderDayDishRepository.create({
+                data: { orderDayId, dishId, isSelected: true, count }
+            });
+        }
+
+        return await this.createDtoById(orderId);
     }
 }

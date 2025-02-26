@@ -258,6 +258,8 @@ components:
           type: integer
         isPublished:
           type: boolean
+        isIndividualOrderAvailable:
+          type: boolean
         benefit:
           type: string
           example: "Польза"
@@ -301,6 +303,8 @@ components:
         price:
           type: integer
         isPublished:
+          type: boolean
+        isIndividualOrderAvailable:
           type: boolean
         name:
           type: object
@@ -841,6 +845,8 @@ components:
         paymentMethod:
           $ref: "#/components/schemas/PaymentMethodResponseDto"
         isPaid:
+          type: boolean
+        isIndividual:
           type: boolean
     TotalDto:
       type: object
@@ -1808,6 +1814,37 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/DishTypeResponseDto"
+  /api/dish:
+    get:
+      tags:
+        - Dish
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: search
+          in: query
+          required: false
+          schema:
+            type: string
+            example: Цезарь
+        - name: dish_type_id
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      dishes:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/DishResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
   /api/admin/dish:
     post:
       tags:
@@ -2647,6 +2684,10 @@ paths:
                         type: boolean
                       isPaid:
                         type: boolean
+                      isCompleted:
+                        type: boolean
+                      isIndividual:
+                        type: boolean
                       createdAt:
                         type: string
                         format: date-time
@@ -2971,6 +3012,80 @@ paths:
       security: []
       requestBody:
         $ref: "#/components/requestBodies/Order"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  order:
+                    $ref: "#/components/schemas/OrderResponseDto"
+  /api/order/individual:
+    post:
+      tags:
+        - Order
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                dishes:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                      count:
+                        type: integer
+                  required:
+                    - id
+                    - count
+                date:
+                  type: string
+                  format: date
+                  example: 2025-02-17
+                paymentMethodId:
+                  type: integer
+                fullName:
+                  type: string
+                  example: "Иван Иванов"
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                  example: "+79876543210"
+                allergies:
+                  type: string
+                  example: "Орехи"
+                cityId:
+                  type: integer
+                street:
+                  type: string
+                  example: "Ленина"
+                house:
+                  type: string
+                  example: "10"
+                floor:
+                  type: integer
+                apartment:
+                  type: integer
+                comment:
+                  type: string
+                  example: "Позвоните за 10 минут до доставки"
+              required:
+                - dishes
+                - date
+                - paymentMethodId
+                - fullName
+                - email
+                - phone
+                - cityId
+                - street
+                - house
       responses:
         "200":
           description: "Success"
