@@ -57,6 +57,11 @@ export class OrderController {
         });
     }
 
+    @Get(':id')
+    async createDtoById(@Param('id', ParseIntPipe) id: number) {
+        return await this.orderService.createDtoById(id);
+    }
+
     @Get(':id/day')
     async findOrderDays(
         @Param('id', ParseIntPipe) id: number,

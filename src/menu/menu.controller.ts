@@ -35,6 +35,11 @@ export class MenuController {
         );
     }
 
+    @Get('recomendation')
+    async getRecomendations(@Query('calories', ParseIntPipe) calories: number) {
+        return await this.menuService.getRecomendations(calories);
+    }
+
     @Get(':id')
     async getPrimaryMenuDishesByDate(
         @Param('id', ParseIntPipe) id: number,

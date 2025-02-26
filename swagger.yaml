@@ -701,9 +701,6 @@ components:
               example: "תפריט מאוזן"
         calories:
           type: integer
-        backgroundPicture:
-          type: string
-          example: "http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png"
     PaymentMethodResponseDto:
       type: object
       properties:
@@ -1537,9 +1534,9 @@ paths:
             application/json:
               schema:
                 properties:
-                  primary:
+                  primaryAddress:
                     $ref: "#/components/schemas/AddressResponseDto"
-                  addresses:
+                  otherAddresses:
                     type: array
                     items:
                       $ref: "#/components/schemas/AddressResponseDto"
@@ -2219,6 +2216,28 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/DishResponseDto"
+  /api/menu/recomendation:
+    get:
+      tags:
+        - Menu
+      security: []
+      parameters:
+        - name: calories
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  menus:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MenuResponseDto"
   /api/admin/faq/category:
     post:
       tags:
@@ -2665,113 +2684,6 @@ paths:
                 properties:
                   order:
                     $ref: "#/components/schemas/OrderResponseDto"
-  /api/admin/order/{orderId}/day:
-    get:
-      tags:
-        - Admin Order
-      parameters:
-        - name: orderId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: "Success"
-          content:
-            application/json:
-              schema:
-                properties:
-                  days:
-                    type: array
-                    items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        date:
-                          type: string
-                          format: date-time
-                        isSkipped:
-                          type: boolean
-                        daySkipType:
-                          type: string
-                          enum:
-                            - WEEKDAY_SKIPPED
-                            - FROZEN
-  /api/admin/order/day/{dayId}:
-    get:
-      tags:
-        - Admin Order
-      parameters:
-        - name: dayId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: "Success"
-          content:
-            application/json:
-              schema:
-                properties:
-                  dishes:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/DishResponseDto"
-                  total:
-                    $ref: "#/components/schemas/TotalDto"
-  /api/admin/order/day/{dayId}/replacement:
-    get:
-      tags:
-        - Admin Order
-      parameters:
-        - name: dayId
-          in: path
-          required: true
-          schema:
-            type: integer
-        - name: dish_type_id
-          in: query
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: "Success"
-          content:
-            application/json:
-              schema:
-                properties:
-                  dishes:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/DishResponseDto"
-  /api/admin/order/select:
-    post:
-      tags:
-        - Admin Order
-      requestBody:
-        content:
-          application/json:
-            schema:
-              properties:
-                dayId:
-                  type: integer
-                dishTypeId:
-                  type: integer
-                dishId:
-                  type: integer
-      responses:
-        "200":
-          description: "Success"
-          content:
-            application/json:
-              schema:
-                properties:
-                  dish:
-                    $ref: "#/components/schemas/DishResponseDto"
   /api/admin/report/route-list:
     get:
       tags:
@@ -2902,6 +2814,25 @@ paths:
                         items:
                           $ref: "#/components/schemas/OrderResponseDto"
                   - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/order/{orderId}:
+    get:
+      tags:
+        - Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  order:
+                      $ref: "#/components/schemas/OrderResponseDto"
   /api/order/{orderId}/day:
     get:
       tags:

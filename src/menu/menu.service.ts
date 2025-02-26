@@ -613,4 +613,18 @@ export class MenuService {
 
         return menuPrice.price;
     }
+
+    async getRecomendations(calories: number) {
+        const menusData = await this.menuRepository.findMany({
+            where: {
+                calories: { gte: calories - 300, lte: calories + 300 }
+            },
+            orderBy: { calories: 'asc' },
+            include: this.getMenuInclude()
+        });
+
+        const menus = menusData.map(menu => this.createDto(menu));
+
+        return { menus };
+    }
 }
