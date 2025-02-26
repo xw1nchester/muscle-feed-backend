@@ -425,20 +425,6 @@ components:
         updatedAt:
           type: string
           format: date-time
-    MenuTypeResponseShortDto:
-      type: object
-      properties:
-        id:
-          type: integer
-        name:
-          type: object
-          properties:
-            ru:
-              type: string
-              example: "Простое решение"
-            he:
-              type: string
-              example: "פתרון פשוט"
     MenuDayRequestDto:
       type: object
       properties:
@@ -867,6 +853,33 @@ components:
           type: integer
         carbohydrates:
           type: integer
+    OrderChangeRequestResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        orderChangeType:
+          type: string
+          enum:
+            - MENU
+            - CALORIES
+            - DURATION
+            - FORMAT
+            - FREEZE
+            - OTHER
+        comment:
+          type: string
+          example: Заморозьте мой заказ
+        isProcessed:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updateddAt:
+          type: string
+          format: date-time
+        order:
+          $ref: "#/components/schemas/OrderRequestDto"
     FaqCategoryRequestDto:
       type: object
       properties:
@@ -2684,6 +2697,179 @@ paths:
                 properties:
                   order:
                     $ref: "#/components/schemas/OrderResponseDto"
+  /api/admin/order/{orderId}/day:
+    get:
+      tags:
+        - Admin Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  days:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        date:
+                          type: string
+                          format: date-time
+                        isSkipped:
+                          type: boolean
+                        daySkipType:
+                          type: string
+                          enum:
+                            - WEEKDAY_SKIPPED
+                            - FROZEN
+  /api/admin/order/day/{dayId}:
+    get:
+      tags:
+        - Admin Order
+      parameters:
+        - name: dayId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DishResponseDto"
+                  total:
+                    $ref: "#/components/schemas/TotalDto"
+  /api/admin/order/day/{dayId}/replacement:
+    get:
+      tags:
+        - Admin Order
+      parameters:
+        - name: dayId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: dish_type_id
+          in: query
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DishResponseDto"
+  /api/admin/order/select:
+    post:
+      tags:
+        - Admin Order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                dayId:
+                  type: integer
+                dishTypeId:
+                  type: integer
+                dishId:
+                  type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dish:
+                    $ref: "#/components/schemas/DishResponseDto"
+  /api/admin/order/change-request:
+    get:
+      tags:
+        - Admin Order
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      orderChangeRequests:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/OrderChangeRequestResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/order/change-request/{changeRequestId}:
+    get:
+      tags:
+        - Admin Order
+      parameters:
+        - name: changeRequestId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  orderChangeRequest:
+                    $ref: "#/components/schemas/OrderChangeRequestResponseDto"
+    patch:
+      tags:
+        - Admin Order
+      parameters:
+        - name: changeRequestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                isProcessed:
+                  type: boolean
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  orderChangeRequest:
+                    $ref: "#/components/schemas/OrderChangeRequestResponseDto"
   /api/admin/report/route-list:
     get:
       tags:
@@ -2940,6 +3126,37 @@ paths:
                 properties:
                   dish:
                     $ref: "#/components/schemas/DishResponseDto"
+  
+  /api/order/change-request:
+    post:
+      tags:
+        - Order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                orderChangeType:
+                  type: string
+                  enum:
+                    - MENU
+                    - CALORIES
+                    - DURATION
+                    - FORMAT
+                    - FREEZE
+                    - OTHER
+                comment:
+                  type: string
+                  example: Заморозьте мой заказ
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  changeRequest:
+                    $ref: "#/components/schemas/OrderChangeRequestResponseDto"
   /admin/user:
     get:
       tags:

@@ -21,6 +21,7 @@ import { OrderStatus } from '@order/enums/order-status.enum';
 import { OrderService } from '@order/order.service';
 
 import { AdminOrderRequestDto } from './dto/admin-order-request.dto';
+import { OrderChangeRequestUpdateDto } from './dto/order-change-request-update.dto';
 
 @UseGuards(RoleGuard)
 @Role(RoleEnum.MODERATOR)
@@ -41,6 +42,27 @@ export class OrderController {
         status: OrderStatus
     ) {
         return await this.orderService.find({ page, limit, status });
+    }
+
+    @Get('change-request')
+    async findChangeRequests(
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+        @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number
+    ) {
+        return await this.orderService.findChangeRequests(page, limit);
+    }
+
+    @Get('change-request/:id')
+    async getChangeRequestDtoById(@Param('id', ParseIntPipe) id: number) {
+        return await this.orderService.getChangeRequestDtoById(id);
+    }
+
+    @Patch('change-request/:id')
+    async updateChangeRequest(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: OrderChangeRequestUpdateDto
+    ) {
+        return await this.orderService.updateChangeRequest(id, dto);
     }
 
     @Get(':id')

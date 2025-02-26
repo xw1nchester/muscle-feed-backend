@@ -18,6 +18,7 @@ import {
 import { PrismaService } from '@prisma/prisma.service';
 
 import { AdminOrderRequestDto } from '@admin/order/dto/admin-order-request.dto';
+import { OrderChangeRequestUpdateDto } from '@admin/order/dto/order-change-request-update.dto';
 import { CityService } from '@city/city.service';
 import { DishService } from '@dish/dish.service';
 import { PaginationDto } from '@dto/pagination.dto';
@@ -768,6 +769,22 @@ export class OrderService {
         return { dish: this.dishService.createDto(existingOrderDish.dish) };
     }
 
+    // change requests
+    async getChangeRequestById(id: number) {
+        const changeRequest = await this.orderChangeRequestRepository.findFirst(
+            {
+                where: { id },
+                include: { order: { include: this.getInclude() } }
+            }
+        );
+
+        if (!changeRequest) {
+            throw new NotFoundException('Заявка не найден');
+        }
+
+        return changeRequest;
+    }
+
     createChangeRequestDto(
         orderChangeRequest: OrderChangeRequest & {
             order: Order & { menu: Menu & { menuType: Partial<MenuType> } } & {
@@ -803,6 +820,62 @@ export class OrderService {
                 include: { order: { include: this.getInclude() } }
             });
 
-        return { order: this.createChangeRequestDto(createdChangeRequest) };
+        return {
+            changeRequest: this.createChangeRequestDto(createdChangeRequest)
+        };
+    }
+
+    async findChangeRequests(page: number, limit: number) {
+        const skip = (page - 1) * limit;
+
+        const changeRequestsData =
+            await this.orderChangeRequestRepository.findMany({
+                include: { order: { include: this.getInclude() } },
+                orderBy: { createdAt: 'desc' },
+                take: limit,
+                skip
+            });
+
+        const orderChangeRequests = changeRequestsData.map(changeRequest =>
+            this.createChangeRequestDto(changeRequest)
+        );
+
+        const totalCount = await this.orderChangeRequestRepository.aggregate({
+            _count: { id: true }
+        });
+
+        return new PaginationDto(
+            'orderChangeRequests',
+            orderChangeRequests,
+            totalCount._count.id,
+            limit,
+            page
+        );
+    }
+
+    async getChangeRequestDtoById(id: number) {
+        const existingChangeRequest = await this.getChangeRequestById(id);
+
+        return {
+            changeRequest: this.createChangeRequestDto(existingChangeRequest)
+        };
+    }
+
+    async updateChangeRequest(
+        id: number,
+        { isProcessed }: OrderChangeRequestUpdateDto
+    ) {
+        await this.getChangeRequestById(id);
+
+        const updatedChangeRequest =
+            await this.orderChangeRequestRepository.update({
+                where: { id },
+                data: { isProcessed },
+                include: { order: { include: this.getInclude() } }
+            });
+
+        return {
+            changeRequest: this.createChangeRequestDto(updatedChangeRequest)
+        };
     }
 }
