@@ -1,25 +1,26 @@
 model Dish {
-    id             Int            @id @default(autoincrement())
-    adminName      String         @map("admin_name")
-    nameRu         String         @map("name_ru")
-    nameHe         String         @map("name_he")
-    dishType       DishType       @relation(fields: [dishTypeId], references: [id], onDelete: Cascade)
-    dishTypeId     Int            @map("dish_type_id")
-    picture        String
-    descriptionRu  String         @map("description_ru")
-    descriptionHe  String         @map("description_he")
-    calories       Int            @default(0)
-    weight         Int            @default(0)
-    proteins       Int            @default(0)
-    fats           Int            @default(0)
-    carbohydrates  Int            @default(0)
-    price          Int            @default(0)
-    benefit        String?
-    isPublished    Boolean        @default(false) @map("is_published")
-    createdAt      DateTime       @default(now()) @map("created_at")
-    updatedAt      DateTime       @updatedAt @map("updated_at")
-    menuDayDishes  MenuDayDish[]
-    orderDayDishes OrderDayDish[]
+    id                         Int            @id @default(autoincrement())
+    adminName                  String         @map("admin_name")
+    nameRu                     String         @map("name_ru")
+    nameHe                     String         @map("name_he")
+    dishType                   DishType       @relation(fields: [dishTypeId], references: [id], onDelete: Cascade)
+    dishTypeId                 Int            @map("dish_type_id")
+    picture                    String
+    descriptionRu              String         @map("description_ru")
+    descriptionHe              String         @map("description_he")
+    calories                   Int            @default(0)
+    weight                     Int            @default(0)
+    proteins                   Int            @default(0)
+    fats                       Int            @default(0)
+    carbohydrates              Int            @default(0)
+    price                      Int            @default(0)
+    benefit                    String?
+    isPublished                Boolean        @default(false) @map("is_published")
+    isIndividualOrderAvailable Boolean        @default(false) @map("is_individual_order_available")
+    createdAt                  DateTime       @default(now()) @map("created_at")
+    updatedAt                  DateTime       @updatedAt @map("updated_at")
+    menuDayDishes              MenuDayDish[]
+    orderDayDishes             OrderDayDish[]
 
     @@map("dishes")
 }

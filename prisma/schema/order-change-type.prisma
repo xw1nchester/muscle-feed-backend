@@ -1,0 +1,8 @@
+enum OrderChangeType {
+    MENU
+    CALORIES
+    DURATION
+    FORMAT
+    FREEZE
+    OTHER
+}

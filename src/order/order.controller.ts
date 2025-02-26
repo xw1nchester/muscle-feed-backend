@@ -15,6 +15,7 @@ import { CurrentUser, Public } from '@auth/decorators';
 import { OptionalJwtAuthGuard } from '@auth/guards/optional-jwt-auth.guard';
 import { JwtPayload } from '@auth/interfaces';
 
+import { OrderChangeRequestDto } from './dto/order-change-request.dto';
 import { OrderRequestDto } from './dto/order-request.dto';
 import { SelectDishDto } from './dto/select-dish.dto';
 import { OrderStatus } from './enums/order-status.enum';
@@ -100,5 +101,14 @@ export class OrderController {
         @CurrentUser() user: JwtPayload
     ) {
         return await this.orderService.selectDish(dto, user.id);
+    }
+
+    @Post(':id/change-request')
+    async createChangeRequest(
+        @Param('id', ParseIntPipe) id: number,
+        @CurrentUser() user: JwtPayload,
+        @Body() dto: OrderChangeRequestDto
+    ) {
+        return await this.orderService.createChangeRequest(id, user.id, dto);
     }
 }

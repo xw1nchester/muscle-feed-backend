@@ -10,6 +10,7 @@ import {
     Menu,
     MenuType,
     Order,
+    OrderChangeRequest,
     OrderDay,
     PaymentMethod,
     Prisma
@@ -23,6 +24,7 @@ import { PaginationDto } from '@dto/pagination.dto';
 import { MenuService } from '@menu/menu.service';
 import { UserService } from '@user/user.service';
 
+import { OrderChangeRequestDto } from './dto/order-change-request.dto';
 import { OrderRequestDto } from './dto/order-request.dto';
 import { SelectDishDto } from './dto/select-dish.dto';
 import { OrderStatus } from './enums/order-status.enum';
@@ -52,6 +54,10 @@ export class OrderService {
 
     private get orderDayDishRepository() {
         return this.prismaService.orderDayDish;
+    }
+
+    private get orderChangeRequestRepository() {
+        return this.prismaService.orderChangeRequest;
     }
 
     async getPaymentMethodById(id: number) {
@@ -135,6 +141,7 @@ export class OrderService {
             apartment,
             menu,
             comment,
+            skippedWeekdays,
             paymentMethod,
             isPaid
         } = order;
@@ -148,19 +155,6 @@ export class OrderService {
         const daysLeft = notSkippedDays.filter(
             orderDay => orderDay.date > currentDate
         ).length;
-
-        // TODO: получать из заказа, а не вычислять динамически
-        const skippedWeekdays = orderDays
-            .filter(
-                orderDay =>
-                    orderDay.isSkipped &&
-                    orderDay.daySkipType == DaySkipType.WEEKDAY_SKIPPED
-            )
-            .map(skippedOrderDay =>
-                skippedOrderDay.date.getDay() === 0
-                    ? 7
-                    : skippedOrderDay.date.getDay()
-            );
 
         return {
             id,
@@ -177,11 +171,11 @@ export class OrderService {
             floor,
             apartment,
             comment,
+            skippedWeekdays,
             daysCount: notSkippedDays.length,
             daysLeft,
             startDate: orderDays[0].date,
             endDate: orderDays[orderDays.length - 1].date,
-            skippedWeekdays: [...new Set(skippedWeekdays)],
             paymentMethod: this.createPaymentMethodDto(paymentMethod),
             isPaid
         };
@@ -220,7 +214,14 @@ export class OrderService {
         // // TODO: в будущем определять promocodeDiscount, finalPrice в зависимости от промокода
 
         const createdOrder = await this.orderRepository.create({
-            data: { ...rest, menuId, userId, price, finalPrice: price }
+            data: {
+                ...rest,
+                skippedWeekdays,
+                menuId,
+                userId,
+                price,
+                finalPrice: price
+            }
         });
 
         if (menuId != undefined) {
@@ -535,19 +536,6 @@ export class OrderService {
             orderDay => orderDay.date > currentDate
         ).length;
 
-        // TODO: получать из заказа, а не вычислять динамически
-        const skippedWeekdays = orderDays
-            .filter(
-                orderDay =>
-                    orderDay.isSkipped &&
-                    orderDay.daySkipType == DaySkipType.WEEKDAY_SKIPPED
-            )
-            .map(skippedOrderDay =>
-                skippedOrderDay.date.getDay() === 0
-                    ? 7
-                    : skippedOrderDay.date.getDay()
-            );
-
         return {
             order: {
                 ...rest,
@@ -558,8 +546,7 @@ export class OrderService {
                 daysCount: notSkippedDays.length,
                 daysLeft,
                 startDate: orderDays[0].date,
-                endDate: orderDays[orderDays.length - 1].date,
-                skippedWeekdays
+                endDate: orderDays[orderDays.length - 1].date
             }
         };
     }
@@ -587,6 +574,7 @@ export class OrderService {
                 cityId,
                 paymentMethodId,
                 userId,
+                skippedWeekdays,
                 menuId,
                 ...rest
             }
@@ -778,5 +766,43 @@ export class OrderService {
         }
 
         return { dish: this.dishService.createDto(existingOrderDish.dish) };
+    }
+
+    createChangeRequestDto(
+        orderChangeRequest: OrderChangeRequest & {
+            order: Order & { menu: Menu & { menuType: Partial<MenuType> } } & {
+                orderDays: OrderDay[];
+            } & {
+                paymentMethod: PaymentMethod;
+            } & { city: City };
+        }
+    ) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { orderId, order, ...rest } = orderChangeRequest;
+
+        return { ...rest, order: this.createDto(order) };
+    }
+
+    async createChangeRequest(
+        id: number,
+        userId: number,
+        dto: OrderChangeRequestDto
+    ) {
+        const existingOrder = await this.orderRepository.findFirst({
+            where: { id, userId },
+            select: { id: true }
+        });
+
+        if (!existingOrder) {
+            throw new NotFoundException('Заказ не найден');
+        }
+
+        const createdChangeRequest =
+            await this.orderChangeRequestRepository.create({
+                data: { ...dto, orderId: id },
+                include: { order: { include: this.getInclude() } }
+            });
+
+        return { order: this.createChangeRequestDto(createdChangeRequest) };
     }
 }
