@@ -343,6 +343,7 @@ export class OrderService {
         return {
             activeCondition: {
                 isProcessed: true,
+                isCompleted: false,
                 orderDays: {
                     some: {
                         OR: [
@@ -357,6 +358,7 @@ export class OrderService {
             },
             frozenCondition: {
                 isProcessed: true,
+                isCompleted: false,
                 orderDays: {
                     some: {
                         date: today,
@@ -366,17 +368,23 @@ export class OrderService {
             },
             unpaidCondition: {
                 isProcessed: true,
+                isCompleted: false,
                 isPaid: false
             },
             completedCondition: {
-                orderDays: { every: { date: { lt: today } } }
+                OR: [
+                    { isCompleted: true },
+                    { orderDays: { every: { date: { lt: today } } } }
+                ]
             },
             pendingCondition: {
                 isProcessed: true,
+                isCompleted: false,
                 orderDays: { every: { date: { gt: today } } }
             },
             terminatingCondition: {
                 isProcessed: true,
+                isCompleted: false,
                 AND: [
                     {
                         orderDays: {
@@ -394,7 +402,7 @@ export class OrderService {
                     }
                 ]
             },
-            unprocessedCondition: { isProcessed: false }
+            unprocessedCondition: { isProcessed: false, isCompleted: false }
         };
     }
 
@@ -648,6 +656,14 @@ export class OrderService {
         return { order: this.createDto(updatedOrder) };
     }
 
+    async delete(id: number) {
+        const existingOrder = await this.getById(id);
+
+        await this.orderRepository.delete({ where: { id } });
+
+        return { order: this.createDto(existingOrder) };
+    }
+
     async findOrderDays(id: number, userId?: number) {
         const where = { id, ...(userId != undefined && { userId }) };
 
@@ -749,11 +765,24 @@ export class OrderService {
 
         const existingOrderDish = await this.orderDayDishRepository.findFirst({
             where,
-            select: { isSelected: true, dish: { include: { dishType: true } } }
+            select: {
+                isSelected: true,
+                dish: { include: { dishType: true } },
+                orderDay: { select: { date: true } }
+            }
         });
 
         if (!existingOrderDish) {
             throw new NotFoundException('Блюдо не найдено');
+        }
+
+        if (
+            userId != undefined &&
+            existingOrderDish.orderDay.date < new Date()
+        ) {
+            throw new BadRequestException(
+                'Нельзя заменить блюдо на прошлую дату'
+            );
         }
 
         if (!existingOrderDish.isSelected) {

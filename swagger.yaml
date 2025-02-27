@@ -781,6 +781,8 @@ components:
               type: boolean
             isPaid:
               type: boolean
+            isCompleted:
+              type: boolean
           required:
             - price
             - finalPrice
@@ -2731,6 +2733,24 @@ paths:
             type: integer
       requestBody:
         $ref: "#/components/requestBodies/AdminOrder"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  order:
+                    $ref: "#/components/schemas/OrderResponseDto"
+    delete:
+      tags:
+        - Admin Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
       responses:
         "200":
           description: "Success"

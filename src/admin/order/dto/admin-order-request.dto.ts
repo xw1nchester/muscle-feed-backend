@@ -35,4 +35,7 @@ export class AdminOrderRequestDto extends OrderRequestDto {
 
     @IsBoolean()
     isPaid: boolean;
+
+    @IsBoolean()
+    isCompleted: boolean;
 }

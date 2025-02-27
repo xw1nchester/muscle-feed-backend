@@ -2,6 +2,7 @@ import {
     Body,
     Controller,
     DefaultValuePipe,
+    Delete,
     Get,
     Param,
     ParseEnumPipe,
@@ -81,6 +82,11 @@ export class OrderController {
         @Body() dto: AdminOrderRequestDto
     ) {
         return await this.orderService.update(id, dto);
+    }
+
+    @Delete(':id')
+    async delete(@Param('id', ParseIntPipe) id: number) {
+        return await this.orderService.delete(id);
     }
 
     @Get(':id/day')
