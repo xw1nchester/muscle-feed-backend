@@ -143,7 +143,6 @@ export class OrderService {
             house,
             floor,
             apartment,
-            menuId,
             menu,
             comment,
             skippedWeekdays,
@@ -156,11 +155,20 @@ export class OrderService {
             orderDay => !orderDay.isSkipped
         );
 
-        const currentDate = new Date();
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        today.setTime(today.getTime() - today.getTimezoneOffset() * 60000);
 
         const daysLeft = notSkippedDays.filter(
-            orderDay => orderDay.date > currentDate
+            orderDay => orderDay.date > today
         ).length;
+
+        const isFrozen = orderDays.some(
+            orderDay =>
+                orderDay.date.getTime() == today.getTime() &&
+                orderDay.isSkipped &&
+                orderDay.daySkipType == DaySkipType.FROZEN
+        );
 
         return {
             id,
@@ -170,7 +178,7 @@ export class OrderService {
             phone,
             allergies,
             finalPrice,
-            menu: menuId ? this.menuService.createShortDto(menu) : null,
+            menu: menu ? this.menuService.createShortDto(menu) : null,
             city: this.cityService.createDto(city),
             street,
             house,
@@ -184,7 +192,8 @@ export class OrderService {
             endDate: orderDays[orderDays.length - 1].date,
             paymentMethod: this.createPaymentMethodDto(paymentMethod),
             isPaid,
-            isIndividual
+            isIndividual,
+            isFrozen
         };
     }
 
@@ -548,7 +557,7 @@ export class OrderService {
                 user: userId ? this.userService.createDto(user) : null,
                 city: this.cityService.createDto(city),
                 paymentMethod: this.createPaymentMethodDto(paymentMethod),
-                menu: this.menuService.createShortDto(menu),
+                menu: menu ? this.menuService.createShortDto(menu) : null,
                 daysCount: notSkippedDays.length,
                 daysLeft,
                 startDate: orderDays[0].date,
@@ -634,7 +643,7 @@ export class OrderService {
             include: this.getInclude()
         });
 
-        // TODO: сделать возможность корректировки дней/даты начала в заказе если переданное dayCount отличается от старого значения
+        // TODO: сделать возможность корректировки дней/даты начала в заказе если переданное dayCount отличается от старого значения при условии что заказ не индивидуальный
 
         return { order: this.createDto(updatedOrder) };
     }
@@ -826,7 +835,8 @@ export class OrderService {
             });
 
         return {
-            changeRequest: this.createChangeRequestDto(createdChangeRequest)
+            orderChangeRequest:
+                this.createChangeRequestDto(createdChangeRequest)
         };
     }
 
@@ -862,7 +872,9 @@ export class OrderService {
         const existingChangeRequest = await this.getChangeRequestById(id);
 
         return {
-            changeRequest: this.createChangeRequestDto(existingChangeRequest)
+            orderChangeRequest: this.createChangeRequestDto(
+                existingChangeRequest
+            )
         };
     }
 
@@ -880,7 +892,8 @@ export class OrderService {
             });
 
         return {
-            changeRequest: this.createChangeRequestDto(updatedChangeRequest)
+            orderChangeRequest:
+                this.createChangeRequestDto(updatedChangeRequest)
         };
     }
 

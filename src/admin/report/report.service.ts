@@ -40,6 +40,7 @@ export class ReportService {
             },
             where: {
                 isProcessed: true,
+                isIndividual: false,
                 orderDays: {
                     some: {
                         date,
@@ -220,7 +221,7 @@ export class ReportService {
                             isSkipped: false,
                             daySkipType: null,
                             date: { gte: startDate, lte: endDate },
-                            order: { isProcessed: true }
+                            order: { isProcessed: true, isIndividual: false }
                         }
                     },
                     select: {
