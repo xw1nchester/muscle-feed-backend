@@ -1,5 +1,11 @@
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsNumber, IsOptional } from 'class-validator';
+import {
+    IsBoolean,
+    IsDate,
+    IsNumber,
+    IsOptional,
+    ValidateIf
+} from 'class-validator';
 
 import { OrderRequestDto } from '@order/dto/order-request.dto';
 
@@ -26,6 +32,16 @@ export class AdminOrderRequestDto extends OrderRequestDto {
     @Transform(({ value }) => Number(value))
     @IsNumber()
     finalPrice: number;
+
+    @ValidateIf(o => o.freezeEndDate != undefined)
+    @Transform(({ value }) => new Date(value))
+    @IsDate()
+    freezeStartDate: Date;
+
+    @ValidateIf(o => o.freezeStartDate != undefined)
+    @Transform(({ value }) => new Date(value))
+    @IsDate()
+    freezeEndDate: Date;
 
     @IsBoolean()
     isProcessed: boolean;

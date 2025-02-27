@@ -775,6 +775,14 @@ components:
               type: integer
             finalPrice:
               type: integer
+            freezeStartDate:
+              type: string
+              format: date
+              example: 2025-02-17
+            freezeEndDate:
+              type: string
+              format: date
+              example: 2025-02-17
             isProcessed:
               type: boolean
             isAllowedExtendion:
@@ -852,6 +860,14 @@ components:
           type: boolean
         isFrozen:
           type: boolean
+        freezeStartDate:
+          type: string
+          format: date
+          example: 2025-02-17
+        freezeEndDate:
+          type: string
+          format: date
+          example: 2025-02-17
     TotalDto:
       type: object
       properties:

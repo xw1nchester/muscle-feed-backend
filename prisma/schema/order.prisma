@@ -14,6 +14,8 @@ model Order {
     paidAmount          Int?                 @default(0) @map("paid_amount")
     promocodeDiscount   Int?                 @default(0) @map("promocode_discount")
     finalPrice          Int                  @map("final_price")
+    freezeStartDate     DateTime?            @map("freeze_start_date")
+    freezeEndDate       DateTime?            @map("freeze_end_date")
     isProcessed         Boolean              @default(false) @map("is_processed")
     isAllowedExtendion  Boolean              @default(false) @map("is_allowed_extendion")
     isPaid              Boolean              @default(false) @map("is_paid")

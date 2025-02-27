@@ -13,6 +13,7 @@ import {
     Order,
     OrderChangeRequest,
     OrderDay,
+    OrderDayDish,
     PaymentMethod,
     Prisma
 } from '@prisma/client';
@@ -148,7 +149,9 @@ export class OrderService {
             skippedWeekdays,
             paymentMethod,
             isPaid,
-            isIndividual
+            isIndividual,
+            freezeStartDate,
+            freezeEndDate
         } = order;
 
         const notSkippedDays = orderDays.filter(
@@ -193,7 +196,9 @@ export class OrderService {
             paymentMethod: this.createPaymentMethodDto(paymentMethod),
             isPaid,
             isIndividual,
-            isFrozen
+            isFrozen,
+            freezeStartDate,
+            freezeEndDate
         };
     }
 
@@ -241,13 +246,13 @@ export class OrderService {
             }
         });
 
-        await this.createOrderPlanByMenu(
+        await this.createOrderPlanByMenu({
             startDate,
             daysCount,
             skippedWeekdays,
             menuId,
-            createdOrder.id
-        );
+            orderId: createdOrder.id
+        });
 
         return await this.createDtoById(createdOrder.id);
     }
@@ -255,20 +260,46 @@ export class OrderService {
     private getDaysWithSkipInfo(
         startDate: Date,
         daysCount: number,
-        skippedWeekdays: WeekDay[]
+        skippedWeekdays: WeekDay[],
+        freezeStartDate?: Date,
+        freezeEndDate?: Date
     ) {
-        const orderDays: { date: Date; isSkipped: boolean }[] = [];
+        const orderDays: {
+            date: Date;
+            isSkipped: boolean;
+            daySkipType: DaySkipType;
+        }[] = [];
         const currentDate = new Date(startDate);
         let addedDays = 0;
 
         while (addedDays < daysCount) {
             const currentWeekDay =
                 currentDate.getDay() == 0 ? 7 : currentDate.getDay();
-            const isSkipped = skippedWeekdays.includes(currentWeekDay);
+
+            const isWeekDaySkip = skippedWeekdays.includes(currentWeekDay);
+
+            const isFrozen =
+                freezeStartDate &&
+                freezeEndDate &&
+                currentDate >= freezeStartDate &&
+                currentDate <= freezeEndDate;
+
+            const isSkipped = isWeekDaySkip || isFrozen;
+
+            let daySkipType: DaySkipType = null;
+
+            if (isWeekDaySkip) {
+                daySkipType = DaySkipType.WEEKDAY_SKIPPED;
+            }
+
+            if (isFrozen) {
+                daySkipType = DaySkipType.FROZEN;
+            }
 
             orderDays.push({
                 date: new Date(currentDate),
-                isSkipped
+                isSkipped,
+                daySkipType
             });
 
             if (!isSkipped) {
@@ -281,17 +312,31 @@ export class OrderService {
         return orderDays;
     }
 
-    private async createOrderPlanByMenu(
-        startDate: Date,
-        daysCount: number,
-        skippedWeekdays: WeekDay[],
-        menuId: number,
-        orderId: number
-    ) {
+    private async createOrderPlanByMenu({
+        startDate,
+        daysCount,
+        skippedWeekdays,
+        freezeStartDate,
+        freezeEndDate,
+        menuId,
+        orderId,
+        currentOrderDays = []
+    }: {
+        startDate: Date;
+        daysCount: number;
+        skippedWeekdays: WeekDay[];
+        freezeStartDate?: Date;
+        freezeEndDate?: Date;
+        menuId: number;
+        orderId: number;
+        currentOrderDays?: (OrderDay & { orderDayDishes: OrderDayDish[] })[];
+    }) {
         const orderDays = this.getDaysWithSkipInfo(
             startDate,
             daysCount,
-            skippedWeekdays
+            skippedWeekdays,
+            freezeStartDate,
+            freezeEndDate
         );
 
         const planData = await this.menuService.getMealPlan(
@@ -301,14 +346,14 @@ export class OrderService {
         );
 
         for (let i = 0; i < orderDays.length; i++) {
-            const { date, isSkipped } = orderDays[i];
+            const { date, isSkipped, daySkipType } = orderDays[i];
 
             const createdOrderDay = await this.orderDayRepository.create({
                 data: {
                     orderId,
                     date,
                     isSkipped,
-                    daySkipType: isSkipped ? DaySkipType.WEEKDAY_SKIPPED : null
+                    daySkipType
                 }
             });
 
@@ -317,12 +362,27 @@ export class OrderService {
             }
 
             for (const { dishTypeId, dish, isPrimary } of planData[i].dishes) {
+                const dishIds = planData[i].dishes.map(dish => dish.dish.id);
+
+                const existingSelectedDish = currentOrderDays
+                    .find(orderDay => orderDay.date.getTime() == date.getTime())
+                    ?.orderDayDishes.find(
+                        orderDayDish =>
+                            orderDayDish.isSelected &&
+                            orderDayDish.dishTypeId == dishTypeId &&
+                            dishIds.includes(orderDayDish.dishId)
+                    );
+
                 await this.orderDayDishRepository.create({
                     data: {
                         orderDayId: createdOrderDay.id,
                         dishTypeId,
-                        dishId: dish.id,
-                        isSelected: isPrimary
+                        dishId: existingSelectedDish
+                            ? existingSelectedDish.dishId
+                            : dish.id,
+                        isSelected: existingSelectedDish
+                            ? existingSelectedDish.isSelected
+                            : isPrimary
                     }
                 });
             }
@@ -604,13 +664,15 @@ export class OrderService {
         });
 
         if (menuId != undefined) {
-            await this.createOrderPlanByMenu(
+            await this.createOrderPlanByMenu({
                 startDate,
                 daysCount,
                 skippedWeekdays,
+                freezeStartDate: rest.freezeStartDate,
+                freezeEndDate: rest.freezeEndDate,
                 menuId,
-                createdOrder.id
-            );
+                orderId: createdOrder.id
+            });
         }
 
         return await this.createDtoById(createdOrder.id);
@@ -626,6 +688,8 @@ export class OrderService {
             daysCount,
             skippedWeekdays,
             menuId,
+            freezeStartDate,
+            freezeEndDate,
             ...rest
         }: AdminOrderRequestDto
     ) {
@@ -637,23 +701,44 @@ export class OrderService {
 
         await this.userService.getById(userId);
 
-        // await this.menuService.getById(menuId, true);
+        await this.menuService.getById(menuId, true);
 
-        const updatedOrder = await this.orderRepository.update({
+        const currentOrderDays = await this.orderDayRepository.findMany({
+            where: { orderId: id },
+            include: { orderDayDishes: true }
+        });
+
+        await this.orderRepository.update({
             where: { id },
             data: {
                 cityId,
                 paymentMethodId,
                 userId: userId ?? null,
-                // menuId,
-                ...rest
-            },
-            include: this.getInclude()
+                skippedWeekdays,
+                menuId,
+                freezeStartDate: freezeStartDate ?? null,
+                freezeEndDate: freezeEndDate ?? null,
+                ...rest,
+                orderDays: {
+                    deleteMany: {}
+                }
+            }
         });
 
-        // TODO: сделать возможность корректировки дней/даты начала в заказе если переданное dayCount отличается от старого значения при условии что заказ не индивидуальный
+        if (!existingOrder.isIndividual) {
+            await this.createOrderPlanByMenu({
+                startDate,
+                daysCount,
+                skippedWeekdays,
+                freezeStartDate,
+                freezeEndDate,
+                menuId,
+                orderId: id,
+                currentOrderDays
+            });
+        }
 
-        return { order: this.createDto(updatedOrder) };
+        return this.createDtoById(id);
     }
 
     async delete(id: number) {
