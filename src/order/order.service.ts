@@ -690,9 +690,11 @@ export class OrderService {
                 freezeStartDate: freezeStartDate ?? null,
                 freezeEndDate: freezeEndDate ?? null,
                 ...rest,
-                orderDays: {
-                    deleteMany: {}
-                }
+                ...(!existingOrder.isIndividual && {
+                    orderDays: {
+                        deleteMany: {}
+                    }
+                })
             }
         });
 
@@ -709,7 +711,7 @@ export class OrderService {
             });
         }
 
-        return this.createDtoById(id);
+        return await this.createDtoById(id);
     }
 
     async delete(id: number) {
