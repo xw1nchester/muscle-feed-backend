@@ -756,7 +756,10 @@ export class OrderService {
             select: {
                 orderDayDishes: {
                     where: { isSelected: true },
-                    select: { dish: { include: { dishType: true } } },
+                    select: {
+                        count: true,
+                        dish: { include: { dishType: true } }
+                    },
                     orderBy: { dishTypeId: 'asc' }
                 }
             }
@@ -766,9 +769,10 @@ export class OrderService {
             throw new NotFoundException('День не найден');
         }
 
-        const dishes = existingOrderDay.orderDayDishes.map(orderDayDish =>
-            this.dishService.createDto(orderDayDish.dish)
-        );
+        const dishes = existingOrderDay.orderDayDishes.map(orderDayDish => ({
+            ...this.dishService.createDto(orderDayDish.dish),
+            count: orderDayDish.count
+        }));
 
         const total = this.menuService.calculateTotalNutrients(dishes);
 

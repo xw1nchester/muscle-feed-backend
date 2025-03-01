@@ -554,14 +554,18 @@ export class MenuService {
         return planData;
     }
 
-    calculateTotalNutrients(dishes: Partial<Dish>[]) {
+    calculateTotalNutrients(dishes: Partial<Dish & { count: number }>[]) {
         return dishes.reduce(
-            (acc, { calories, proteins, fats, carbohydrates }) => ({
-                calories: acc.calories + calories,
-                proteins: acc.proteins + proteins,
-                fats: acc.fats + fats,
-                carbohydrates: acc.carbohydrates + carbohydrates
-            }),
+            (acc, { calories, proteins, fats, carbohydrates, count }) => {
+                const multiplier = count ?? 1;
+                return {
+                    calories: acc.calories + multiplier * calories,
+                    proteins: acc.proteins + multiplier * proteins,
+                    fats: acc.fats + multiplier * fats,
+                    carbohydrates:
+                        acc.carbohydrates + multiplier * carbohydrates
+                };
+            },
             { calories: 0, proteins: 0, fats: 0, carbohydrates: 0 }
         );
     }
