@@ -14,7 +14,8 @@ model Dish {
     fats                       Int            @default(0)
     carbohydrates              Int            @default(0)
     price                      Int            @default(0)
-    benefit                    String?
+    benefitRu                  String?        @map("benefit_ru")
+    benefitHe                  String?        @map("benefit_he")
     isPublished                Boolean        @default(false) @map("is_published")
     isIndividualOrderAvailable Boolean        @default(false) @map("is_individual_order_available")
     createdAt                  DateTime       @default(now()) @map("created_at")

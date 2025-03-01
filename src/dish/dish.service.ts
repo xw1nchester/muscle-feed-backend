@@ -68,7 +68,6 @@ export class DishService {
             price,
             isPublished,
             isIndividualOrderAvailable,
-            benefit,
             createdAt,
             updatedAt
         } = dish;
@@ -89,7 +88,6 @@ export class DishService {
             isPublished,
             isIndividualOrderAvailable,
             ...localizedFields,
-            benefit,
             createdAt,
             updatedAt
         };

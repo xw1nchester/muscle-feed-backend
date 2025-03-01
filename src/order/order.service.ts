@@ -693,7 +693,17 @@ export class OrderService {
             ...rest
         }: AdminOrderRequestDto
     ) {
-        const existingOrder = await this.getById(id);
+        const existingOrder = await this.orderRepository.findFirst({
+            where: { id },
+            select: {
+                isIndividual: true,
+                orderDays: { include: { orderDayDishes: true } }
+            }
+        });
+
+        if (!existingOrder) {
+            throw new NotFoundException('Заказ не надйен');
+        }
 
         await this.cityService.getById(cityId);
 
@@ -702,11 +712,6 @@ export class OrderService {
         await this.userService.getById(userId);
 
         await this.menuService.getById(menuId, true);
-
-        const currentOrderDays = await this.orderDayRepository.findMany({
-            where: { orderId: id },
-            include: { orderDayDishes: true }
-        });
 
         await this.orderRepository.update({
             where: { id },
@@ -734,7 +739,7 @@ export class OrderService {
                 freezeEndDate,
                 menuId,
                 orderId: id,
-                currentOrderDays
+                currentOrderDays: existingOrder.orderDays
             });
         }
 

@@ -260,9 +260,12 @@ components:
           type: boolean
         isIndividualOrderAvailable:
           type: boolean
-        benefit:
+        benefitRu:
           type: string
           example: "Польза"
+        benefitHe:
+          type: string
+          example: "יתרונות"
     DishTypeResponseDto:
       type: object
       properties:
@@ -325,8 +328,14 @@ components:
               type: string
               example: "סטייק עסיסי עם פירה תפוחי אדמה וירקות."
         benefit:
-          type: string
-          example: "Польза"
+          type: object
+          properties:
+            ru:
+              type: string
+              example: "Польза"
+            he:
+              type: string
+              example: "יתרונות"
         createdAt:
           type: string
           format: date-time

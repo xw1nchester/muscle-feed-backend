@@ -65,7 +65,11 @@ export class DishRequestDto {
 
     @IsOptional()
     @IsString()
-    benefit: string;
+    benefitRu: string;
+
+    @IsOptional()
+    @IsString()
+    benefitHe: string;
 
     @IsBoolean()
     @IsNotEmpty()
