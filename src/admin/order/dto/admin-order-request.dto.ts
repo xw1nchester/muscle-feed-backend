@@ -10,6 +10,11 @@ import {
 import { OrderRequestDto } from '@order/dto/order-request.dto';
 
 export class AdminOrderRequestDto extends OrderRequestDto {
+    @IsOptional()
+    @Transform(({ value }) => Number(value))
+    @IsNumber()
+    menuId: number;
+
     @Transform(({ value }) => Number(value))
     @IsOptional()
     @IsNumber()
