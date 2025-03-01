@@ -26,6 +26,7 @@ import { DishService } from '@dish/dish.service';
 import { PaginationDto } from '@dto/pagination.dto';
 import { MenuService } from '@menu/menu.service';
 import { UserService } from '@user/user.service';
+import { areArraysEqual } from '@utils';
 
 import { IndividualOrderRequestDto } from './dto/individual-order-request.dto';
 import { OrderChangeRequestDto } from './dto/order-change-request.dto';
@@ -320,7 +321,7 @@ export class OrderService {
         freezeEndDate,
         menuId,
         orderId,
-        currentOrderDays = []
+        existingOrderDays: currentOrderDays = []
     }: {
         startDate: Date;
         daysCount: number;
@@ -329,7 +330,7 @@ export class OrderService {
         freezeEndDate?: Date;
         menuId: number;
         orderId: number;
-        currentOrderDays?: (OrderDay & { orderDayDishes: OrderDayDish[] })[];
+        existingOrderDays?: (OrderDay & { orderDayDishes: OrderDayDish[] })[];
     }) {
         const orderDays = this.getDaysWithSkipInfo(
             startDate,
@@ -361,27 +362,34 @@ export class OrderService {
                 continue;
             }
 
-            for (const { dishTypeId, dish, isPrimary } of planData[i].dishes) {
-                const dishIds = planData[i].dishes.map(dish => dish.dish.id);
+            const existingOrderDay = currentOrderDays.find(
+                orderDay => orderDay.date.getTime() == date.getTime()
+            );
 
-                const existingSelectedDish = currentOrderDays
-                    .find(orderDay => orderDay.date.getTime() == date.getTime())
-                    ?.orderDayDishes.find(
+            for (const { dishTypeId, dish, isPrimary } of planData[i].dishes) {
+                const expectedDishids = planData[i].dishes
+                    .filter(dish => dish.dishTypeId == dishTypeId)
+                    .map(dish => dish.dish.id);
+
+                const existingDishIds = existingOrderDay?.orderDayDishes
+                    .filter(dish => dish.dishTypeId == dishTypeId)
+                    .map(dish => dish.dishId);
+
+                const existingDish =
+                    areArraysEqual(expectedDishids, existingDishIds) &&
+                    existingOrderDay?.orderDayDishes.find(
                         orderDayDish =>
-                            orderDayDish.isSelected &&
                             orderDayDish.dishTypeId == dishTypeId &&
-                            dishIds.includes(orderDayDish.dishId)
+                            orderDayDish.dishId == dish.id
                     );
 
                 await this.orderDayDishRepository.create({
                     data: {
                         orderDayId: createdOrderDay.id,
                         dishTypeId,
-                        dishId: existingSelectedDish
-                            ? existingSelectedDish.dishId
-                            : dish.id,
-                        isSelected: existingSelectedDish
-                            ? existingSelectedDish.isSelected
+                        dishId: dish.id,
+                        isSelected: existingDish
+                            ? existingDish.isSelected
                             : isPrimary
                     }
                 });
@@ -739,7 +747,7 @@ export class OrderService {
                 freezeEndDate,
                 menuId,
                 orderId: id,
-                currentOrderDays: existingOrder.orderDays
+                existingOrderDays: existingOrder.orderDays
             });
         }
 
