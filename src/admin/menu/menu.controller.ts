@@ -31,7 +31,6 @@ export class MenuController {
 
     @Post('type')
     async createType(@Body() dto: MenuTypeRequestDto) {
-        console.log({ dto });
         return await this.menuService.createType(dto);
     }
 
@@ -63,6 +62,8 @@ export class MenuController {
         return await this.menuService.create(dto);
     }
 
+    @UseGuards(RoleGuard)
+    @Role(RoleEnum.MODERATOR)
     @Get()
     async find(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
