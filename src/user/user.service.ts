@@ -142,12 +142,11 @@ export class UserService {
     }
 
     async createAddress(userId: number, dto: AddressRequestDto) {
-        const addressesCountData = await this.prismaService.address.aggregate({
-            _count: { id: true },
+        const addressesCount = await this.prismaService.address.count({
             where: { userId }
         });
 
-        if (addressesCountData._count.id > 4) {
+        if (addressesCount > 4) {
             throw new BadRequestException(
                 'Превышено максимальное количество адресов (5)'
             );
@@ -159,7 +158,7 @@ export class UserService {
             data: {
                 ...dto,
                 userId,
-                isPrimary: addressesCountData._count.id === 0
+                isPrimary: addressesCount === 0
             },
             include: { city: true }
         });
@@ -268,17 +267,9 @@ export class UserService {
 
         const users = usersData.map(user => this.createDto(user));
 
-        const totalCount = await this.prismaService.user.aggregate({
-            _count: { id: true }
-        });
+        const totalCount = await this.prismaService.user.count();
 
-        return new PaginationDto(
-            'users',
-            users,
-            totalCount._count.id,
-            limit,
-            page
-        );
+        return new PaginationDto('users', users, totalCount, limit, page);
     }
 
     async update(id: number, dto: UpdateUserDto) {

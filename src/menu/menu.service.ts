@@ -349,18 +349,11 @@ export class MenuService {
             this.createDto(menu, menu._count.menuDays)
         );
 
-        const totalCount = await this.menuRepository.aggregate({
-            _count: { id: true },
+        const totalCount = await this.menuRepository.count({
             where
         });
 
-        return new PaginationDto(
-            'menus',
-            menus,
-            totalCount._count.id,
-            limit,
-            page
-        );
+        return new PaginationDto('menus', menus, totalCount, limit, page);
     }
 
     async getAdminDtoById(id: number) {

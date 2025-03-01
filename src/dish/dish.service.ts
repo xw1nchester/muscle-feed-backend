@@ -157,18 +157,11 @@ export class DishService {
 
         const dishes = dishesData.map(dish => this.createDto(dish));
 
-        const totalCount = await this.dishRepository.aggregate({
-            _count: { id: true },
+        const totalCount = await this.dishRepository.count({
             where
         });
 
-        return new PaginationDto(
-            'dishes',
-            dishes,
-            totalCount._count.id,
-            limit,
-            page
-        );
+        return new PaginationDto('dishes', dishes, totalCount, limit, page);
     }
 
     private async getDishesCountByPicture(picture: string) {

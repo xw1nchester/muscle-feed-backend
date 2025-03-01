@@ -26,7 +26,6 @@ import { DishService } from '@dish/dish.service';
 import { PaginationDto } from '@dto/pagination.dto';
 import { MenuService } from '@menu/menu.service';
 import { UserService } from '@user/user.service';
-import { areArraysEqual } from '@utils';
 
 import { IndividualOrderRequestDto } from './dto/individual-order-request.dto';
 import { OrderChangeRequestDto } from './dto/order-change-request.dto';
@@ -367,21 +366,11 @@ export class OrderService {
             );
 
             for (const { dishTypeId, dish, isPrimary } of planData[i].dishes) {
-                const expectedDishids = planData[i].dishes
-                    .filter(dish => dish.dishTypeId == dishTypeId)
-                    .map(dish => dish.dish.id);
-
-                const existingDishIds = existingOrderDay?.orderDayDishes
-                    .filter(dish => dish.dishTypeId == dishTypeId)
-                    .map(dish => dish.dishId);
-
-                const existingDish =
-                    areArraysEqual(expectedDishids, existingDishIds) &&
-                    existingOrderDay?.orderDayDishes.find(
-                        orderDayDish =>
-                            orderDayDish.dishTypeId == dishTypeId &&
-                            orderDayDish.dishId == dish.id
-                    );
+                const existingDish = existingOrderDay?.orderDayDishes.find(
+                    orderDayDish =>
+                        orderDayDish.dishTypeId == dishTypeId &&
+                        orderDayDish.dishId == dish.id
+                );
 
                 await this.orderDayDishRepository.create({
                     data: {
@@ -474,7 +463,6 @@ export class OrderService {
         };
     }
 
-    // TODO: пользователь тоже может запрашивать статистику?
     async getStats() {
         const {
             activeCondition,
@@ -496,49 +484,26 @@ export class OrderService {
             terminatingCount,
             unprocessedCount
         ] = await Promise.all([
-            this.orderRepository.aggregate({
-                _count: { id: true }
-            }),
-            this.orderRepository.aggregate({
-                _count: { id: true },
-                where: activeCondition
-            }),
-            this.orderRepository.aggregate({
-                _count: { id: true },
-                where: frozenCondition
-            }),
-            this.orderRepository.aggregate({
-                _count: { id: true },
-                where: unpaidCondition
-            }),
-            this.orderRepository.aggregate({
-                _count: { id: true },
-                where: completedCondition
-            }),
-            this.orderRepository.aggregate({
-                _count: { id: true },
-                where: pendingCondition
-            }),
-            this.orderRepository.aggregate({
-                _count: { id: true },
-                where: terminatingCondition
-            }),
-            this.orderRepository.aggregate({
-                _count: { id: true },
-                where: unprocessedCondition
-            })
+            this.orderRepository.count(),
+            this.orderRepository.count({ where: activeCondition }),
+            this.orderRepository.count({ where: frozenCondition }),
+            this.orderRepository.count({ where: unpaidCondition }),
+            this.orderRepository.count({ where: completedCondition }),
+            this.orderRepository.count({ where: pendingCondition }),
+            this.orderRepository.count({ where: terminatingCondition }),
+            this.orderRepository.count({ where: unprocessedCondition })
         ]);
 
         return {
             stats: {
-                allCount: allCount._count.id,
-                activeCount: activeCount._count.id,
-                frozenCount: frozenCount._count.id,
-                unpaidCount: unpaidCount._count.id,
-                completedCount: completedCount._count.id,
-                pendingCount: pendingCount._count.id,
-                terminatingCount: terminatingCount._count.id,
-                unprocessedCount: unprocessedCount._count.id
+                allCount,
+                activeCount,
+                frozenCount,
+                unpaidCount,
+                completedCount,
+                pendingCount,
+                terminatingCount,
+                unprocessedCount
             }
         };
     }
@@ -587,18 +552,11 @@ export class OrderService {
 
         const orders = ordersData.map(order => this.createDto(order));
 
-        const totalCount = await this.orderRepository.aggregate({
-            _count: { id: true },
+        const totalCount = await this.orderRepository.count({
             where
         });
 
-        return new PaginationDto(
-            'orders',
-            orders,
-            totalCount._count.id,
-            limit,
-            page
-        );
+        return new PaginationDto('orders', orders, totalCount, limit, page);
     }
 
     async getAdminInfoById(id: number) {
@@ -982,14 +940,12 @@ export class OrderService {
             this.createChangeRequestDto(changeRequest)
         );
 
-        const totalCount = await this.orderChangeRequestRepository.aggregate({
-            _count: { id: true }
-        });
+        const totalCount = await this.orderChangeRequestRepository.count();
 
         return new PaginationDto(
             'orderChangeRequests',
             orderChangeRequests,
-            totalCount._count.id,
+            totalCount,
             limit,
             page
         );

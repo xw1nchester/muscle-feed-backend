@@ -85,18 +85,11 @@ export class ReviewService {
 
         const reviews = reviewsData.map(review => this.createDto(review));
 
-        const totalCount = await this.prismaService.review.aggregate({
-            _count: { id: true },
+        const totalCount = await this.prismaService.review.count({
             where
         });
 
-        return new PaginationDto(
-            'reviews',
-            reviews,
-            totalCount._count.id,
-            limit,
-            page
-        );
+        return new PaginationDto('reviews', reviews, totalCount, limit, page);
     }
 
     async adminCreate(dto: AdminReviewRequestDto) {
