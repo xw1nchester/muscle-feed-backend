@@ -215,7 +215,6 @@ export class DishService {
         }
     }
 
-    // TODO: добавить опциональные параметры isPublished, isIndividualOrderAvailable
     async validateDishesIds(dishIds: number[]) {
         const dishesCount = await this.dishRepository.count({
             where: { id: { in: dishIds } }

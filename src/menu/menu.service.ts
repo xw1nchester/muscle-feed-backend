@@ -232,7 +232,7 @@ export class MenuService {
             },
             menuPrices: true,
             _count: {
-                select: { menuDays: true }
+                select: { menuDays: true, orders: true }
             }
         };
     }
@@ -466,7 +466,11 @@ export class MenuService {
     async delete(id: number) {
         const existingMenu = await this.getById(id);
 
-        // TODO: проверить чтобы не было заказов с этим меню
+        if (existingMenu._count.orders > 0) {
+            throw new BadRequestException(
+                'Нельзя удалить меню, так как есть заказ с ним'
+            );
+        }
 
         await this.menuRepository.delete({ where: { id } });
 
@@ -612,13 +616,33 @@ export class MenuService {
     }
 
     async getRecomendations(calories: number) {
-        const menusData = await this.menuRepository.findMany({
+        let menusData = await this.menuRepository.findMany({
             where: {
                 calories: { gte: calories - 300, lte: calories + 300 }
             },
             orderBy: { calories: 'asc' },
             include: this.getMenuInclude()
         });
+
+        if (menusData.length === 0) {
+            const minCaloriesMenu = await this.menuRepository.findMany({
+                orderBy: { calories: 'asc' },
+                take: 3,
+                include: this.getMenuInclude()
+            });
+
+            const maxCaloriesMenu = await this.menuRepository.findMany({
+                orderBy: { calories: 'desc' },
+                take: 3,
+                include: this.getMenuInclude()
+            });
+
+            if (calories < minCaloriesMenu[0].calories) {
+                menusData = minCaloriesMenu;
+            } else {
+                menusData = maxCaloriesMenu;
+            }
+        }
 
         const menus = menusData.map(menu => this.createDto(menu));
 

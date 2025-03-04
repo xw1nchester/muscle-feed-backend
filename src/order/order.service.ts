@@ -677,7 +677,9 @@ export class OrderService {
 
         await this.userService.getById(userId);
 
-        await this.menuService.getById(menuId, true);
+        if (menuId) {
+            await this.menuService.getById(menuId, true);
+        }
 
         await this.orderRepository.update({
             where: { id },

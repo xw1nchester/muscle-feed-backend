@@ -5,7 +5,6 @@ model Menu {
     nameHe         String      @map("name_he")
     descriptionRu  String      @map("description_ru")
     descriptionHe  String      @map("description_he")
-    // TODO: сделать эти поля обязательными
     mealsCountRu   String?     @map("meals_count_ru")
     mealsCountHe   String?     @map("meals_count_he")
     calories       Int         @default(0)
