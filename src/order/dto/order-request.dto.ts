@@ -75,4 +75,8 @@ export class OrderRequestDto {
     @IsString()
     @IsOptional()
     comment: string;
+
+    @IsOptional()
+    @IsNumber()
+    promocodeId: number;
 }

@@ -1,0 +1,8 @@
+model Promocode {
+    id       Int     @id @default(autoincrement())
+    code     String
+    discount Int
+    orders   Order[]
+
+    @@map("promocodes")
+}

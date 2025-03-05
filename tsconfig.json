@@ -53,7 +53,9 @@
             "@city": ["src/city"],
             "@city/*": ["src/city/*"],
             "@order": ["src/order"],
-            "@order/*": ["src/order/*"]
+            "@order/*": ["src/order/*"],
+            "@promocode": ["src/promocode"],
+            "@promocode/*": ["src/promocode/*"]
         }
     }
 }

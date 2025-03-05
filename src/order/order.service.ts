@@ -25,6 +25,7 @@ import { CityService } from '@city/city.service';
 import { DishService } from '@dish/dish.service';
 import { PaginationDto } from '@dto/pagination.dto';
 import { MenuService } from '@menu/menu.service';
+import { PromocodeService } from '@promocode/promocode.service';
 import { UserService } from '@user/user.service';
 
 import { IndividualOrderRequestDto } from './dto/individual-order-request.dto';
@@ -42,6 +43,7 @@ export class OrderService {
         private readonly cityService: CityService,
         private readonly userService: UserService,
         private readonly dishService: DishService,
+        private readonly promocodeService: PromocodeService,
         private readonly configService: ConfigService
     ) {}
 
@@ -106,7 +108,8 @@ export class OrderService {
             orderDays: { orderBy: { date: Prisma.SortOrder.asc } },
             paymentMethod: true,
             city: true,
-            user: true
+            user: true,
+            promocode: true
         };
     }
 
@@ -232,7 +235,14 @@ export class OrderService {
             daysCount
         );
 
-        // TODO: в будущем определять promocodeDiscount, finalPrice в зависимости от промокода
+        let finalPrice = price;
+
+        if (rest.promocodeId) {
+            finalPrice = await this.promocodeService.calculatePriceById(
+                rest.promocodeId,
+                price
+            );
+        }
 
         const createdOrder = await this.orderRepository.create({
             data: {
@@ -241,7 +251,7 @@ export class OrderService {
                 menuId,
                 userId,
                 price,
-                finalPrice: price,
+                finalPrice,
                 isIndividual: false
             }
         });
@@ -571,6 +581,7 @@ export class OrderService {
             menu,
             orderDays,
             paymentMethod,
+            promocodeId,
             ...rest
         } = await this.getById(id);
         /* eslint-enable @typescript-eslint/no-unused-vars */
@@ -1028,12 +1039,21 @@ export class OrderService {
             );
         }
 
+        let finalPrice = totalPrice;
+
+        if (rest.promocodeId) {
+            finalPrice = await this.promocodeService.calculatePriceById(
+                rest.promocodeId,
+                totalPrice
+            );
+        }
+
         const { id: orderId } = await this.orderRepository.create({
             data: {
                 ...rest,
                 userId,
                 price: totalPrice,
-                finalPrice: totalPrice,
+                finalPrice,
                 isIndividual: true
             }
         });

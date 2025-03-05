@@ -31,6 +31,8 @@ model Order {
     paymentMethodId     Int?                 @map("payment_method_id")
     menu                Menu?                @relation(fields: [menuId], references: [id], onDelete: SetNull)
     menuId              Int?                 @map("menu_id")
+    promocode           Promocode?           @relation(fields: [promocodeId], references: [id], onDelete: SetNull)
+    promocodeId         Int?                 @map("promocode_id")
     orderDays           OrderDay[]
     orderChangeRequests OrderChangeRequest[]
 

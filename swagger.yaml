@@ -758,6 +758,8 @@ components:
         comment:
           type: string
           example: "Позвоните за 10 минут до доставки"
+        promocodeId:
+          type: integer
       required:
         - menuId
         - startDate
@@ -1023,6 +1025,24 @@ components:
             he:
               type: string
               example: "חיפה"
+    PromocodeRequestDto:
+      type: object
+      properties:
+        code:
+          type: string
+          example: MUSCLE
+        discount:
+          type: integer
+    PromocodeResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
+        code:
+          type: string
+          example: MUSCLE
+        discount:
+          type: integer
     PaginationBodyFields:
       type: object
       properties:
@@ -1123,6 +1143,11 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/OrderRequestAdminDto"
+    Promocode:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PromocodeRequestDto"
   securitySchemes:
     BearerAuth:
       type: http
@@ -2727,6 +2752,8 @@ paths:
                       updatedAt:
                         type: string
                         format: date-time
+                      promocode:
+                        $ref: "#/components/schemas/PromocodeResponseDto"
                       user:
                         $ref: "#/components/schemas/UserDto"
                       city:
@@ -3044,6 +3071,125 @@ paths:
       responses:
         "200":
           description: "Success"
+  /api/admin/promocode:
+    post:
+      tags:
+        - Admin Promocode
+      requestBody:
+        $ref: "#/components/requestBodies/Promocode"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  promocode:
+                    $ref: "#/components/schemas/PromocodeResponseDto"
+    get:
+      tags:
+        - Admin Promocode
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      promocodes:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/PromocodeResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/promocode/{promocodeId}:
+    get:
+      tags:
+        - Admin Promocode
+      parameters:
+        - name: promocodeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  promocode:
+                    $ref: "#/components/schemas/PromocodeResponseDto"
+    patch:
+      tags:
+        - Admin Promocode
+      parameters:
+        - name: promocodeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/City"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  promocode:
+                    $ref: "#/components/schemas/PromocodeResponseDto"
+    delete:
+      tags:
+        - Admin Promocode
+      parameters:
+        - name: promocodeId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  promocode:
+                    $ref: "#/components/schemas/PromocodeResponseDto"
+  /api/promocode/{promocode}:
+    get:
+      tags:
+        - Promocode
+      parameters:
+        - name: promocode
+          in: path
+          required: true
+          schema:
+            type: string
+            example: MUSCLE
+        - name: price
+          in: query
+          required: true
+          schema:
+            type: integer
+      security: []
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  promocode:
+                    $ref: "#/components/schemas/PromocodeResponseDto"
+                  finalPrice:
+                    type: integer
   /api/order/payment-method:
     get:
       tags:
@@ -3151,6 +3297,8 @@ paths:
                 comment:
                   type: string
                   example: "Позвоните за 10 минут до доставки"
+                promocodeId:
+                  type: integer
               required:
                 - dishes
                 - date
