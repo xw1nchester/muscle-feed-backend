@@ -19,8 +19,8 @@ components:
           type: array
           items:
             enum:
-              - ADMIN
               - MODERATOR
+              - ADMIN
         firstName:
           type: string
           example: Rob
@@ -477,6 +477,10 @@ components:
           type: string
           example: "104 ₪ ליום"
           description: "המחיר ליום"
+        discount:
+          type: integer
+        giftDaysCount:
+          type: integer
     MenuRequestDto:
       type: object
       properties:
@@ -615,6 +619,10 @@ components:
                   he:
                     type: string
                     example: "104 ₪ ליום אחד בלבד"
+              discount:
+                type: integer
+              giftDaysCount:
+                type: integer
     MenuResponseAdminDto:
       type: object
       properties:
@@ -784,6 +792,8 @@ components:
               type: integer
             promocodeDiscount:
               type: integer
+            giftDaysCount:
+              type: integer
             finalPrice:
               type: integer
             freezeStartDate:
@@ -846,8 +856,10 @@ components:
           type: integer
         comment:
           type: string
-          example: "Позвоните за 10 минут до доставк"
+          example: "Позвоните за 10 минут до доставки"
         daysCount:
+          type: integer
+        giftDaysCount:
           type: integer
         daysLeft:
           type: integer
@@ -1073,13 +1085,14 @@ components:
       name: status
       in: query
       required: false
-      description: all - все заказы (по умолчанию), active - активные, frozen - замороженные, unpaid - неоплаченные, completed - завершенные, pending - ожидающие, terminating - завершающиеся, unprocessed - необработанные
+      description: all - все заказы (по умолчанию), active - активные, individual - индивидуальные, frozen - замороженные, unpaid - неоплаченные, completed - завершенные, pending - ожидающие, terminating - завершающиеся, unprocessed - необработанные
       schema:
         type: string
         default: all
         enum:
           - all
           - active
+          - individual
           - frozen
           - unpaid
           - completed
@@ -2634,6 +2647,8 @@ paths:
                         type: integer
                       activeCount:
                         type: integer
+                      individualCount:
+                        type: integer
                       frozenCount:
                         type: integer
                       unpaidCount:
@@ -2734,6 +2749,8 @@ paths:
                         type: integer
                       promocodeDiscount:
                         type: integer
+                      menuDiscount:
+                        type: integer
                       finalPrice:
                         type: integer
                       isProcessed:
@@ -2763,6 +2780,8 @@ paths:
                       menu:
                         $ref: "#/components/schemas/MenuResponseShortDto"
                       daysCount:
+                        type: integer
+                      giftDaysCount:
                         type: integer
                       daysLeft:
                         type: integer
@@ -3134,7 +3153,7 @@ paths:
           schema:
             type: integer
       requestBody:
-        $ref: "#/components/requestBodies/City"
+        $ref: "#/components/requestBodies/Promocode"
       responses:
         "200":
           description: "Success"
@@ -3540,6 +3559,13 @@ paths:
               properties:
                 isVerified:
                   type: boolean
+                roles:
+                  type: array
+                  items:
+                    type: string
+                    enum:
+                      - MODERATOR
+                      - ADMIN
       responses:
         "200":
           description: "Success"

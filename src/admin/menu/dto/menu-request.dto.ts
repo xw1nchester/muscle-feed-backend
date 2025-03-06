@@ -6,6 +6,7 @@ import {
     IsDate,
     IsNotEmpty,
     IsNumber,
+    IsOptional,
     IsString,
     Min,
     ValidateNested
@@ -62,6 +63,16 @@ class MenuPriceDto {
     @IsString()
     @IsNotEmpty()
     pricePerDayHe: string;
+
+    @IsOptional()
+    @Transform(({ value }) => Number(value))
+    @Min(0)
+    discount: number;
+
+    @IsOptional()
+    @Transform(({ value }) => Number(value))
+    @Min(0)
+    giftDaysCount: number;
 }
 
 export class MenuRequestDto {

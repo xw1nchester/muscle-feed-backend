@@ -27,6 +27,7 @@ import { PaginationDto } from '@dto/pagination.dto';
 import { MenuService } from '@menu/menu.service';
 import { PromocodeService } from '@promocode/promocode.service';
 import { UserService } from '@user/user.service';
+import { calculateDiscountedPrice } from '@utils';
 
 import { IndividualOrderRequestDto } from './dto/individual-order-request.dto';
 import { OrderChangeRequestDto } from './dto/order-change-request.dto';
@@ -150,6 +151,7 @@ export class OrderService {
             menu,
             comment,
             skippedWeekdays,
+            giftDaysCount,
             paymentMethod,
             isPaid,
             isIndividual,
@@ -192,7 +194,8 @@ export class OrderService {
             apartment,
             comment,
             skippedWeekdays,
-            daysCount: notSkippedDays.length,
+            daysCount: notSkippedDays.length - giftDaysCount,
+            giftDaysCount,
             daysLeft,
             startDate: orderDays[0].date,
             endDate: orderDays[orderDays.length - 1].date,
@@ -230,12 +233,12 @@ export class OrderService {
 
         await this.getPaymentMethodById(rest.paymentMethodId);
 
-        const price = await this.menuService.getMenuPriceByDays(
-            menuId,
-            daysCount
-        );
+        const { price, discount, giftDaysCount } =
+            await this.menuService.getMenuPriceByDays(menuId, daysCount);
 
-        let finalPrice = price;
+        let finalPrice = calculateDiscountedPrice(price, discount);
+
+        const menuDiscount = price - finalPrice;
 
         if (rest.promocodeId) {
             finalPrice = await this.promocodeService.calculatePriceById(
@@ -243,6 +246,8 @@ export class OrderService {
                 price
             );
         }
+
+        const promocodeDiscount = price - menuDiscount - finalPrice;
 
         const createdOrder = await this.orderRepository.create({
             data: {
@@ -252,13 +257,16 @@ export class OrderService {
                 userId,
                 price,
                 finalPrice,
+                menuDiscount,
+                promocodeDiscount,
+                giftDaysCount,
                 isIndividual: false
             }
         });
 
         await this.createOrderPlanByMenu({
             startDate,
-            daysCount,
+            daysCount: daysCount + giftDaysCount,
             skippedWeekdays,
             menuId,
             orderId: createdOrder.id
@@ -423,6 +431,16 @@ export class OrderService {
                     }
                 }
             },
+            individualCondition: {
+                isProcessed: true,
+                isCompleted: false,
+                isIndividual: true,
+                orderDays: {
+                    some: {
+                        date: today
+                    }
+                }
+            },
             frozenCondition: {
                 isProcessed: true,
                 isCompleted: false,
@@ -476,6 +494,7 @@ export class OrderService {
     async getStats() {
         const {
             activeCondition,
+            individualCondition,
             frozenCondition,
             unpaidCondition,
             completedCondition,
@@ -487,6 +506,7 @@ export class OrderService {
         const [
             allCount,
             activeCount,
+            individualCount,
             frozenCount,
             unpaidCount,
             completedCount,
@@ -496,6 +516,7 @@ export class OrderService {
         ] = await Promise.all([
             this.orderRepository.count(),
             this.orderRepository.count({ where: activeCondition }),
+            this.orderRepository.count({ where: individualCondition }),
             this.orderRepository.count({ where: frozenCondition }),
             this.orderRepository.count({ where: unpaidCondition }),
             this.orderRepository.count({ where: completedCondition }),
@@ -508,6 +529,7 @@ export class OrderService {
             stats: {
                 allCount,
                 activeCount,
+                individualCount,
                 frozenCount,
                 unpaidCount,
                 completedCount,
@@ -531,6 +553,7 @@ export class OrderService {
     }) {
         const {
             activeCondition,
+            individualCondition,
             frozenCondition,
             unpaidCondition,
             completedCondition,
@@ -542,6 +565,7 @@ export class OrderService {
         const where = {
             ...(userId != undefined && { userId }),
             ...(status == OrderStatus.ACTIVE && activeCondition),
+            ...(status == OrderStatus.INDIVIDUAL && individualCondition),
             ...(status == OrderStatus.FROZEN && frozenCondition),
             ...(status == OrderStatus.UNPAID && unpaidCondition),
             ...(status == OrderStatus.COMPLETED && completedCondition),
@@ -582,6 +606,7 @@ export class OrderService {
             orderDays,
             paymentMethod,
             promocodeId,
+            giftDaysCount,
             ...rest
         } = await this.getById(id);
         /* eslint-enable @typescript-eslint/no-unused-vars */
@@ -603,7 +628,8 @@ export class OrderService {
                 city: this.cityService.createDto(city),
                 paymentMethod: this.createPaymentMethodDto(paymentMethod),
                 menu: menu ? this.menuService.createShortDto(menu) : null,
-                daysCount: notSkippedDays.length,
+                daysCount: notSkippedDays.length - giftDaysCount,
+                giftDaysCount,
                 daysLeft,
                 startDate: orderDays[0].date,
                 endDate: orderDays[orderDays.length - 1].date
@@ -618,6 +644,7 @@ export class OrderService {
         userId,
         daysCount,
         skippedWeekdays,
+        giftDaysCount,
         menuId,
         ...rest
     }: AdminOrderRequestDto) {
@@ -636,6 +663,7 @@ export class OrderService {
                 userId,
                 skippedWeekdays,
                 menuId,
+                giftDaysCount,
                 ...rest
             }
         });
@@ -643,7 +671,7 @@ export class OrderService {
         if (menuId != undefined) {
             await this.createOrderPlanByMenu({
                 startDate,
-                daysCount,
+                daysCount: daysCount + (giftDaysCount ?? 0),
                 skippedWeekdays,
                 freezeStartDate: rest.freezeStartDate,
                 freezeEndDate: rest.freezeEndDate,
@@ -1054,6 +1082,7 @@ export class OrderService {
                 userId,
                 price: totalPrice,
                 finalPrice,
+                promocodeDiscount: totalPrice - finalPrice,
                 isIndividual: true
             }
         });

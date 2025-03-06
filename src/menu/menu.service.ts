@@ -19,7 +19,7 @@ import { MenuRequestDto } from '@admin/menu/dto/menu-request.dto';
 import { MenuTypeRequestDto } from '@admin/menu/dto/menu-type-request.dto';
 import { DishService } from '@dish/dish.service';
 import { PaginationDto } from '@dto/pagination.dto';
-import { extractLocalizedFields } from '@utils';
+import { calculateDiscountedPrice, extractLocalizedFields } from '@utils';
 
 @Injectable()
 export class MenuService {
@@ -162,11 +162,21 @@ export class MenuService {
 
     // Menu
     createPriceDto(menuPrice: MenuPrice) {
-        const { id, daysCount, price } = menuPrice;
+        const { id, daysCount, price, discount, giftDaysCount } = menuPrice;
 
         const localizedFields = extractLocalizedFields(menuPrice);
 
-        return { id, daysCount, price, ...localizedFields };
+        const discountedPrice = calculateDiscountedPrice(price, discount);
+
+        return {
+            id,
+            daysCount,
+            discount,
+            giftDaysCount,
+            price,
+            discountedPrice,
+            ...localizedFields
+        };
     }
 
     createDto(
@@ -386,7 +396,9 @@ export class MenuService {
                         totalPriceRu: true,
                         totalPriceHe: true,
                         pricePerDayRu: true,
-                        pricePerDayHe: true
+                        pricePerDayHe: true,
+                        discount: true,
+                        giftDaysCount: true
                     }
                 }
             }
@@ -612,7 +624,11 @@ export class MenuService {
             );
         }
 
-        return menuPrice.price;
+        return {
+            price: menuPrice.price,
+            discount: menuPrice.discount,
+            giftDaysCount: menuPrice.giftDaysCount
+        };
     }
 
     async getRecomendations(calories: number) {

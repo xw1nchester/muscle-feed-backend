@@ -10,9 +10,11 @@ model Order {
     apartment           Int?
     comment             String?
     skippedWeekdays     Int[]                @default([]) @map("skipped_weekdays")
+    giftDaysCount       Int                  @default(0) @map("gift_days_count")
     price               Int
-    paidAmount          Int?                 @default(0) @map("paid_amount")
-    promocodeDiscount   Int?                 @default(0) @map("promocode_discount")
+    paidAmount          Int                  @default(0) @map("paid_amount")
+    promocodeDiscount   Int                  @default(0) @map("promocode_discount")
+    menuDiscount        Int                  @default(0) @map("menu_discount")
     finalPrice          Int                  @map("final_price")
     freezeStartDate     DateTime?            @map("freeze_start_date")
     freezeEndDate       DateTime?            @map("freeze_end_date")

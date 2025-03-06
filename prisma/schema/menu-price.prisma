@@ -6,6 +6,8 @@ model MenuPrice {
     totalPriceHe  String @map("total_price_he")
     pricePerDayRu String @map("price_per_day_ru")
     pricePerDayHe String @map("price_per_day_he")
+    discount      Int    @default(0)
+    giftDaysCount Int    @default(0) @map("gift_days_count")
     menuId        Int    @map("menu_id")
     menu          Menu   @relation(fields: [menuId], references: [id], onDelete: Cascade)
 

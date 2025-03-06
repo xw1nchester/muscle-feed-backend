@@ -1,6 +1,7 @@
 export enum OrderStatus {
     ALL = 'all',
     ACTIVE = 'active',
+    INDIVIDUAL = 'individual',
     FROZEN = 'frozen',
     UNPAID = 'unpaid',
     COMPLETED = 'completed',

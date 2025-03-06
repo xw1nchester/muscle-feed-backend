@@ -4,6 +4,7 @@ import {
     IsDate,
     IsNumber,
     IsOptional,
+    Min,
     ValidateIf
 } from 'class-validator';
 
@@ -47,6 +48,11 @@ export class AdminOrderRequestDto extends OrderRequestDto {
     @Transform(({ value }) => new Date(value))
     @IsDate()
     freezeEndDate: Date;
+
+    @Transform(({ value }) => Number(value))
+    @IsOptional()
+    @Min(0)
+    giftDaysCount: number;
 
     @IsBoolean()
     isProcessed: boolean;

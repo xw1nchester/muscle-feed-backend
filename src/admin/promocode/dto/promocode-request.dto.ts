@@ -1,5 +1,5 @@
 import { Transform } from 'class-transformer';
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, Min } from 'class-validator';
 
 export class PromocodeRequestDto {
     @IsString()
@@ -8,5 +8,6 @@ export class PromocodeRequestDto {
 
     @Transform(({ value }) => Number(value))
     @IsNumber()
+    @Min(0)
     discount: number;
 }

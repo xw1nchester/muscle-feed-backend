@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+    BadRequestException,
+    Injectable,
+    NotFoundException
+} from '@nestjs/common';
 
 import { Dish, DishType, Prisma } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
@@ -188,7 +192,27 @@ export class DishService {
     }
 
     async delete(id: number) {
-        const existingDish = await this.getById(id);
+        const existingDish = await this.dishRepository.findFirst({
+            where: { id },
+            include: {
+                dishType: true,
+                _count: {
+                    select: { menuDayDishes: true, orderDayDishes: true }
+                }
+            }
+        });
+
+        if (existingDish._count.menuDayDishes > 0) {
+            throw new BadRequestException(
+                'Нельзя удалить блюдо, так как оно используется в меню'
+            );
+        }
+
+        if (existingDish._count.orderDayDishes > 0) {
+            throw new BadRequestException(
+                'Нельзя удалить блюдо, так как оно используется в заказах'
+            );
+        }
 
         await this.dishRepository.delete({
             where: { id }

@@ -8,6 +8,7 @@ import { PrismaService } from '@prisma/prisma.service';
 
 import { PromocodeRequestDto } from '@admin/promocode/dto/promocode-request.dto';
 import { PaginationDto } from '@dto/pagination.dto';
+import { calculateDiscountedPrice } from '@utils';
 
 @Injectable()
 export class PromocodeService {
@@ -94,12 +95,6 @@ export class PromocodeService {
         return { promocode: existingPromocode };
     }
 
-    private calculatePrice(price: number, discount: number) {
-        const finalPrice = price * (1 - discount / 100);
-
-        return Math.round(finalPrice / 10) * 10;
-    }
-
     async getByCodeAndCalculatePrice(code: string, price: number) {
         const existingPromocode = await this.prismaService.promocode.findFirst({
             where: { code: { equals: code, mode: 'insensitive' } }
@@ -113,13 +108,16 @@ export class PromocodeService {
 
         return {
             promocode: existingPromocode,
-            finalPrice: this.calculatePrice(price, existingPromocode.discount)
+            finalPrice: calculateDiscountedPrice(
+                price,
+                existingPromocode.discount
+            )
         };
     }
 
     async calculatePriceById(id: number, price: number) {
         const { discount } = await this.getById(id);
 
-        return this.calculatePrice(price, discount);
+        return calculateDiscountedPrice(price, discount);
     }
 }
