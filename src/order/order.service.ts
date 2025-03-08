@@ -437,7 +437,7 @@ export class OrderService {
                 isIndividual: true,
                 orderDays: {
                     some: {
-                        date: today
+                        date: { gte: today }
                     }
                 }
             },
@@ -692,6 +692,7 @@ export class OrderService {
             userId,
             daysCount,
             skippedWeekdays,
+            giftDaysCount,
             menuId,
             freezeStartDate,
             freezeEndDate,
@@ -727,6 +728,7 @@ export class OrderService {
                 paymentMethodId,
                 userId: userId ?? null,
                 skippedWeekdays,
+                giftDaysCount,
                 menuId,
                 freezeStartDate: freezeStartDate ?? null,
                 freezeEndDate: freezeEndDate ?? null,
@@ -742,7 +744,7 @@ export class OrderService {
         if (!existingOrder.isIndividual) {
             await this.createOrderPlanByMenu({
                 startDate,
-                daysCount,
+                daysCount: daysCount + (giftDaysCount ?? 0),
                 skippedWeekdays,
                 freezeStartDate,
                 freezeEndDate,

@@ -36,6 +36,11 @@ export class AdminOrderRequestDto extends OrderRequestDto {
     promocodeDiscount: number;
 
     @Transform(({ value }) => Number(value))
+    @IsOptional()
+    @IsNumber()
+    menuDiscount: number;
+
+    @Transform(({ value }) => Number(value))
     @IsNumber()
     finalPrice: number;
 
