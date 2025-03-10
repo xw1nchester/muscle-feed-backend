@@ -243,7 +243,7 @@ export class OrderService {
         if (rest.promocodeId) {
             finalPrice = await this.promocodeService.calculatePriceById(
                 rest.promocodeId,
-                price
+                finalPrice
             );
         }
 
