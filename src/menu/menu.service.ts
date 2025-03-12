@@ -168,14 +168,18 @@ export class MenuService {
 
         const discountedPrice = calculateDiscountedPrice(price, discount);
 
+        const pricePerDay = Math.floor(price / daysCount);
+        const discountedPricePerDay = Math.floor(discountedPrice / daysCount);
+
         return {
             id,
             daysCount,
             discount,
             giftDaysCount,
             price,
-            pricePerDay: Math.floor(price / daysCount),
             discountedPrice,
+            pricePerDay,
+            discountedPricePerDay,
             ...localizedFields
         };
     }

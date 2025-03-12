@@ -593,7 +593,11 @@ components:
                 type: integer
               price:
                 type: integer
+              discountedPrice:
+                type: integer
               pricePerDay:
+                type: integer
+              discountedPricePerDay:
                 type: integer
               discount:
                 type: integer
