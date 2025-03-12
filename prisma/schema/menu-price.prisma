@@ -2,10 +2,6 @@ model MenuPrice {
     id            Int    @id @default(autoincrement())
     daysCount     Int    @map("days_count")
     price         Int
-    totalPriceRu  String @map("total_price_ru")
-    totalPriceHe  String @map("total_price_he")
-    pricePerDayRu String @map("price_per_day_ru")
-    pricePerDayHe String @map("price_per_day_he")
     discount      Int    @default(0)
     giftDaysCount Int    @default(0) @map("gift_days_count")
     menuId        Int    @map("menu_id")

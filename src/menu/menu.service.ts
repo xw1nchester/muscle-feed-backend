@@ -174,6 +174,7 @@ export class MenuService {
             discount,
             giftDaysCount,
             price,
+            pricePerDay: Math.floor(price / daysCount),
             discountedPrice,
             ...localizedFields
         };
@@ -393,10 +394,6 @@ export class MenuService {
                     select: {
                         daysCount: true,
                         price: true,
-                        totalPriceRu: true,
-                        totalPriceHe: true,
-                        pricePerDayRu: true,
-                        pricePerDayHe: true,
                         discount: true,
                         giftDaysCount: true
                     }

@@ -48,22 +48,6 @@ class MenuPriceDto {
     @IsNumber()
     price: number;
 
-    @IsString()
-    @IsNotEmpty()
-    totalPriceRu: string;
-
-    @IsString()
-    @IsNotEmpty()
-    totalPriceHe: string;
-
-    @IsString()
-    @IsNotEmpty()
-    pricePerDayRu: string;
-
-    @IsString()
-    @IsNotEmpty()
-    pricePerDayHe: string;
-
     @IsOptional()
     @Transform(({ value }) => Number(value))
     @Min(0)

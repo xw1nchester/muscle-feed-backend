@@ -469,14 +469,6 @@ components:
           type: string
           example: "620 ₪ להזמנה"
           description: "המחיר הכולל להזמנה"
-        pricePerDayRu:
-          type: string
-          example: "104 ₪ всего за день"
-          description: "Стоимость за день"
-        pricePerDayHe:
-          type: string
-          example: "104 ₪ ליום"
-          description: "המחיר ליום"
         discount:
           type: integer
         giftDaysCount:
@@ -601,24 +593,8 @@ components:
                 type: integer
               price:
                 type: integer
-              totalPrice:
-                type: object
-                properties:
-                  ru:
-                    type: string
-                    example: "620 ₪ за заказ"
-                  he:
-                    type: string
-                    example: "620 ₪ להזמנה"
               pricePerDay:
-                type: object
-                properties:
-                  ru:
-                    type: string
-                    example: "104 ₪ всего за день"
-                  he:
-                    type: string
-                    example: "104 ₪ ליום אחד בלבד"
+                type: integer
               discount:
                 type: integer
               giftDaysCount:
