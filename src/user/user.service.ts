@@ -11,6 +11,7 @@ import { PrismaService } from '@prisma/prisma.service';
 
 import { UpdateUserDto } from '@admin/user/dto/update-user.dto';
 import { RegisterRequestDto } from '@auth/dto/register-request.dto';
+import { JwtPayload } from '@auth/interfaces';
 import { CityService } from '@city/city.service';
 import { PaginationDto } from '@dto/pagination.dto';
 
@@ -272,7 +273,7 @@ export class UserService {
         return new PaginationDto('users', users, totalCount, limit, page);
     }
 
-    async update(id: number, dto: UpdateUserDto) {
+    async update(id: number, dto: UpdateUserDto, admin: JwtPayload) {
         const existingUser = await this.getById(id);
 
         if (
@@ -282,6 +283,16 @@ export class UserService {
         ) {
             throw new BadRequestException(
                 'Нельзя выполнить это действие на администраторе'
+            );
+        }
+
+        if (
+            admin.id == existingUser.id &&
+            admin.roles.includes(Role.ADMIN) &&
+            !dto.roles.includes(Role.ADMIN)
+        ) {
+            throw new BadRequestException(
+                'Нельзя забрать роль администратора у самого себя'
             );
         }
 

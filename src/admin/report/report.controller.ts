@@ -4,7 +4,7 @@ import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
 
 import { Role as RoleEnum } from '@prisma/client';
 
-import { Public, Role } from '@auth/decorators';
+import { Role } from '@auth/decorators';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { DateValidationPipe } from '@validators';
 
