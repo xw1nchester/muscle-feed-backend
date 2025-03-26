@@ -35,6 +35,7 @@ jobs:
       - name: Set up Database and Prisma
         run: |
           echo ${{ secrets.ENV }} > .env
+          cat .env
           npx prisma migrate deploy
 
       - name: E2E testing
