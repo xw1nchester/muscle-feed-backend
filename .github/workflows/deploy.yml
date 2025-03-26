@@ -36,7 +36,6 @@ jobs:
         run: |
           echo ${{ secrets.ENV }} > .env
           cat .env
-          npx prisma migrate deploy
 
       - name: E2E testing
         run: npm run test:e2e
