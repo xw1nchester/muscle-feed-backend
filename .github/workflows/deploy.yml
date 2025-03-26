@@ -10,6 +10,18 @@ jobs:
   e2e-test:
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -19,6 +31,11 @@ jobs:
 
       - name: Linting
         run: npm run lint
+
+      - name: Set up Database and Prisma
+        run: |
+          echo ${{ secrets.ENV }} > .env
+          npx prisma migrate deploy
 
       - name: E2E testing
         run: npm run test:e2e
