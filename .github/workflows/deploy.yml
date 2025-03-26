@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  lint:
+  e2e-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -20,8 +20,11 @@ jobs:
       - name: Linting
         run: npm run lint
 
+      - name: E2E testing
+        run: npm run test:e2e
+
   docker-push:
-    needs: lint
+    needs: e2e-test
     runs-on: ubuntu-latest
 
     steps:

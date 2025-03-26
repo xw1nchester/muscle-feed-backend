@@ -27,7 +27,9 @@ import { UserModule } from './user/user.module';
 
 @Module({
     imports: [
-        ConfigModule.forRoot({ isGlobal: true }),
+        ConfigModule.forRoot({
+            isGlobal: true
+        }),
         ServeStaticModule.forRoot({
             serveRoot: '/static',
             rootPath: join(__dirname, '..', 'uploads')

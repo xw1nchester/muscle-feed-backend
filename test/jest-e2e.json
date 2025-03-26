@@ -1,9 +1,49 @@
 {
-  "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
-  "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
-  "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
-  }
+    "moduleFileExtensions": ["js", "json", "ts"],
+    "rootDir": ".",
+    "testEnvironment": "node",
+    "testRegex": ".e2e-spec.ts$",
+    "transform": {
+        "^.+\\.(t|j)s$": "ts-jest"
+    },
+    "moduleNameMapper": {
+        "^@prisma/(?!client)(.*)$": "<rootDir>/../src/prisma/$1",
+        "^@prisma$": "<rootDir>/../src/prisma",
+        "^@utils/(.*)$": "<rootDir>/../src/utils/$1",
+        "^@utils$": "<rootDir>/../src/utils",
+        "^@user/(.*)$": "<rootDir>/../src/user/$1",
+        "^@user$": "<rootDir>/../src/user",
+        "^@auth/(.*)$": "<rootDir>/../src/auth/$1",
+        "^@auth$": "<rootDir>/../src/auth",
+        "^@mail/(.*)$": "<rootDir>/../src/mail/$1",
+        "^@mail$": "<rootDir>/../src/mail",
+        "^@code/(.*)$": "<rootDir>/../src/code/$1",
+        "^@code$": "<rootDir>/../src/code",
+        "^@team/(.*)$": "<rootDir>/../src/team/$1",
+        "^@team$": "<rootDir>/../src/team",
+        "^@admin/(.*)$": "<rootDir>/../src/admin/$1",
+        "^@admin$": "<rootDir>/../src/admin",
+        "^@dish-type/(.*)$": "<rootDir>/../src/dish-type/$1",
+        "^@dish-type$": "<rootDir>/../src/dish-type",
+        "^@dish/(.*)$": "<rootDir>/../src/dish/$1",
+        "^@dish$": "<rootDir>/../src/dish",
+        "^@validators/(.*)$": "<rootDir>/../src/validators/$1",
+        "^@validators$": "<rootDir>/../src/validators",
+        "^@dto/(.*)$": "<rootDir>/../src/dto/$1",
+        "^@dto$": "<rootDir>/../src/dto",
+        "^@upload/(.*)$": "<rootDir>/../src/upload/$1",
+        "^@upload$": "<rootDir>/../src/upload",
+        "^@review/(.*)$": "<rootDir>/../src/review/$1",
+        "^@review$": "<rootDir>/../src/review",
+        "^@menu/(.*)$": "<rootDir>/../src/menu/$1",
+        "^@menu$": "<rootDir>/../src/menu",
+        "^@faq/(.*)$": "<rootDir>/../src/faq/$1",
+        "^@faq$": "<rootDir>/../src/faq",
+        "^@city/(.*)$": "<rootDir>/../src/city/$1",
+        "^@city$": "<rootDir>/../src/city",
+        "^@order/(.*)$": "<rootDir>/../src/order/$1",
+        "^@order$": "<rootDir>/../src/order",
+        "^@promocode/(.*)$": "<rootDir>/../src/promocode/$1",
+        "^@promocode$": "<rootDir>/../src/promocode"
+    }
 }
