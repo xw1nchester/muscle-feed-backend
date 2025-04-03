@@ -148,9 +148,12 @@ export class UserService {
         });
 
         if (addressesCount > 4) {
-            throw new BadRequestException(
-                'Превышено максимальное количество адресов (5)'
-            );
+            throw new BadRequestException({
+                message: {
+                    ru: 'Превышено максимальное количество адресов (5)',
+                    he: 'חריגה ממספר הכתובות המרבי (5)'
+                }
+            });
         }
 
         await this.cityService.getById(dto.cityId);
@@ -302,5 +305,13 @@ export class UserService {
         });
 
         return { user: this.createDto(updatedUser) };
+    }
+
+    async delete(id: number) {
+        const existingUser = await this.getById(id);
+
+        await this.prismaService.user.delete({ where: { id } });
+
+        return { user: this.createDto(existingUser) };
     }
 }

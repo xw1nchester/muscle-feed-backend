@@ -2,6 +2,7 @@ import {
     Body,
     Controller,
     DefaultValuePipe,
+    Delete,
     Get,
     Param,
     ParseIntPipe,
@@ -49,5 +50,12 @@ export class UserController {
         @CurrentUser() user: JwtPayload
     ) {
         return await this.userService.update(id, dto, user);
+    }
+
+    @UseGuards(RoleGuard)
+    @Role(RoleEnum.ADMIN)
+    @Delete(':id')
+    async delete(@Param('id', ParseIntPipe) id: number) {
+        return await this.userService.delete(id);
     }
 }

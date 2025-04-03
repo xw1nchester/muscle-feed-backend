@@ -81,9 +81,12 @@ export class AuthService {
         const existingUser = await this.userService.getByEmail(dto.email);
 
         if (existingUser) {
-            throw new BadRequestException(
-                'Пользователь с таким email уже зарегистрирован'
-            );
+            throw new BadRequestException({
+                message: {
+                    ru: 'Пользователь с таким email уже зарегистрирован',
+                    he: 'משתמש עם דוא " ל כזה כבר רשום'
+                }
+            });
         }
 
         const user = await this.userService.create(dto);
@@ -108,9 +111,12 @@ export class AuthService {
             !existingUser ||
             !compareSync(dto.password, existingUser.password)
         ) {
-            throw new BadRequestException(
-                'Неверное имя пользователя или пароль'
-            );
+            throw new BadRequestException({
+                message: {
+                    ru: 'Неверное имя пользователя или пароль',
+                    he: 'שם משתמש או סיסמה שגויים'
+                }
+            });
         }
 
         const tokens = await this.generateTokens(existingUser, userAgent);
@@ -153,7 +159,12 @@ export class AuthService {
             await this.userService.getById(userId);
 
         if (isVerified) {
-            throw new BadRequestException('Ваш аккаунт уже верифицирован');
+            throw new BadRequestException({
+                message: {
+                    ru: 'Ваш аккаунт уже верифицирован',
+                    he: 'החשבון שלך כבר מאומת'
+                }
+            });
         }
 
         const code = await this.codeService.create(userId);
@@ -169,7 +180,12 @@ export class AuthService {
         const { isVerified } = await this.userService.getById(userId);
 
         if (isVerified) {
-            throw new BadRequestException('Ваш аккаунт уже верифицирован');
+            throw new BadRequestException({
+                message: {
+                    ru: 'Ваш аккаунт уже верифицирован',
+                    he: 'החשבון שלך כבר מאומת'
+                }
+            });
         }
 
         await this.codeService.validateCode(code, userId);
@@ -195,7 +211,12 @@ export class AuthService {
         const existingUser = await this.userService.getByEmail(email);
 
         if (!existingUser) {
-            throw new BadRequestException('Код недействителен или истек');
+            throw new BadRequestException({
+                message: {
+                    ru: 'Код недействителен или истек',
+                    he: 'הקוד אינו חוקי או פג תוקפו'
+                }
+            });
         }
 
         await this.codeService.validateCode(code, existingUser.id);
@@ -213,7 +234,9 @@ export class AuthService {
         const existingUser = await this.userService.getByEmail(email);
 
         if (!existingUser) {
-            throw new NotFoundException('Пользователь не найден');
+            throw new NotFoundException({
+                message: { ru: 'Пользователь не найден', he: 'המשתמש לא נמצא' }
+            });
         }
 
         await this.codeService.validateCode(code, existingUser.id);
@@ -228,7 +251,12 @@ export class AuthService {
         const existingUser = await this.userService.getById(userId);
 
         if (!compareSync(oldPassword, existingUser.password)) {
-            throw new BadRequestException('Неверный старый пароль');
+            throw new BadRequestException({
+                message: {
+                    ru: 'Неверный старый пароль',
+                    he: 'סיסמה ישנה שגויה'
+                }
+            });
         }
 
         return await this.userService.updatePassword(

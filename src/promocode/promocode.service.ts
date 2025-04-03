@@ -20,7 +20,9 @@ export class PromocodeService {
         });
 
         if (!promocode) {
-            throw new NotFoundException('Промокод не найден');
+            throw new NotFoundException({
+                message: { ru: 'Промокод не найден', he: 'קוד פרומו לא נמצא' }
+            });
         }
 
         return promocode;

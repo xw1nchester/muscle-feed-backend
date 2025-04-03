@@ -1,5 +1,4 @@
 import {
-    BadGatewayException,
     BadRequestException,
     Injectable,
     NotFoundException
@@ -148,7 +147,7 @@ export class MenuService {
         const existingType = await this.getTypeById(id);
 
         if (existingType._count.menus > 0) {
-            throw new BadGatewayException(
+            throw new BadRequestException(
                 'Нельзя удалить тип меню, так как есть меню с этим типом'
             );
         }
@@ -620,7 +619,7 @@ export class MenuService {
         );
 
         if (!menuPrice) {
-            throw new BadRequestException(
+            throw new NotFoundException(
                 'Цена за данное количество дней не определена'
             );
         }

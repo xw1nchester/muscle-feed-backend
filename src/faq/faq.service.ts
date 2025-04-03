@@ -35,7 +35,9 @@ export class FaqService {
         });
 
         if (!category) {
-            throw new NotFoundException('Категория не найдена');
+            throw new NotFoundException({
+                message: { ru: 'Категория не найдена', he: 'קטגוריה לא נמצאה' }
+            });
         }
 
         return category;

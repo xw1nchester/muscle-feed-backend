@@ -25,7 +25,9 @@ export class CodeService {
         });
 
         if (existingCode) {
-            throw new BadRequestException('Код уже отправлен');
+            throw new BadRequestException({
+                message: { ru: 'Код уже отправлен', he: 'הקוד כבר נשלח' }
+            });
         }
 
         await this.deleteUserCodes(userId);
@@ -66,7 +68,12 @@ export class CodeService {
         });
 
         if (!existingCode) {
-            throw new BadRequestException('Код недействителен или истек');
+            throw new BadRequestException({
+                message: {
+                    ru: 'Код недействителен или истек',
+                    he: 'הקוד אינו חוקי או פג תוקפו'
+                }
+            });
         }
 
         await this.deleteUserCodes(userId);

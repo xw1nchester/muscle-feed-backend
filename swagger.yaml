@@ -3555,3 +3555,21 @@ paths:
                 properties:
                   user:
                     $ref: "#/components/schemas/UserDto"
+    delete:
+      tags:
+        - Admin User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  user:
+                    $ref: "#/components/schemas/UserDto"

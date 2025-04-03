@@ -74,7 +74,12 @@ export class OrderService {
         });
 
         if (!paymentMethod) {
-            throw new NotFoundException('Способ оплаты не найден');
+            throw new NotFoundException({
+                message: {
+                    ru: 'Способ оплаты не найден',
+                    he: 'אמצעי תשלום לא נמצא'
+                }
+            });
         }
 
         return paymentMethod;
@@ -121,7 +126,9 @@ export class OrderService {
         });
 
         if (!order) {
-            throw new NotFoundException('Заказ не найден');
+            throw new NotFoundException({
+                message: { ru: 'Заказ не найден', he: 'הזמנה לא נמצאה' }
+            });
         }
 
         return order;
@@ -226,7 +233,12 @@ export class OrderService {
     ) {
         // TODO: проверять чтобы дата была не раньше ближайшей даты доставки (вынести дату начала доставки в env)
         if (startDate < new Date()) {
-            throw new BadRequestException('Некорректная дата начала заказа');
+            throw new BadRequestException({
+                message: {
+                    ru: 'Некорректная дата начала заказа',
+                    he: 'תאריך התחלה שגוי להזמנה'
+                }
+            });
         }
 
         await this.cityService.getById(rest.cityId);
@@ -414,7 +426,7 @@ export class OrderService {
         const expiryDate = new Date(today);
         expiryDate.setDate(
             today.getDate() +
-                this.configService.get('ORDER_EXPIRY_WARNING_DAYS')
+                Number(this.configService.get('ORDER_EXPIRY_WARNING_DAYS'))
         );
 
         return {
@@ -786,7 +798,9 @@ export class OrderService {
         });
 
         if (!existingOrder) {
-            throw new NotFoundException('Заказ не найден');
+            throw new NotFoundException({
+                message: { ru: 'Заказ не найден', he: 'הזמנה לא נמצאה' }
+            });
         }
 
         return { days: existingOrder.orderDays };
@@ -813,7 +827,9 @@ export class OrderService {
         });
 
         if (!existingOrderDay) {
-            throw new NotFoundException('День не найден');
+            throw new NotFoundException({
+                message: { ru: 'День не найден', he: 'יום לא נמצא' }
+            });
         }
 
         const dishes = existingOrderDay.orderDayDishes.map(orderDayDish => ({
@@ -847,7 +863,9 @@ export class OrderService {
         });
 
         if (!existingOrderDay) {
-            throw new NotFoundException('День не найден');
+            throw new NotFoundException({
+                message: { ru: 'День не найден', he: 'יום לא נמצא' }
+            });
         }
 
         const dishes = existingOrderDay.orderDayDishes.map(orderDayDish =>
@@ -880,16 +898,21 @@ export class OrderService {
         });
 
         if (!existingOrderDish) {
-            throw new NotFoundException('Блюдо не найдено');
+            throw new NotFoundException({
+                message: { ru: 'Блюдо не найдено', he: 'המנה לא נמצאה' }
+            });
         }
 
         if (
             userId != undefined &&
             existingOrderDish.orderDay.date < new Date()
         ) {
-            throw new BadRequestException(
-                'Нельзя заменить блюдо на прошлую дату'
-            );
+            throw new BadRequestException({
+                message: {
+                    ru: 'Нельзя заменить блюдо на прошлую дату',
+                    he: 'אי אפשר להחליף את המנה בתאריך האחרון'
+                }
+            });
         }
 
         if (!existingOrderDish.isSelected) {
@@ -1036,7 +1059,12 @@ export class OrderService {
 
         // TODO: проверять чтобы дата была не раньше ближайшей даты доставки (вынести дату начала доставки в env)
         if (date < new Date()) {
-            throw new BadRequestException('Некорректная дата начала заказа');
+            throw new BadRequestException({
+                message: {
+                    ru: 'Некорректная дата начала заказа',
+                    he: 'תאריך התחלה שגוי להזמנה'
+                }
+            });
         }
 
         await this.cityService.getById(rest.cityId);
@@ -1051,7 +1079,9 @@ export class OrderService {
             );
 
         if (existingAvailableDishes.length != new Set(dishIds).size) {
-            throw new NotFoundException('Блюдо не найдено');
+            throw new NotFoundException({
+                message: { ru: 'Блюдо не найдено', he: 'המנה לא נמצאה' }
+            });
         }
 
         let totalPrice = 0;
@@ -1066,9 +1096,12 @@ export class OrderService {
         }
 
         if (totalPrice < minOrderAmount) {
-            throw new BadRequestException(
-                `Минимальная сумма заказа — ${minOrderAmount}. Текущая сумма: ${totalPrice}.`
-            );
+            throw new BadRequestException({
+                message: {
+                    ru: `Минимальная сумма заказа — ${minOrderAmount}. Текущая сумма: ${totalPrice}.`,
+                    he: `סכום ההזמנה המינימלי הוא ${minOrderAmount}. הסכום הנוכחי: ${totalPrice}.`
+                }
+            });
         }
 
         let finalPrice = totalPrice;
