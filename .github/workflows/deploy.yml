@@ -38,6 +38,13 @@ jobs:
 
             See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
 
+      - name: Notify Telegram (E2E Tests Started)
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "🧪 E2E Tests are starting... Hold tight! 🚀"
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -76,6 +83,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Notify Telegram (Docker Push Started)
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "🐳 Docker image push has started! 🚀 Building and pushing the image to Docker Hub... 🔨"
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -114,6 +128,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Notify Telegram (Deployment Started)
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "🚀 Deployment started... Pulling new Docker images! 🛠️"
+
       - name: Server deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -140,4 +161,3 @@ jobs:
           to: ${{ secrets.TELEGRAM_TO }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: "❌ Deployment failed! Check the server logs. 🔍"
-
