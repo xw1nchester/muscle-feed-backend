@@ -3335,7 +3335,17 @@ paths:
               schema:
                 properties:
                   order:
-                      $ref: "#/components/schemas/OrderResponseDto"
+                    allOf:
+                      - $ref: "#/components/schemas/OrderResponseDto"
+                      - properties:
+                          price:
+                            type: integer
+                          paidAmount:
+                            type: integer
+                          promocodeDiscount:
+                            type: integer
+                          menuDiscount:
+                            type: integer
   /api/order/{orderId}/day:
     get:
       tags:

@@ -217,8 +217,17 @@ export class OrderService {
 
     async createDtoById(id: number) {
         const order = await this.getById(id);
+        const { price, paidAmount, promocodeDiscount, menuDiscount } = order;
 
-        return { order: this.createDto(order) };
+        return {
+            order: {
+                ...this.createDto(order),
+                price,
+                paidAmount,
+                promocodeDiscount,
+                menuDiscount
+            }
+        };
     }
 
     async create(
