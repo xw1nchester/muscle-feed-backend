@@ -1,3 +1,5 @@
+![CI/CD Status](https://github.com/vetrovegor/muscle-feed-backend/actions/workflows/deploy.yml/badge.svg)
+
 Требуется установленный NodeJS версии 20.10.0
 
 СУБД PostgreSQL версии 16

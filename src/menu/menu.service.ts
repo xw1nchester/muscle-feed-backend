@@ -644,13 +644,13 @@ export class MenuService {
         if (menusData.length === 0) {
             const minCaloriesMenu = await this.menuRepository.findMany({
                 orderBy: { calories: 'asc' },
-                take: 3,
+                take: 1,
                 include: this.getMenuInclude()
             });
 
             const maxCaloriesMenu = await this.menuRepository.findMany({
                 orderBy: { calories: 'desc' },
-                take: 3,
+                take: 1,
                 include: this.getMenuInclude()
             });
 

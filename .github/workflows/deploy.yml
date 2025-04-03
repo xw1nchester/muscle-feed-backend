@@ -25,6 +25,19 @@ jobs:
           - 5432:5432
 
     steps:
+      - name: Notify Telegram on start pipeline
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            ${{ github.actor }} created commit:
+            Commit message: ${{ github.event.commits[0].message }}
+
+            Repository: ${{ github.repository }}
+
+            See changes: https://github.com/${{ github.repository }}/commit/${{github.sha}}
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -41,6 +54,22 @@ jobs:
 
       - name: E2E testing
         run: npm run test:e2e
+
+      - name: Notify Telegram (E2E Tests Completed)
+        if: success()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "✅ E2E Tests passed successfully! 🎉"
+
+      - name: Notify Telegram (E2E Tests Failed)
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "❌ E2E Tests failed! Check logs for details. 🛑"
 
   docker-push:
     needs: e2e-test
@@ -64,6 +93,22 @@ jobs:
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/muscle-feed
 
+      - name: Notify Telegram (Docker Image Pushed)
+        if: success()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "🐳 Docker image has been successfully pushed to Docker Hub! 📦"
+
+      - name: Notify Telegram (Docker Push Failed)
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "❌ Docker image push failed! Check logs. 🔥"
+
   deploy:
     needs: docker-push
     runs-on: ubuntu-latest
@@ -79,3 +124,20 @@ jobs:
             cd /var/www/muscle-backend
             docker compose pull
             docker compose up -d
+
+      - name: Notify Telegram (Deployment Successful)
+        if: success()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "✅ Deployment completed successfully! 🎉 The server is live. 🔥"
+
+      - name: Notify Telegram (Deployment Failed)
+        if: failure()
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: "❌ Deployment failed! Check the server logs. 🔍"
+

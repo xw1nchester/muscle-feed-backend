@@ -92,7 +92,12 @@ export class ReportService {
             where: {
                 isProcessed: true,
                 isCompleted: false,
-                orderDays: { some: { date: { gte: startDate, lte: endDate } } }
+                orderDays: {
+                    some: {
+                        date: { gte: startDate, lte: endDate },
+                        isSkipped: false
+                    }
+                }
             }
         });
 

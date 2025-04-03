@@ -411,9 +411,11 @@ export class OrderService {
         today.setHours(0, 0, 0, 0);
         today.setTime(today.getTime() - today.getTimezoneOffset() * 60000);
 
-        // TODO: возможно стоит вынести 4 в env
         const expiryDate = new Date(today);
-        expiryDate.setDate(today.getDate() + 4);
+        expiryDate.setDate(
+            today.getDate() +
+                this.configService.get('ORDER_EXPIRY_WARNING_DAYS')
+        );
 
         return {
             activeCondition: {

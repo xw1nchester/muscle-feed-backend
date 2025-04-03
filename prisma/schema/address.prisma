@@ -7,8 +7,8 @@ model Address {
     isPrimary Boolean  @default(false) @map("is_primary")
     createdAt DateTime @default(now()) @map("created_at")
     updatedAt DateTime @updatedAt @map("updated_at")
-    city      City?    @relation(fields: [cityId], references: [id], onDelete: SetNull)
-    cityId    Int?     @map("city_id")
+    city      City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+    cityId    Int      @map("city_id")
     user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
     userId    Int      @map("user_id")
 
