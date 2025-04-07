@@ -231,7 +231,14 @@ export class MenuService {
                 he: descriptionHe
             },
             calories,
-            backgroundPicture: menuType.backgroundPicture
+            menuType: {
+                id: menuType.id,
+                name: {
+                    ru: menuType.nameRu,
+                    he: menuType.nameHe
+                },
+                backgroundPicture: menuType.backgroundPicture
+            }
         };
     }
 

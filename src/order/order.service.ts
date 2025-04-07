@@ -109,7 +109,16 @@ export class OrderService {
         // TODO: извлекать только нужные поля
         return {
             menu: {
-                include: { menuType: { select: { backgroundPicture: true } } }
+                include: {
+                    menuType: {
+                        select: {
+                            id: true,
+                            nameRu: true,
+                            nameHe: true,
+                            backgroundPicture: true
+                        }
+                    }
+                }
             },
             orderDays: { orderBy: { date: Prisma.SortOrder.asc } },
             paymentMethod: true,

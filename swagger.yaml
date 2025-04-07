@@ -688,6 +688,23 @@ components:
               example: "תפריט מאוזן"
         calories:
           type: integer
+        menuType:
+          type: object
+          properties:
+            id:
+              type: number
+            name:
+              type: object
+              properties:
+                name:
+                  type: object
+                  properties:
+                    ru:
+                      type: string
+                    he:
+                      type: string
+            backgroundPicture:
+              type: string
     PaymentMethodResponseDto:
       type: object
       properties:
