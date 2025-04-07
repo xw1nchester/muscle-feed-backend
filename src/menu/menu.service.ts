@@ -84,11 +84,11 @@ export class MenuService {
     }
 
     createShortTypeDto(type: Partial<MenuType>) {
-        const { id, adminName } = type;
+        const { id, adminName, backgroundPicture } = type;
 
         const localizedFields = extractLocalizedFields(type);
 
-        return { id, adminName, ...localizedFields };
+        return { id, adminName, ...localizedFields, backgroundPicture };
     }
 
     async createType(dto: MenuTypeRequestDto) {
@@ -231,14 +231,7 @@ export class MenuService {
                 he: descriptionHe
             },
             calories,
-            menuType: {
-                id: menuType.id,
-                name: {
-                    ru: menuType.nameRu,
-                    he: menuType.nameHe
-                },
-                backgroundPicture: menuType.backgroundPicture
-            }
+            menuType: this.createShortTypeDto(menuType)
         };
     }
 
@@ -248,7 +241,8 @@ export class MenuService {
                 select: {
                     id: true,
                     nameRu: true,
-                    nameHe: true
+                    nameHe: true,
+                    backgroundPicture: true
                 }
             },
             menuPrices: true,

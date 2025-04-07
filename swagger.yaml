@@ -580,8 +580,10 @@ components:
                 he:
                   type: string
                   example: "פתרון פשוט"
-            daysCount:
-              type: integer
+            backgroundPicture:
+              type: string
+        daysCount:
+          type: integer
         prices:
           type: array
           items:
@@ -3474,7 +3476,7 @@ paths:
                 properties:
                   dish:
                     $ref: "#/components/schemas/DishResponseDto"
-  
+
   /api/order/{orderId}/change-request:
     post:
       tags:
