@@ -307,7 +307,11 @@ export class UserService {
         return { user: this.createDto(updatedUser) };
     }
 
-    async delete(id: number) {
+    async delete(id: number, adminId: number) {
+        if (id === adminId) {
+            throw new BadRequestException('Нельзя удалить свой аккаунт');
+        }
+
         const existingUser = await this.getById(id);
 
         await this.prismaService.user.delete({ where: { id } });

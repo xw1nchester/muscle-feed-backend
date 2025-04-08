@@ -55,7 +55,10 @@ export class UserController {
     @UseGuards(RoleGuard)
     @Role(RoleEnum.ADMIN)
     @Delete(':id')
-    async delete(@Param('id', ParseIntPipe) id: number) {
-        return await this.userService.delete(id);
+    async delete(
+        @Param('id', ParseIntPipe) id: number,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.userService.delete(id, user.id);
     }
 }
