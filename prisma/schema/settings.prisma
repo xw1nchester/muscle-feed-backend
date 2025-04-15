@@ -1,0 +1,6 @@
+model Settings {
+    id             Int      @id @default(autoincrement())
+    cycleStartDate DateTime @default(now()) @map("cycle_start_date")
+
+    @@map("settings")
+}

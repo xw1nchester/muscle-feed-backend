@@ -5,6 +5,7 @@ const prisma = new PrismaClient();
 async function main() {
     console.log('Start seeding...');
 
+    // seeding dish types
     const dishTypes = [
         {
             id: 1,
@@ -55,6 +56,7 @@ async function main() {
         console.log('Seeded dishType:', dishType);
     }
 
+    // seeding payment methods
     const paymentMethods = [
         {
             id: 1,
@@ -89,6 +91,31 @@ async function main() {
 
         console.log('Seeded paymentMethod:', paymentMethod);
     }
+
+    // seeding settings
+    const cycleStartDate = new Date('1970-01-01T00:00:00');
+    cycleStartDate.setTime(
+        cycleStartDate.getTime() - cycleStartDate.getTimezoneOffset() * 60000
+    );
+
+    const settings = {
+        cycleStartDate
+    };
+
+    await prisma.settings.upsert({
+        where: {
+            id: 1
+        },
+        update: {
+            ...settings
+        },
+        create: {
+            id: 1,
+            ...settings
+        }
+    });
+
+    console.log('Seeded settings:', settings);
 
     console.log('Seeding finished.');
 }

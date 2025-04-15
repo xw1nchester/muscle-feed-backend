@@ -55,7 +55,9 @@
             "@order": ["src/order"],
             "@order/*": ["src/order/*"],
             "@promocode": ["src/promocode"],
-            "@promocode/*": ["src/promocode/*"]
+            "@promocode/*": ["src/promocode/*"],
+            "@settings": ["src/settings"],
+            "@settings/*": ["src/settings/*"]
         }
     }
 }

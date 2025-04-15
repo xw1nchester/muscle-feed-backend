@@ -1054,6 +1054,20 @@ components:
           example: MUSCLE
         discount:
           type: integer
+    SettingsRequestDto:
+      type: object
+      properties:
+        cycleStartDate:
+          type: string
+          format: date
+          example: 2025-02-17
+    SettingsResponseDto:
+      allOf:
+        - type: object
+          properties:
+            id:
+              type: number
+        - $ref: "#/components/schemas/SettingsRequestDto"
     PaginationBodyFields:
       type: object
       properties:
@@ -1160,6 +1174,11 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/PromocodeRequestDto"
+    Settings:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/SettingsRequestDto"
   securitySchemes:
     BearerAuth:
       type: http
@@ -3602,3 +3621,32 @@ paths:
                 properties:
                   user:
                     $ref: "#/components/schemas/UserDto"
+  /admin/settings:
+    patch:
+      tags:
+        - Admin Settings
+      requestBody:
+        $ref: "#/components/requestBodies/Settings"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  settings:
+                    $ref: "#/components/schemas/SettingsResponseDto"
+  /settings/cycle-start-date:
+    get:
+      tags:
+        - Settings
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  cycleStartDate:
+                    type: string
+                    format: date-time

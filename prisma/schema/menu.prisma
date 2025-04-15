@@ -9,7 +9,7 @@ model Menu {
     mealsCountHe   String?     @map("meals_count_he")
     calories       Int         @default(0)
     order          Int         @default(0)
-    cycleStartDate DateTime    @default(now())
+    cycleStartDate DateTime    @default(now()) @map("cycle_start_date")
     isPublished    Boolean     @default(false) @map("is_published")
     createdAt      DateTime    @default(now()) @map("created_at")
     updatedAt      DateTime    @updatedAt @map("updated_at")

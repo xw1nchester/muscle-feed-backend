@@ -21,6 +21,7 @@ import { OrderModule } from './order/order.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { PromocodeModule } from './promocode/promocode.module';
 import { ReviewModule } from './review/review.module';
+import { SettingsModule } from './settings/settings.module';
 import { TeamModule } from './team/team.module';
 import { UploadModule } from './upload/upload.module';
 import { UserModule } from './user/user.module';
@@ -48,7 +49,8 @@ import { UserModule } from './user/user.module';
         FaqModule,
         CityModule,
         OrderModule,
-        PromocodeModule
+        PromocodeModule,
+        SettingsModule
     ],
     controllers: [AppController],
     providers: [
