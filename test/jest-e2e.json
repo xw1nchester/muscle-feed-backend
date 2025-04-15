@@ -44,6 +44,8 @@
         "^@order/(.*)$": "<rootDir>/../src/order/$1",
         "^@order$": "<rootDir>/../src/order",
         "^@promocode/(.*)$": "<rootDir>/../src/promocode/$1",
-        "^@promocode$": "<rootDir>/../src/promocode"
+        "^@promocode$": "<rootDir>/../src/promocode",
+        "^@settings/(.*)$": "<rootDir>/../src/settings/$1",
+        "^@settings$": "<rootDir>/../src/settings"
     }
 }
