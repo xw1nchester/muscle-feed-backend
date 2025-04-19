@@ -49,7 +49,8 @@ export class ReportService {
                         daySkipType: null
                     }
                 }
-            }
+            },
+            orderBy: { id: 'asc' }
         });
 
         const orders = ordersData.map(({ id, menu, orderDays }) => {
