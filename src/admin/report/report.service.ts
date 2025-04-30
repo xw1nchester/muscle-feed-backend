@@ -99,7 +99,8 @@ export class ReportService {
                         isSkipped: false
                     }
                 }
-            }
+            },
+            orderBy: { id: 'asc' }
         });
 
         const workbook = new Workbook();
@@ -231,16 +232,12 @@ export class ReportService {
                             date: { gte: startDate, lte: endDate },
                             order: {
                                 isProcessed: true,
-                                isIndividual: false,
                                 isCompleted: false
                             }
                         }
                     },
                     select: {
-                        // id: true,
-                        // isSelected: true,
-                        // orderDayId: true,
-                        // dishTypeId: true,
+                        count: true,
                         orderDay: {
                             select: {
                                 order: {
@@ -256,16 +253,19 @@ export class ReportService {
             let totalCount = 0;
 
             const menus = orderDayDishes.reduce((acc, item) => {
-                const name = item.orderDay.order.menu.nameRu;
+                const name =
+                    item.orderDay.order?.menu?.nameRu || 'Индивидуальный заказ';
                 const existingItem = acc.find(el => el.name === name);
 
+                const { count } = item;
+
                 if (existingItem) {
-                    existingItem.count += 1;
+                    existingItem.count += count;
                 } else {
-                    acc.push({ name, count: 1 });
+                    acc.push({ name, count });
                 }
 
-                totalCount++;
+                totalCount += count;
 
                 return acc;
             }, []);
@@ -274,8 +274,6 @@ export class ReportService {
                 result.push({ name: nameRu, menus, totalCount });
             }
         }
-
-        // return res.json({ result });
 
         const workbook = new Workbook();
 

@@ -10,7 +10,7 @@ import { PrismaService } from '@prisma/prisma.service';
 import { DishRequestDto } from '@admin/dish/dto/dish-request.dto';
 import { PaginationDto } from '@dto/pagination.dto';
 import { UploadService } from '@upload/upload.service';
-import { extractLocalizedFields } from '@utils';
+import { extractLocalizedFields, getTodayZeroDate } from '@utils';
 
 @Injectable()
 export class DishService {
@@ -135,6 +135,8 @@ export class DishService {
         dishTypeId?: number;
         isIndividualOrderAvailable?: boolean;
     }) {
+        const today = getTodayZeroDate();
+
         const where = {
             ...(isPublished != undefined && { isPublished }),
             ...(search != undefined && {
@@ -145,7 +147,25 @@ export class DishService {
             }),
             ...(dishTypeId != undefined && { dishTypeId }),
             ...(isIndividualOrderAvailable != undefined && {
-                isIndividualOrderAvailable
+                OR: [
+                    { isIndividualOrderAvailable },
+                    {
+                        orderDayDishes: {
+                            some: {
+                                isSelected: true,
+                                orderDay: {
+                                    isSkipped: false,
+                                    daySkipType: null,
+                                    date: today,
+                                    order: {
+                                        isProcessed: true,
+                                        isCompleted: false
+                                    }
+                                }
+                            }
+                        }
+                    }
+                ]
             })
         };
 

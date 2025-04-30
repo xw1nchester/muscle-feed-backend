@@ -27,7 +27,7 @@ import { PaginationDto } from '@dto/pagination.dto';
 import { MenuService } from '@menu/menu.service';
 import { PromocodeService } from '@promocode/promocode.service';
 import { UserService } from '@user/user.service';
-import { calculateDiscountedPrice } from '@utils';
+import { calculateDiscountedPrice, getTodayZeroDate } from '@utils';
 
 import { IndividualOrderRequestDto } from './dto/individual-order-request.dto';
 import { OrderChangeRequestDto } from './dto/order-change-request.dto';
@@ -179,9 +179,7 @@ export class OrderService {
             orderDay => !orderDay.isSkipped
         );
 
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        today.setTime(today.getTime() - today.getTimezoneOffset() * 60000);
+        const today = getTodayZeroDate();
 
         const daysLeft = notSkippedDays.filter(
             orderDay => orderDay.date > today
@@ -437,11 +435,7 @@ export class OrderService {
     }
 
     private getStatusesConditions() {
-        // TODO: возможно придется создавать новую дату через строку вида 2025-10-27
-        // при получении getMonth() прибавлять 1
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        today.setTime(today.getTime() - today.getTimezoneOffset() * 60000);
+        const today = getTodayZeroDate();
 
         const expiryDate = new Date(today);
         expiryDate.setDate(
