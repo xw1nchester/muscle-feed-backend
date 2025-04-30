@@ -203,7 +203,7 @@ export class OrderService {
             allergies,
             finalPrice,
             menu: menu ? this.menuService.createShortDto(menu) : null,
-            city: this.cityService.createDto(city),
+            city: city ? this.cityService.createDto(city) : null,
             street,
             house,
             floor,
@@ -213,9 +213,11 @@ export class OrderService {
             daysCount: notSkippedDays.length - giftDaysCount,
             giftDaysCount,
             daysLeft,
-            startDate: orderDays[0].date,
-            endDate: orderDays[orderDays.length - 1].date,
-            paymentMethod: this.createPaymentMethodDto(paymentMethod),
+            startDate: orderDays[0]?.date,
+            endDate: orderDays[orderDays.length - 1]?.date,
+            paymentMethod: paymentMethod
+                ? this.createPaymentMethodDto(paymentMethod)
+                : null,
             isPaid,
             isIndividual,
             isFrozen,
@@ -576,12 +578,14 @@ export class OrderService {
         page,
         limit,
         userId,
-        status
+        status,
+        search
     }: {
         page: number;
         limit: number;
         userId?: number;
         status?: OrderStatus;
+        search?: string;
     }) {
         const {
             activeCondition,
@@ -603,7 +607,36 @@ export class OrderService {
             ...(status == OrderStatus.COMPLETED && completedCondition),
             ...(status == OrderStatus.PENDING && pendingCondition),
             ...(status == OrderStatus.TERMINATING && terminatingCondition),
-            ...(status == OrderStatus.UNPROCESSED && unprocessedCondition)
+            ...(status == OrderStatus.UNPROCESSED && unprocessedCondition),
+            ...(search != undefined && {
+                OR: [
+                    ...(!isNaN(Number(search))
+                        ? [
+                              {
+                                  id: Number(search)
+                              }
+                          ]
+                        : []),
+                    {
+                        email: {
+                            contains: search,
+                            mode: 'insensitive'
+                        } as Prisma.StringFilter
+                    },
+                    {
+                        phone: {
+                            contains: search,
+                            mode: 'insensitive'
+                        } as Prisma.StringFilter
+                    },
+                    {
+                        fullName: {
+                            contains: search,
+                            mode: 'insensitive'
+                        } as Prisma.StringFilter
+                    }
+                ]
+            })
         };
 
         const skip = (page - 1) * limit;
@@ -1041,6 +1074,14 @@ export class OrderService {
             limit,
             page
         );
+    }
+
+    async getUnprocessedChangeRequestsCount() {
+        const count = await this.orderChangeRequestRepository.count({
+            where: { isProcessed: false }
+        });
+
+        return { count };
     }
 
     async getChangeRequestDtoById(id: number) {

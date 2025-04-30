@@ -9,8 +9,8 @@ import { SettingsService } from './settings.service';
 export class SettingsController {
     constructor(private readonly settingsService: SettingsService) {}
 
-    @Get('cycle-start-date')
-    async getCycleStartDate() {
-        return await this.settingsService.getCycleStartDate();
+    @Get()
+    async getSettingsDto() {
+        return await this.settingsService.getSettingsDto();
     }
 }

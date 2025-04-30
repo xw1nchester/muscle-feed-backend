@@ -1054,20 +1054,38 @@ components:
           example: MUSCLE
         discount:
           type: integer
-    SettingsRequestDto:
+    SocialRequestDto:
       type: object
       properties:
+        name:
+          type: string
+        link:
+          type: string
+        icon:
+          type: string
+          example: "http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.svg"
+    SettingsResponseDto:
+      type: object
+      properties:
+        id:
+          type: number
         cycleStartDate:
           type: string
           format: date
           example: 2025-02-17
-    SettingsResponseDto:
-      allOf:
-        - type: object
-          properties:
-            id:
-              type: number
-        - $ref: "#/components/schemas/SettingsRequestDto"
+        phoneNumber:
+          type: string
+        email:
+          type: string
+        socials:
+          type: array
+          items:
+            allOf:
+              - type: object
+                properties:
+                  id:
+                    type: number
+              - $ref: "#/components/schemas/SocialRequestDto"
     PaginationBodyFields:
       type: object
       properties:
@@ -1174,11 +1192,6 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/PromocodeRequestDto"
-    Settings:
-      content:
-        application/json:
-          schema:
-            $ref: "#/components/schemas/SettingsRequestDto"
   securitySchemes:
     BearerAuth:
       type: http
@@ -2687,6 +2700,13 @@ paths:
         - $ref: "#/components/parameters/Page"
         - $ref: "#/components/parameters/Limit"
         - $ref: "#/components/parameters/Status"
+        - name: search
+          in: query
+          required: false
+          description: Поиск осуществляется по id, email, номер телефона, ФИО
+          schema:
+            type: string
+            example: Иван
       responses:
         "200":
           description: "Success"
@@ -2984,6 +3004,19 @@ paths:
                         items:
                           $ref: "#/components/schemas/OrderChangeRequestResponseDto"
                   - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/order/change-request/unprocessed-count:
+    get:
+      tags:
+        - Admin Order
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  count:
+                    type: integer
   /api/admin/order/change-request/{changeRequestId}:
     get:
       tags:
@@ -3621,12 +3654,20 @@ paths:
                 properties:
                   user:
                     $ref: "#/components/schemas/UserDto"
-  /admin/settings:
+  /admin/settings/cycle-start-date:
     patch:
       tags:
         - Admin Settings
       requestBody:
-        $ref: "#/components/requestBodies/Settings"
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cycleStartDate:
+                  type: string
+                  format: date
+                  example: 2025-02-17
       responses:
         "200":
           description: "Success"
@@ -3636,7 +3677,34 @@ paths:
                 properties:
                   settings:
                     $ref: "#/components/schemas/SettingsResponseDto"
-  /settings/cycle-start-date:
+  /admin/settings/contact:
+    patch:
+      tags:
+        - Admin Settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                phoneNumber:
+                  type: string
+                email:
+                  type: string
+                socials:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/SocialRequestDto"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  settings:
+                    $ref: "#/components/schemas/SettingsResponseDto"
+  /settings:
     get:
       tags:
         - Settings
@@ -3647,6 +3715,5 @@ paths:
             application/json:
               schema:
                 properties:
-                  cycleStartDate:
-                    type: string
-                    format: date-time
+                  settings:
+                    $ref: "#/components/schemas/SettingsResponseDto"

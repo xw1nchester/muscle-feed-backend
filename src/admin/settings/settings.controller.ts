@@ -6,7 +6,8 @@ import { Role } from '@auth/decorators';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { SettingsService } from '@settings/settings.service';
 
-import { SettingsRequestDto } from './dto/settings-request.dto';
+import { ContactRequestDto } from './dto/contact-request.dto';
+import { CycleStartDateRequestDto } from './dto/cycle-start-date-request.dto';
 
 @UseGuards(RoleGuard)
 @Role(RoleEnum.ADMIN)
@@ -14,8 +15,13 @@ import { SettingsRequestDto } from './dto/settings-request.dto';
 export class SettingsController {
     constructor(private readonly settingsService: SettingsService) {}
 
-    @Patch()
-    async update(@Body() dto: SettingsRequestDto) {
-        return await this.settingsService.update(dto);
+    @Patch('cycle-start-date')
+    async updateCycleStartDate(@Body() dto: CycleStartDateRequestDto) {
+        return await this.settingsService.updateCycleStartDate(dto);
+    }
+
+    @Patch('contact')
+    async updateContactInfo(@Body() dto: ContactRequestDto) {
+        return await this.settingsService.updateContactInfo(dto);
     }
 }

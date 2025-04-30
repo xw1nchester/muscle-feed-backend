@@ -41,6 +41,7 @@ describe('AuthController (e2e)', () => {
                     allergies: 'Gluten'
                 },
                 {
+                    id: validUser.id + 1,
                     email: 'admin@example.com',
                     password: 'hashedpassword1',
                     isVerified: true,
@@ -52,6 +53,7 @@ describe('AuthController (e2e)', () => {
                     allergies: null
                 },
                 {
+                    id: validUser.id + 2,
                     email: 'moderator@example.com',
                     password: 'hashedpassword2',
                     isVerified: true,
@@ -63,6 +65,7 @@ describe('AuthController (e2e)', () => {
                     allergies: 'Peanuts'
                 },
                 {
+                    id: validUser.id + 3,
                     email: 'god@gmail.com',
                     password: 'hashedpassword1',
                     isVerified: true,
@@ -74,7 +77,7 @@ describe('AuthController (e2e)', () => {
                     allergies: null
                 },
                 {
-                    id: 5,
+                    id: validUser.id + 4,
                     email: 'user1@example.com',
                     password: 'hashedpassword3',
                     isVerified: false,

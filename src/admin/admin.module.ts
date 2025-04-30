@@ -9,6 +9,7 @@ import { PromocodeModule } from '@promocode/promocode.module';
 import { ReviewModule } from '@review/review.module';
 import { SettingsModule } from '@settings/settings.module';
 import { TeamModule } from '@team/team.module';
+import { UploadModule } from '@upload/upload.module';
 import { UserModule } from '@user/user.module';
 
 import { CityController } from './city/city.controller';
@@ -36,7 +37,8 @@ import { UserController } from './user/user.controller';
         OrderModule,
         UserModule,
         PromocodeModule,
-        SettingsModule
+        SettingsModule,
+        UploadModule
     ],
     controllers: [
         TeamController,

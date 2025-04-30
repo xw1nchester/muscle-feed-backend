@@ -99,7 +99,9 @@ async function main() {
     );
 
     const settings = {
-        cycleStartDate
+        cycleStartDate,
+        phoneNumber: '0515883719',
+        email: 'musclefd@gmail.com'
     };
 
     await prisma.settings.upsert({

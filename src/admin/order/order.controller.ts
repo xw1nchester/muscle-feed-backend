@@ -40,9 +40,10 @@ export class OrderController {
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
         @Query('status', new ParseEnumPipe(OrderStatus, { optional: true }))
-        status: OrderStatus
+        status: OrderStatus,
+        @Query('search') search: string
     ) {
-        return await this.orderService.find({ page, limit, status });
+        return await this.orderService.find({ page, limit, status, search });
     }
 
     @Get('change-request')
@@ -51,6 +52,11 @@ export class OrderController {
         @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number
     ) {
         return await this.orderService.findChangeRequests(page, limit);
+    }
+
+    @Get('change-request/unprocessed-count')
+    async getUnprocessedChangeRequestsCount() {
+        return await this.orderService.getUnprocessedChangeRequestsCount();
     }
 
     @Get('change-request/:id')
