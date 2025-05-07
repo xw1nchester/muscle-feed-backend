@@ -105,7 +105,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/muscle-feed
+          tags: ${{ secrets.DOCKER_USERNAME }}/muscle-feed:${{ github.sha }}
 
       - name: Notify Telegram (Docker Image Pushed)
         if: success()

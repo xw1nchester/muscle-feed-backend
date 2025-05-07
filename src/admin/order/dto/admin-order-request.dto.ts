@@ -28,12 +28,12 @@ export class AdminOrderRequestDto extends OrderRequestDto {
     @Transform(({ value }) => Number(value))
     @IsOptional()
     @IsNumber()
-    paidAmount: number;
+    paidAmount?: number;
 
     @Transform(({ value }) => Number(value))
     @IsOptional()
     @IsNumber()
-    promocodeDiscount: number;
+    promocodeDiscount?: number;
 
     @Transform(({ value }) => Number(value))
     @IsOptional()
@@ -47,12 +47,12 @@ export class AdminOrderRequestDto extends OrderRequestDto {
     @ValidateIf(o => o.freezeEndDate != undefined)
     @Transform(({ value }) => new Date(value))
     @IsDate()
-    freezeStartDate: Date;
+    freezeStartDate?: Date;
 
     @ValidateIf(o => o.freezeStartDate != undefined)
     @Transform(({ value }) => new Date(value))
     @IsDate()
-    freezeEndDate: Date;
+    freezeEndDate?: Date;
 
     @Transform(({ value }) => Number(value))
     @IsOptional()

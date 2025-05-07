@@ -4,5 +4,6 @@ enum OrderChangeType {
     DURATION
     FORMAT
     FREEZE
+    PROLONGATION
     OTHER
 }

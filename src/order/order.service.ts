@@ -690,8 +690,8 @@ export class OrderService {
                 daysCount: notSkippedDays.length - giftDaysCount,
                 giftDaysCount,
                 daysLeft,
-                startDate: orderDays[0].date,
-                endDate: orderDays[orderDays.length - 1].date
+                startDate: orderDays[0]?.date,
+                endDate: orderDays[orderDays.length - 1]?.date
             }
         };
     }
@@ -715,7 +715,7 @@ export class OrderService {
 
         await this.menuService.getById(menuId, true);
 
-        const createdOrder = await this.orderRepository.create({
+        const { id: orderId } = await this.orderRepository.create({
             data: {
                 cityId,
                 paymentMethodId,
@@ -735,11 +735,90 @@ export class OrderService {
                 freezeStartDate: rest.freezeStartDate,
                 freezeEndDate: rest.freezeEndDate,
                 menuId,
-                orderId: createdOrder.id
+                orderId
             });
         }
 
-        return await this.createDtoById(createdOrder.id);
+        return await this.createDtoById(orderId);
+    }
+
+    async prolong(id: number) {
+        const { order: existingOrder } = await this.getAdminInfoById(id);
+        const {
+            isIndividual,
+            user,
+            menu,
+            endDate,
+            daysCount,
+            skippedWeekdays,
+            paymentMethod,
+            fullName,
+            email,
+            phone,
+            allergies,
+            city,
+            street,
+            house,
+            floor,
+            apartment,
+            comment,
+            price
+        } = existingOrder;
+
+        if (isIndividual) {
+            throw new BadRequestException(
+                'Продление индивидуального заказа не предусмотрено'
+            );
+        }
+
+        const startDate = new Date(endDate);
+        startDate.setDate(startDate.getDate() + 1);
+
+        let resolvedPrice = price;
+        let finalPrice = price;
+        let giftDaysCount = 0;
+
+        try {
+            const menuPriceData = await this.menuService.getMenuPriceByDays(
+                menu.id,
+                daysCount
+            );
+            if (menuPriceData) {
+                resolvedPrice = menuPriceData.price;
+                finalPrice = calculateDiscountedPrice(
+                    menuPriceData.price,
+                    menuPriceData.discount
+                );
+                giftDaysCount = menuPriceData.giftDaysCount;
+            }
+        } catch (error) {}
+
+        return await this.adminCreate({
+            userId: user?.id,
+            menuId: menu.id,
+            startDate,
+            daysCount,
+            skippedWeekdays,
+            paymentMethodId: paymentMethod.id,
+            fullName,
+            email,
+            phone,
+            allergies,
+            cityId: city.id,
+            street,
+            house,
+            floor,
+            apartment,
+            comment,
+            price: resolvedPrice,
+            menuDiscount: price - finalPrice,
+            giftDaysCount,
+            finalPrice,
+            isProcessed: false,
+            isAllowedExtendion: false,
+            isPaid: false,
+            isCompleted: false
+        });
     }
 
     async update(

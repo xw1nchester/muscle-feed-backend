@@ -914,6 +914,7 @@ components:
             - DURATION
             - FORMAT
             - FREEZE
+            - PROLONGATION
             - OTHER
         comment:
           type: string
@@ -3552,6 +3553,7 @@ paths:
                     - DURATION
                     - FORMAT
                     - FREEZE
+                    - PROLONGATION
                     - OTHER
                 comment:
                   type: string

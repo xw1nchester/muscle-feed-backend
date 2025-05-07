@@ -82,6 +82,11 @@ export class OrderController {
         return await this.orderService.adminCreate(dto);
     }
 
+    @Post(':id/prolongation')
+    async prolong(@Param('id', ParseIntPipe) id: number) {
+        return await this.orderService.prolong(id);
+    }
+
     @Patch(':id')
     async update(
         @Param('id', ParseIntPipe) id: number,
