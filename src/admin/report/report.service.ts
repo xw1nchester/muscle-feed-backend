@@ -2,6 +2,7 @@ import { Workbook } from 'exceljs';
 import { Response } from 'express';
 
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { PrismaService } from '@prisma/prisma.service';
 
@@ -13,7 +14,8 @@ export class ReportService {
     constructor(
         private readonly prismaService: PrismaService,
         private readonly dishService: DishService,
-        private readonly menuService: MenuService
+        private readonly menuService: MenuService,
+        private readonly configService: ConfigService
     ) {}
 
     async getInserts(date: Date) {
@@ -254,7 +256,8 @@ export class ReportService {
 
             const menus = orderDayDishes.reduce((acc, item) => {
                 const name =
-                    item.orderDay.order?.menu?.nameRu || 'Индивидуальный заказ';
+                    item.orderDay.order?.menu?.nameRu ||
+                    this.configService.get('INDIVIDUAL_ORDER_MENU_NAME');
                 const existingItem = acc.find(el => el.name === name);
 
                 const { count } = item;

@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 
 import { Public } from '@auth/decorators';
+import { DateValidationPipe } from '@validators';
 
 import { DishService } from './dish.service';
 
@@ -30,7 +31,9 @@ export class DishController {
             new DefaultValuePipe(undefined),
             new ParseIntPipe({ optional: true })
         )
-        dishTypeId: number
+        dishTypeId: number,
+        @Query('individual_order_date', DateValidationPipe)
+        individualOrderDate: Date
     ) {
         return await this.dishService.find({
             page,
@@ -38,7 +41,8 @@ export class DishController {
             isPublished: true,
             search,
             dishTypeId,
-            isIndividualOrderAvailable: true
+            isIndividualOrderAvailable: true,
+            individualOrderDate
         });
     }
 }

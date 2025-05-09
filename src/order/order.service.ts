@@ -1206,9 +1206,7 @@ export class OrderService {
         const dishIds = dishes.map(dish => dish.id);
 
         const existingAvailableDishes =
-            await this.dishService.getPublishedAndIndividualOrderAvailableDishesByIds(
-                dishIds
-            );
+            await this.dishService.getPublishedDishesByIds(dishIds);
 
         if (existingAvailableDishes.length != new Set(dishIds).size) {
             throw new NotFoundException({

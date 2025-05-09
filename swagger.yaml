@@ -1931,6 +1931,13 @@ paths:
           required: false
           schema:
             type: integer
+        - name: individual_order_date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-02-17
       responses:
         "200":
           description: "Success"

@@ -3,6 +3,7 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { Dish, DishType, Prisma } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
@@ -10,13 +11,14 @@ import { PrismaService } from '@prisma/prisma.service';
 import { DishRequestDto } from '@admin/dish/dto/dish-request.dto';
 import { PaginationDto } from '@dto/pagination.dto';
 import { UploadService } from '@upload/upload.service';
-import { extractLocalizedFields, getTodayZeroDate } from '@utils';
+import { extractLocalizedFields } from '@utils';
 
 @Injectable()
 export class DishService {
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly uploadService: UploadService
+        private readonly uploadService: UploadService,
+        private readonly configService: ConfigService
     ) {}
 
     private get dishTypeRepository() {
@@ -126,7 +128,8 @@ export class DishService {
         search,
         isPublished,
         dishTypeId,
-        isIndividualOrderAvailable
+        isIndividualOrderAvailable,
+        individualOrderDate
     }: {
         limit: number;
         page: number;
@@ -134,8 +137,9 @@ export class DishService {
         isPublished?: boolean;
         dishTypeId?: number;
         isIndividualOrderAvailable?: boolean;
+        individualOrderDate?: Date;
     }) {
-        const today = getTodayZeroDate();
+        // TODO: по хорошему нужна валидацию что на дату individualOrderDate вообще можно сделать заказ
 
         const where = {
             ...(isPublished != undefined && { isPublished }),
@@ -156,10 +160,15 @@ export class DishService {
                                 orderDay: {
                                     isSkipped: false,
                                     daySkipType: null,
-                                    date: today,
+                                    date: individualOrderDate,
                                     order: {
                                         isProcessed: true,
-                                        isCompleted: false
+                                        isCompleted: false,
+                                        menu: {
+                                            nameRu: this.configService.get(
+                                                'INDIVIDUAL_ORDER_MENU_NAME'
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -269,15 +278,12 @@ export class DishService {
         }
     }
 
-    async getPublishedAndIndividualOrderAvailableDishesByIds(
-        dishIds: number[]
-    ) {
+    async getPublishedDishesByIds(dishIds: number[]) {
         return await this.dishRepository.findMany({
             select: { id: true, price: true },
             where: {
                 id: { in: dishIds },
-                isPublished: true,
-                isIndividualOrderAvailable: true
+                isPublished: true
             }
         });
     }
