@@ -32,6 +32,7 @@ export class DishController {
             new ParseIntPipe({ optional: true })
         )
         dishTypeId: number,
+        // TODO: сделать опциональным
         @Query('individual_order_date', DateValidationPipe)
         individualOrderDate: Date
     ) {

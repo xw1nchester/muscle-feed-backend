@@ -239,8 +239,10 @@ describe('DishController (e2e)', () => {
     });
 
     describe('Dishes', () => {
-        it('/dish (GET)', async () => {
-            const response = await request(app.getHttpServer()).get('/dish');
+        it('/dish?individual_order_date=1970-01-01 (GET)', async () => {
+            const response = await request(app.getHttpServer()).get(
+                '/dish?individual_order_date=1970-01-01'
+            );
 
             expect(response.status).toBe(200);
 
@@ -326,9 +328,9 @@ describe('DishController (e2e)', () => {
             });
         });
 
-        it('/dish?page=2&limit=2 (GET)', async () => {
+        it('/dish?page=2&limit=2&individual_order_date=1970-01-01 (GET)', async () => {
             const response = await request(app.getHttpServer()).get(
-                '/dish?page=2&limit=2'
+                '/dish?page=2&limit=2&individual_order_date=1970-01-01'
             );
 
             const body = response.body;
@@ -341,9 +343,9 @@ describe('DishController (e2e)', () => {
             expect(body.dishes).toHaveLength(2);
         });
 
-        it('/dish?page=2&limit=4 (GET)', async () => {
+        it('/dish?page=2&limit=4&individual_order_date=1970-01-01 (GET)', async () => {
             const response = await request(app.getHttpServer()).get(
-                '/dish?page=2&limit=4'
+                '/dish?page=2&limit=4&individual_order_date=1970-01-01'
             );
 
             const body = response.body;
@@ -356,9 +358,9 @@ describe('DishController (e2e)', () => {
             expect(body.dishes).toHaveLength(2);
         });
 
-        it('/dish?page=2&limit=6 (GET)', async () => {
+        it('/dish?page=2&limit=6&individual_order_date=1970-01-01 (GET)', async () => {
             const response = await request(app.getHttpServer()).get(
-                '/dish?page=2&limit=6'
+                '/dish?page=2&limit=6&individual_order_date=1970-01-01'
             );
 
             const body = response.body;
@@ -371,17 +373,17 @@ describe('DishController (e2e)', () => {
             expect(body.dishes).toHaveLength(0);
         });
 
-        it('/dish?page=0 (GET)', async () => {
+        it('/dish?page=0&individual_order_date=1970-01-01 (GET)', async () => {
             const response = await request(app.getHttpServer()).get(
-                '/dish?page=0'
+                '/dish?page=0&individual_order_date=1970-01-01'
             );
 
             expect(response.status).toBe(500);
         });
 
-        it('/dish?dish_type_id=1 (GET)', async () => {
+        it('/dish?dish_type_id=1&individual_order_date=1970-01-01 (GET)', async () => {
             const response = await request(app.getHttpServer()).get(
-                '/dish?dish_type_id=1'
+                '/dish?dish_type_id=1&individual_order_date=1970-01-01'
             );
 
             const body = response.body;
@@ -394,9 +396,9 @@ describe('DishController (e2e)', () => {
             expect(body.dishes).toHaveLength(2);
         });
 
-        it('/dish?dish_type_id=4 (GET)', async () => {
+        it('/dish?dish_type_id=4&individual_order_date=1970-01-01 (GET)', async () => {
             const response = await request(app.getHttpServer()).get(
-                '/dish?dish_type_id=4'
+                '/dish?dish_type_id=4&individual_order_date=1970-01-01'
             );
 
             const body = response.body;
@@ -409,9 +411,9 @@ describe('DishController (e2e)', () => {
             expect(body.dishes).toHaveLength(0);
         });
 
-        it('/dish?dish_type_id=1&page=2&limit=1 (GET)', async () => {
+        it('/dish?dish_type_id=1&page=2&limit=1&individual_order_date=1970-01-01 (GET)', async () => {
             const response = await request(app.getHttpServer()).get(
-                '/dish?dish_type_id=1&page=2&limit=1'
+                '/dish?dish_type_id=1&page=2&limit=1&individual_order_date=1970-01-01'
             );
 
             const body = response.body;

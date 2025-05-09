@@ -140,6 +140,7 @@ export class DishService {
         individualOrderDate?: Date;
     }) {
         // TODO: по хорошему нужна валидацию что на дату individualOrderDate вообще можно сделать заказ
+        // если не передан, то устанавливать = ближайшая дата доставки
 
         const where = {
             ...(isPublished != undefined && { isPublished }),
