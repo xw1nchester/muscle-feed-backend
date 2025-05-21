@@ -3071,6 +3071,25 @@ paths:
                 properties:
                   orderChangeRequest:
                     $ref: "#/components/schemas/OrderChangeRequestResponseDto"
+  /api/admin/order/{orderId}/prolongation:
+    post:
+      tags:
+        - Admin Order
+      parameters:
+        - name: orderId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  order:
+                    $ref: "#/components/schemas/OrderResponseDto"
   /api/admin/report/route-list:
     get:
       tags:
