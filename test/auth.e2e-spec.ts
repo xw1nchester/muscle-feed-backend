@@ -17,6 +17,21 @@ const getRandomInt = (min: number, max: number) => {
     return Math.floor(Math.random() * (maxFloored - minCeiled) + minCeiled);
 };
 
+const parseJwt = (token: string) => {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(
+        atob(base64)
+            .split('')
+            .map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            })
+            .join('')
+    );
+
+    return JSON.parse(jsonPayload);
+};
+
 describe('AuthController (e2e)', () => {
     let app: INestApplication;
     let prisma: PrismaClient;
@@ -171,6 +186,15 @@ describe('AuthController (e2e)', () => {
                 expect.stringMatching(/refresh-token=.*HttpOnly/)
             ])
         );
+
+        const tokenPayload = parseJwt(response.body.accessToken);
+
+        expect(tokenPayload).toHaveProperty('id');
+        expect(tokenPayload).toHaveProperty('email');
+        expect(tokenPayload).toHaveProperty('roles');
+
+        expect(tokenPayload.email).toEqual('testuser@example.com');
+        expect(tokenPayload.roles).toEqual([]);
     });
 
     it('Should return error if email is already registered', async () => {
@@ -238,6 +262,16 @@ describe('AuthController (e2e)', () => {
                 expect.stringMatching(/refresh-token=.*HttpOnly/)
             ])
         );
+
+        const tokenPayload = parseJwt(response.body.accessToken);
+
+        expect(tokenPayload).toHaveProperty('id');
+        expect(tokenPayload).toHaveProperty('email');
+        expect(tokenPayload).toHaveProperty('roles');
+
+        expect(tokenPayload.id).toEqual(validUser.id);
+        expect(tokenPayload.email).toEqual(validUser.email);
+        expect(tokenPayload.roles).toEqual([]);
     });
 
     it('Should fail login with wrong password', async () => {
