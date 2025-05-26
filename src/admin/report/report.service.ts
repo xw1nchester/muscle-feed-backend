@@ -166,15 +166,17 @@ export class ReportService {
             finalPrice,
             paymentMethod
         } of orders) {
-            let address = `${city.nameHe}, ${street} ${house}`;
+            let address = '';
 
             if (floor) {
-                address += `, ${floor} этаж`;
+                address += `${floor} קומה`;
             }
 
             if (apartment) {
-                address += `, кв. ${apartment}`;
+                address += `, ${apartment} דירה`;
             }
+
+            address += `, ${house} בית, ${street}, ${city.nameHe}`;
 
             const price = !isPaid ? finalPrice - paidAmount : 0;
 
