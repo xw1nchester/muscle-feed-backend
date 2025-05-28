@@ -685,7 +685,9 @@ export class MenuService {
             1
         );
 
-        const dishes = planData[0].dishes.map(dishData => dishData.dish);
+        const dishes = planData[0].dishes.map(dishData =>
+            this.dishService.createDto(dishData.dish)
+        );
 
         return { dishes };
     }
