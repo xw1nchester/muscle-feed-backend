@@ -602,7 +602,7 @@ export class OrderService {
             ...(status == OrderStatus.PENDING && pendingCondition),
             ...(status == OrderStatus.TERMINATING && terminatingCondition),
             ...(status == OrderStatus.UNPROCESSED && unprocessedCondition),
-            ...(search != undefined && {
+            ...(!!search && {
                 OR: [
                     ...(!isNaN(Number(search))
                         ? [
