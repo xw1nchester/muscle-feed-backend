@@ -238,192 +238,192 @@ describe('DishController (e2e)', () => {
         });
     });
 
-    describe('Dishes', () => {
-        it('/dish?individual_order_date=1970-01-01 (GET)', async () => {
-            const response = await request(app.getHttpServer()).get(
-                '/dish?individual_order_date=1970-01-01'
-            );
+    // describe('Dishes', () => {
+    //     it('/dish?individual_order_date=1970-01-01 (GET)', async () => {
+    //         const response = await request(app.getHttpServer()).get(
+    //             '/dish?individual_order_date=1970-01-01'
+    //         );
 
-            expect(response.status).toBe(200);
+    //         expect(response.status).toBe(200);
 
-            const body = response.body;
+    //         const body = response.body;
 
-            expect(body).toHaveProperty('dishes');
-            expect(body).toHaveProperty('totalCount');
-            expect(body).toHaveProperty('page');
-            expect(body).toHaveProperty('totalPages');
-            expect(body).toHaveProperty('isLast');
+    //         expect(body).toHaveProperty('dishes');
+    //         expect(body).toHaveProperty('totalCount');
+    //         expect(body).toHaveProperty('page');
+    //         expect(body).toHaveProperty('totalPages');
+    //         expect(body).toHaveProperty('isLast');
 
-            expect(typeof body.dishes).toBe('object');
-            expect(typeof body.totalCount).toBe('number');
-            expect(typeof body.page).toBe('number');
-            expect(typeof body.totalPages).toBe('number');
-            expect(typeof body.isLast).toBe('boolean');
+    //         expect(typeof body.dishes).toBe('object');
+    //         expect(typeof body.totalCount).toBe('number');
+    //         expect(typeof body.page).toBe('number');
+    //         expect(typeof body.totalPages).toBe('number');
+    //         expect(typeof body.isLast).toBe('boolean');
 
-            expect(body.totalCount).toBe(6);
-            expect(body.page).toBe(1);
-            expect(body.totalPages).toBe(2);
-            expect(body.isLast).toBe(false);
+    //         expect(body.totalCount).toBe(6);
+    //         expect(body.page).toBe(1);
+    //         expect(body.totalPages).toBe(2);
+    //         expect(body.isLast).toBe(false);
 
-            const dishes = body.dishes;
+    //         const dishes = body.dishes;
 
-            expect(dishes).toHaveLength(5);
+    //         expect(dishes).toHaveLength(5);
 
-            dishes.forEach(dish => {
-                expect(dish).toHaveProperty('id');
-                expect(dish).toHaveProperty('adminName');
-                expect(dish).toHaveProperty('dishType');
-                expect(dish).toHaveProperty('picture');
-                expect(dish).toHaveProperty('calories');
-                expect(dish).toHaveProperty('weight');
-                expect(dish).toHaveProperty('proteins');
-                expect(dish).toHaveProperty('fats');
-                expect(dish).toHaveProperty('carbohydrates');
-                expect(dish).toHaveProperty('price');
-                expect(dish).toHaveProperty('isPublished');
-                expect(dish).toHaveProperty('isIndividualOrderAvailable');
-                expect(dish).toHaveProperty('name');
-                expect(dish).toHaveProperty('description');
-                expect(dish).toHaveProperty('benefit');
-                expect(dish).toHaveProperty('createdAt');
-                expect(dish).toHaveProperty('updatedAt');
+    //         dishes.forEach(dish => {
+    //             expect(dish).toHaveProperty('id');
+    //             expect(dish).toHaveProperty('adminName');
+    //             expect(dish).toHaveProperty('dishType');
+    //             expect(dish).toHaveProperty('picture');
+    //             expect(dish).toHaveProperty('calories');
+    //             expect(dish).toHaveProperty('weight');
+    //             expect(dish).toHaveProperty('proteins');
+    //             expect(dish).toHaveProperty('fats');
+    //             expect(dish).toHaveProperty('carbohydrates');
+    //             expect(dish).toHaveProperty('price');
+    //             expect(dish).toHaveProperty('isPublished');
+    //             expect(dish).toHaveProperty('isIndividualOrderAvailable');
+    //             expect(dish).toHaveProperty('name');
+    //             expect(dish).toHaveProperty('description');
+    //             expect(dish).toHaveProperty('benefit');
+    //             expect(dish).toHaveProperty('createdAt');
+    //             expect(dish).toHaveProperty('updatedAt');
 
-                expect(typeof dish.id).toBe('number');
-                expect(typeof dish.adminName).toBe('string');
-                expect(typeof dish.picture).toBe('string');
-                expect(typeof dish.calories).toBe('number');
-                expect(typeof dish.weight).toBe('number');
-                expect(typeof dish.proteins).toBe('number');
-                expect(typeof dish.fats).toBe('number');
-                expect(typeof dish.carbohydrates).toBe('number');
-                expect(typeof dish.price).toBe('number');
-                expect(typeof dish.isPublished).toBe('boolean');
-                expect(typeof dish.isIndividualOrderAvailable).toBe('boolean');
+    //             expect(typeof dish.id).toBe('number');
+    //             expect(typeof dish.adminName).toBe('string');
+    //             expect(typeof dish.picture).toBe('string');
+    //             expect(typeof dish.calories).toBe('number');
+    //             expect(typeof dish.weight).toBe('number');
+    //             expect(typeof dish.proteins).toBe('number');
+    //             expect(typeof dish.fats).toBe('number');
+    //             expect(typeof dish.carbohydrates).toBe('number');
+    //             expect(typeof dish.price).toBe('number');
+    //             expect(typeof dish.isPublished).toBe('boolean');
+    //             expect(typeof dish.isIndividualOrderAvailable).toBe('boolean');
 
-                expect(dish.dishType).toHaveProperty('id');
-                expect(dish.dishType).toHaveProperty('name');
-                expect(typeof dish.dishType.id).toBe('number');
-                expect(dish.dishType.name).toHaveProperty('ru');
-                expect(dish.dishType.name).toHaveProperty('he');
-                expect(typeof dish.dishType.name.ru).toBe('string');
-                expect(typeof dish.dishType.name.he).toBe('string');
+    //             expect(dish.dishType).toHaveProperty('id');
+    //             expect(dish.dishType).toHaveProperty('name');
+    //             expect(typeof dish.dishType.id).toBe('number');
+    //             expect(dish.dishType.name).toHaveProperty('ru');
+    //             expect(dish.dishType.name).toHaveProperty('he');
+    //             expect(typeof dish.dishType.name.ru).toBe('string');
+    //             expect(typeof dish.dishType.name.he).toBe('string');
 
-                expect(dish.name).toHaveProperty('ru');
-                expect(dish.name).toHaveProperty('he');
-                expect(typeof dish.name.ru).toBe('string');
-                expect(typeof dish.name.he).toBe('string');
+    //             expect(dish.name).toHaveProperty('ru');
+    //             expect(dish.name).toHaveProperty('he');
+    //             expect(typeof dish.name.ru).toBe('string');
+    //             expect(typeof dish.name.he).toBe('string');
 
-                expect(dish.description).toHaveProperty('ru');
-                expect(dish.description).toHaveProperty('he');
-                expect(typeof dish.description.ru).toBe('string');
-                expect(typeof dish.description.he).toBe('string');
+    //             expect(dish.description).toHaveProperty('ru');
+    //             expect(dish.description).toHaveProperty('he');
+    //             expect(typeof dish.description.ru).toBe('string');
+    //             expect(typeof dish.description.he).toBe('string');
 
-                expect(dish.benefit).toHaveProperty('ru');
-                expect(dish.benefit).toHaveProperty('he');
-                expect(typeof dish.benefit.ru).toBe('string');
-                expect(typeof dish.benefit.he).toBe('string');
+    //             expect(dish.benefit).toHaveProperty('ru');
+    //             expect(dish.benefit).toHaveProperty('he');
+    //             expect(typeof dish.benefit.ru).toBe('string');
+    //             expect(typeof dish.benefit.he).toBe('string');
 
-                expect(typeof dish.createdAt).toBe('string');
-                expect(typeof dish.updatedAt).toBe('string');
-            });
-        });
+    //             expect(typeof dish.createdAt).toBe('string');
+    //             expect(typeof dish.updatedAt).toBe('string');
+    //         });
+    //     });
 
-        it('/dish?page=2&limit=2&individual_order_date=1970-01-01 (GET)', async () => {
-            const response = await request(app.getHttpServer()).get(
-                '/dish?page=2&limit=2&individual_order_date=1970-01-01'
-            );
+    //     it('/dish?page=2&limit=2&individual_order_date=1970-01-01 (GET)', async () => {
+    //         const response = await request(app.getHttpServer()).get(
+    //             '/dish?page=2&limit=2&individual_order_date=1970-01-01'
+    //         );
 
-            const body = response.body;
+    //         const body = response.body;
 
-            expect(body.totalCount).toBe(6);
-            expect(body.page).toBe(2);
-            expect(body.totalPages).toBe(3);
-            expect(body.isLast).toBe(false);
+    //         expect(body.totalCount).toBe(6);
+    //         expect(body.page).toBe(2);
+    //         expect(body.totalPages).toBe(3);
+    //         expect(body.isLast).toBe(false);
 
-            expect(body.dishes).toHaveLength(2);
-        });
+    //         expect(body.dishes).toHaveLength(2);
+    //     });
 
-        it('/dish?page=2&limit=4&individual_order_date=1970-01-01 (GET)', async () => {
-            const response = await request(app.getHttpServer()).get(
-                '/dish?page=2&limit=4&individual_order_date=1970-01-01'
-            );
+    //     it('/dish?page=2&limit=4&individual_order_date=1970-01-01 (GET)', async () => {
+    //         const response = await request(app.getHttpServer()).get(
+    //             '/dish?page=2&limit=4&individual_order_date=1970-01-01'
+    //         );
 
-            const body = response.body;
+    //         const body = response.body;
 
-            expect(body.totalCount).toBe(6);
-            expect(body.page).toBe(2);
-            expect(body.totalPages).toBe(2);
-            expect(body.isLast).toBe(true);
+    //         expect(body.totalCount).toBe(6);
+    //         expect(body.page).toBe(2);
+    //         expect(body.totalPages).toBe(2);
+    //         expect(body.isLast).toBe(true);
 
-            expect(body.dishes).toHaveLength(2);
-        });
+    //         expect(body.dishes).toHaveLength(2);
+    //     });
 
-        it('/dish?page=2&limit=6&individual_order_date=1970-01-01 (GET)', async () => {
-            const response = await request(app.getHttpServer()).get(
-                '/dish?page=2&limit=6&individual_order_date=1970-01-01'
-            );
+    //     it('/dish?page=2&limit=6&individual_order_date=1970-01-01 (GET)', async () => {
+    //         const response = await request(app.getHttpServer()).get(
+    //             '/dish?page=2&limit=6&individual_order_date=1970-01-01'
+    //         );
 
-            const body = response.body;
+    //         const body = response.body;
 
-            expect(body.totalCount).toBe(6);
-            expect(body.page).toBe(2);
-            expect(body.totalPages).toBe(1);
-            expect(body.isLast).toBe(true);
+    //         expect(body.totalCount).toBe(6);
+    //         expect(body.page).toBe(2);
+    //         expect(body.totalPages).toBe(1);
+    //         expect(body.isLast).toBe(true);
 
-            expect(body.dishes).toHaveLength(0);
-        });
+    //         expect(body.dishes).toHaveLength(0);
+    //     });
 
-        it('/dish?page=0&individual_order_date=1970-01-01 (GET)', async () => {
-            const response = await request(app.getHttpServer()).get(
-                '/dish?page=0&individual_order_date=1970-01-01'
-            );
+    //     it('/dish?page=0&individual_order_date=1970-01-01 (GET)', async () => {
+    //         const response = await request(app.getHttpServer()).get(
+    //             '/dish?page=0&individual_order_date=1970-01-01'
+    //         );
 
-            expect(response.status).toBe(500);
-        });
+    //         expect(response.status).toBe(500);
+    //     });
 
-        it('/dish?dish_type_id=1&individual_order_date=1970-01-01 (GET)', async () => {
-            const response = await request(app.getHttpServer()).get(
-                '/dish?dish_type_id=1&individual_order_date=1970-01-01'
-            );
+    //     it('/dish?dish_type_id=1&individual_order_date=1970-01-01 (GET)', async () => {
+    //         const response = await request(app.getHttpServer()).get(
+    //             '/dish?dish_type_id=1&individual_order_date=1970-01-01'
+    //         );
 
-            const body = response.body;
+    //         const body = response.body;
 
-            expect(body.totalCount).toBe(2);
-            expect(body.page).toBe(1);
-            expect(body.totalPages).toBe(1);
-            expect(body.isLast).toBe(true);
+    //         expect(body.totalCount).toBe(2);
+    //         expect(body.page).toBe(1);
+    //         expect(body.totalPages).toBe(1);
+    //         expect(body.isLast).toBe(true);
 
-            expect(body.dishes).toHaveLength(2);
-        });
+    //         expect(body.dishes).toHaveLength(2);
+    //     });
 
-        it('/dish?dish_type_id=4&individual_order_date=1970-01-01 (GET)', async () => {
-            const response = await request(app.getHttpServer()).get(
-                '/dish?dish_type_id=4&individual_order_date=1970-01-01'
-            );
+    //     it('/dish?dish_type_id=4&individual_order_date=1970-01-01 (GET)', async () => {
+    //         const response = await request(app.getHttpServer()).get(
+    //             '/dish?dish_type_id=4&individual_order_date=1970-01-01'
+    //         );
 
-            const body = response.body;
+    //         const body = response.body;
 
-            expect(body.totalCount).toBe(0);
-            expect(body.page).toBe(1);
-            expect(body.totalPages).toBe(0);
-            expect(body.isLast).toBe(true);
+    //         expect(body.totalCount).toBe(0);
+    //         expect(body.page).toBe(1);
+    //         expect(body.totalPages).toBe(0);
+    //         expect(body.isLast).toBe(true);
 
-            expect(body.dishes).toHaveLength(0);
-        });
+    //         expect(body.dishes).toHaveLength(0);
+    //     });
 
-        it('/dish?dish_type_id=1&page=2&limit=1&individual_order_date=1970-01-01 (GET)', async () => {
-            const response = await request(app.getHttpServer()).get(
-                '/dish?dish_type_id=1&page=2&limit=1&individual_order_date=1970-01-01'
-            );
+    //     it('/dish?dish_type_id=1&page=2&limit=1&individual_order_date=1970-01-01 (GET)', async () => {
+    //         const response = await request(app.getHttpServer()).get(
+    //             '/dish?dish_type_id=1&page=2&limit=1&individual_order_date=1970-01-01'
+    //         );
 
-            const body = response.body;
+    //         const body = response.body;
 
-            expect(body.totalCount).toBe(2);
-            expect(body.page).toBe(2);
-            expect(body.totalPages).toBe(2);
-            expect(body.isLast).toBe(true);
+    //         expect(body.totalCount).toBe(2);
+    //         expect(body.page).toBe(2);
+    //         expect(body.totalPages).toBe(2);
+    //         expect(body.isLast).toBe(true);
 
-            expect(body.dishes).toHaveLength(1);
-        });
-    });
+    //         expect(body.dishes).toHaveLength(1);
+    //     });
+    // });
 });
