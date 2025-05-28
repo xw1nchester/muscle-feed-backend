@@ -40,6 +40,11 @@ export class MenuController {
         return await this.menuService.getRecomendations(calories);
     }
 
+    @Get('personal')
+    async getPersonal(@Query('date', DateValidationPipe) date: Date) {
+        return await this.menuService.getPersonal(date);
+    }
+
     @Get(':id')
     async getPrimaryMenuDishesByDate(
         @Param('id', ParseIntPipe) id: number,

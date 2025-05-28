@@ -1,13 +1,6 @@
-import {
-    Controller,
-    DefaultValuePipe,
-    Get,
-    ParseIntPipe,
-    Query
-} from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 import { Public } from '@auth/decorators';
-import { DateValidationPipe } from '@validators';
 
 import { DishService } from './dish.service';
 
@@ -19,31 +12,5 @@ export class DishController {
     @Get('type')
     async getTypes() {
         return await this.dishService.getTypes();
-    }
-
-    @Get()
-    async find(
-        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
-        @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
-        @Query('search') search: string,
-        @Query(
-            'dish_type_id',
-            new DefaultValuePipe(undefined),
-            new ParseIntPipe({ optional: true })
-        )
-        dishTypeId: number,
-        // TODO: сделать опциональным
-        @Query('individual_order_date', DateValidationPipe)
-        individualOrderDate: Date
-    ) {
-        return await this.dishService.find({
-            page,
-            limit,
-            isPublished: true,
-            search,
-            dishTypeId,
-            isIndividualOrderAvailable: true,
-            individualOrderDate
-        });
     }
 }

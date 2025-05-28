@@ -1913,44 +1913,6 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/DishTypeResponseDto"
-  /api/dish:
-    get:
-      tags:
-        - Dish
-      parameters:
-        - $ref: "#/components/parameters/Page"
-        - $ref: "#/components/parameters/Limit"
-        - name: search
-          in: query
-          required: false
-          schema:
-            type: string
-            example: Цезарь
-        - name: dish_type_id
-          in: query
-          required: false
-          schema:
-            type: integer
-        - name: individual_order_date
-          in: query
-          required: true
-          schema:
-            type: string
-            format: date
-            example: 2025-02-17
-      responses:
-        "200":
-          description: "Success"
-          content:
-            application/json:
-              schema:
-                allOf:
-                  - properties:
-                      dishes:
-                        type: array
-                        items:
-                          $ref: "#/components/schemas/DishResponseDto"
-                  - $ref: "#/components/schemas/PaginationBodyFields"
   /api/admin/dish:
     post:
       tags:
@@ -2398,6 +2360,30 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/MenuResponseDto"
+  /api/menu/personal:
+    get:
+      tags:
+        - Menu
+      security: []
+      parameters:
+        - name: date
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+            example: 2025-02-17
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  dishes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/DishResponseDto"
   /api/admin/faq/category:
     post:
       tags:

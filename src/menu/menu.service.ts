@@ -3,6 +3,7 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import {
     Dish,
@@ -24,7 +25,8 @@ import { calculateDiscountedPrice, extractLocalizedFields } from '@utils';
 export class MenuService {
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly dishService: DishService
+        private readonly dishService: DishService,
+        private readonly configService: ConfigService
     ) {}
 
     private get menuRepository() {
@@ -33,10 +35,6 @@ export class MenuService {
 
     private get menuTypeRepository() {
         return this.prismaService.menuType;
-    }
-
-    private get menuDayRepository() {
-        return this.prismaService.menuDay;
     }
 
     // Menu Type
@@ -664,5 +662,31 @@ export class MenuService {
         const menus = menusData.map(menu => this.createDto(menu));
 
         return { menus };
+    }
+
+    async getPersonal(date: Date) {
+        const individualOrderAvailableMenu =
+            await this.menuRepository.findFirst({
+                select: {
+                    id: true
+                },
+                where: {
+                    nameRu: this.configService.get('INDIVIDUAL_ORDER_MENU_NAME')
+                }
+            });
+
+        if (!individualOrderAvailableMenu) {
+            throw new NotFoundException('Меню не найдено');
+        }
+
+        const planData = await this.getMealPlan(
+            individualOrderAvailableMenu.id,
+            date,
+            1
+        );
+
+        const dishes = planData[0].dishes.map(dishData => dishData.dish);
+
+        return { dishes };
     }
 }

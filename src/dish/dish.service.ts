@@ -127,21 +127,14 @@ export class DishService {
         limit,
         search,
         isPublished,
-        dishTypeId,
-        isIndividualOrderAvailable,
-        individualOrderDate
+        dishTypeId
     }: {
         limit: number;
         page: number;
         search?: string;
         isPublished?: boolean;
         dishTypeId?: number;
-        isIndividualOrderAvailable?: boolean;
-        individualOrderDate?: Date;
     }) {
-        // TODO: по хорошему нужна валидацию что на дату individualOrderDate вообще можно сделать заказ
-        // если не передан, то устанавливать = ближайшая дата доставки
-
         const where = {
             ...(isPublished != undefined && { isPublished }),
             ...(search != undefined && {
@@ -150,33 +143,7 @@ export class DishService {
                     mode: 'insensitive'
                 } as Prisma.StringFilter
             }),
-            ...(dishTypeId != undefined && { dishTypeId }),
-            ...(isIndividualOrderAvailable != undefined && {
-                OR: [
-                    { isIndividualOrderAvailable },
-                    {
-                        orderDayDishes: {
-                            some: {
-                                isSelected: true,
-                                orderDay: {
-                                    isSkipped: false,
-                                    daySkipType: null,
-                                    date: individualOrderDate,
-                                    order: {
-                                        isProcessed: true,
-                                        isCompleted: false,
-                                        menu: {
-                                            nameRu: this.configService.get(
-                                                'INDIVIDUAL_ORDER_MENU_NAME'
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                ]
-            })
+            ...(dishTypeId != undefined && { dishTypeId })
         };
 
         const skip = (page - 1) * limit;
