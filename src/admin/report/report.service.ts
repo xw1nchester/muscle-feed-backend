@@ -113,7 +113,11 @@ export class ReportService {
             { header: '#', key: 'id' },
             { header: 'Заказчик', key: 'fullName', width: 20 },
             { header: 'Телефон', key: 'phone', width: 20 },
-            { header: 'Адрес', key: 'address', width: 50 },
+            { header: 'Город', key: 'city', width: 10 },
+            { header: 'Улица', key: 'street', width: 15 },
+            { header: 'Дом', key: 'house', width: 10 },
+            { header: 'Этаж', key: 'floor', width: 10 },
+            { header: 'Квартира', key: 'apartment', width: 10 },
             { header: 'Комментарий', key: 'comment', width: 100 },
             { header: 'Цена', key: 'price', width: 10 },
             { header: 'Способ оплаты', key: 'paymentMethod', width: 40 }
@@ -166,25 +170,17 @@ export class ReportService {
             finalPrice,
             paymentMethod
         } of orders) {
-            let address = '';
-
-            if (floor) {
-                address += `${floor} קומה`;
-            }
-
-            if (apartment) {
-                address += `, ${apartment} דירה`;
-            }
-
-            address += `, ${house} בית, ${street}, ${city.nameHe}`;
-
             const price = !isPaid ? finalPrice - paidAmount : 0;
 
             const row = worksheet.addRow({
                 id,
                 fullName,
                 phone,
-                address,
+                city: city.nameHe,
+                street,
+                house,
+                floor: floor || '',
+                apartment: apartment || '',
                 comment,
                 price,
                 paymentMethod: paymentMethod.nameRu

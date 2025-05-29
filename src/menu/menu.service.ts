@@ -506,6 +506,9 @@ export class MenuService {
 
     // TODO: возможно кешировать
     async getMealPlan(id: number, startDate: Date, limit: number) {
+        // так как привозятся блюда на 2 дня вперед
+        // startDate.setDate(startDate.getDate() + 1);
+
         const existingMenu = await this.menuRepository.findFirst({
             where: { id, isPublished: true },
             select: {
