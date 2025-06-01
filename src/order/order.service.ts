@@ -26,8 +26,14 @@ import { DishService } from '@dish/dish.service';
 import { PaginationDto } from '@dto/pagination.dto';
 import { MenuService } from '@menu/menu.service';
 import { PromocodeService } from '@promocode/promocode.service';
+import { SettingsService } from '@settings/settings.service';
 import { UserService } from '@user/user.service';
-import { calculateDiscountedPrice, getTodayZeroDate } from '@utils';
+import {
+    addDays,
+    calculateDiscountedPrice,
+    getTodayZeroDate,
+    isDeliveryDate
+} from '@utils';
 
 import { IndividualOrderRequestDto } from './dto/individual-order-request.dto';
 import { OrderChangeRequestDto } from './dto/order-change-request.dto';
@@ -45,6 +51,7 @@ export class OrderService {
         private readonly userService: UserService,
         private readonly dishService: DishService,
         private readonly promocodeService: PromocodeService,
+        private readonly settingsService: SettingsService,
         private readonly configService: ConfigService
     ) {}
 
@@ -249,8 +256,15 @@ export class OrderService {
         }: OrderRequestDto,
         userId: number | null
     ) {
-        // TODO: проверять чтобы дата была не раньше ближайшей даты доставки (вынести дату начала доставки в env)
-        if (startDate < new Date()) {
+        const stepDays = 2;
+
+        const nextDeliveryDate =
+            await this.settingsService.getNextDeliveryDate(stepDays);
+
+        if (
+            startDate < nextDeliveryDate ||
+            !isDeliveryDate(startDate, nextDeliveryDate, stepDays)
+        ) {
             throw new BadRequestException({
                 message: {
                     ru: 'Некорректная дата начала заказа',
@@ -305,56 +319,120 @@ export class OrderService {
         return await this.createDtoById(createdOrder.id);
     }
 
-    private getDaysWithSkipInfo(
-        startDate: Date,
+    private getDaySkipInfo(
+        date: Date,
+        skippedWeekdays: WeekDay[],
+        freezeStartDate?: Date,
+        freezeEndDate?: Date
+    ) {
+        const currentWeekDay = date.getDay() == 0 ? 7 : date.getDay();
+
+        const isWeekDaySkip = skippedWeekdays.includes(currentWeekDay);
+
+        const isFrozen =
+            !!freezeStartDate &&
+            !!freezeEndDate &&
+            date >= freezeStartDate &&
+            date <= freezeEndDate;
+
+        const isSkipped = isWeekDaySkip || isFrozen;
+
+        let daySkipType: DaySkipType = null;
+
+        if (isWeekDaySkip) {
+            daySkipType = DaySkipType.WEEKDAY_SKIPPED;
+        }
+
+        if (isFrozen) {
+            daySkipType = DaySkipType.FROZEN;
+        }
+
+        return { date, isSkipped, daySkipType };
+    }
+
+    private getFirstDeliveryDate(
+        initialFirstDeliveryDate: Date,
+        skippedWeekdays: WeekDay[],
+        freezeStartDate?: Date,
+        freezeEndDate?: Date
+    ) {
+        let currentDate = new Date(initialFirstDeliveryDate);
+        const stepDays = 2;
+        let nextDate: Date, afterNextDate: Date;
+        let nextDayIsSkipped: boolean, afterNextDayIsSkipped: boolean;
+
+        do {
+            nextDate = addDays(currentDate, 1);
+            afterNextDate = addDays(currentDate, 2);
+
+            nextDayIsSkipped = this.getDaySkipInfo(
+                nextDate,
+                skippedWeekdays,
+                freezeStartDate,
+                freezeEndDate
+            ).isSkipped;
+            afterNextDayIsSkipped = this.getDaySkipInfo(
+                afterNextDate,
+                skippedWeekdays,
+                freezeStartDate,
+                freezeEndDate
+            ).isSkipped;
+
+            if (nextDayIsSkipped && afterNextDayIsSkipped) {
+                currentDate = addDays(currentDate, stepDays);
+            }
+        } while (nextDayIsSkipped && afterNextDayIsSkipped);
+
+        return currentDate;
+    }
+
+    getDaysWithSkipInfo(
+        initialFirstDeliveryDate: Date,
         daysCount: number,
         skippedWeekdays: WeekDay[],
         freezeStartDate?: Date,
         freezeEndDate?: Date
     ) {
+        // определение первой даты доставки
+        const firstDeliveryDate = this.getFirstDeliveryDate(
+            initialFirstDeliveryDate,
+            skippedWeekdays,
+            freezeStartDate,
+            freezeEndDate
+        );
+
         const orderDays: {
             date: Date;
             isSkipped: boolean;
             daySkipType: DaySkipType;
         }[] = [];
-        const currentDate = new Date(startDate);
+
+        // добавление первого дня, в который осуществляется только доставка
+        orderDays.push({
+            date: firstDeliveryDate,
+            isSkipped: true,
+            daySkipType: DaySkipType.DELIVERY_ONLY
+        });
+
+        let currentDate = addDays(firstDeliveryDate, 1);
+
         let addedDays = 0;
 
         while (addedDays < daysCount) {
-            const currentWeekDay =
-                currentDate.getDay() == 0 ? 7 : currentDate.getDay();
+            const daySkipInfo = this.getDaySkipInfo(
+                currentDate,
+                skippedWeekdays,
+                freezeStartDate,
+                freezeEndDate
+            );
 
-            const isWeekDaySkip = skippedWeekdays.includes(currentWeekDay);
+            orderDays.push(daySkipInfo);
 
-            const isFrozen =
-                freezeStartDate &&
-                freezeEndDate &&
-                currentDate >= freezeStartDate &&
-                currentDate <= freezeEndDate;
-
-            const isSkipped = isWeekDaySkip || isFrozen;
-
-            let daySkipType: DaySkipType = null;
-
-            if (isWeekDaySkip) {
-                daySkipType = DaySkipType.WEEKDAY_SKIPPED;
-            }
-
-            if (isFrozen) {
-                daySkipType = DaySkipType.FROZEN;
-            }
-
-            orderDays.push({
-                date: new Date(currentDate),
-                isSkipped,
-                daySkipType
-            });
-
-            if (!isSkipped) {
+            if (!daySkipInfo.isSkipped) {
                 addedDays++;
             }
 
-            currentDate.setDate(currentDate.getDate() + 1);
+            currentDate = addDays(currentDate, 1);
         }
 
         return orderDays;
@@ -450,10 +528,9 @@ export class OrderService {
                 orderDays: {
                     some: {
                         OR: [
-                            { date: today, daySkipType: null },
                             {
                                 date: today,
-                                daySkipType: DaySkipType.WEEKDAY_SKIPPED
+                                daySkipType: { not: DaySkipType.FROZEN }
                             }
                         ]
                     }

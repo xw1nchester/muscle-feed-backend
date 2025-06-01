@@ -4,6 +4,7 @@ import { Response } from 'express';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+import { DaySkipType } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { DishService } from '@dish/dish.service';
@@ -97,8 +98,16 @@ export class ReportService {
                 isCompleted: false,
                 orderDays: {
                     some: {
-                        date: { gte: startDate, lte: endDate },
-                        isSkipped: false
+                        OR: [
+                            {
+                                date: { gte: startDate, lte: endDate },
+                                isSkipped: false
+                            },
+                            {
+                                date: { gte: startDate, lte: endDate },
+                                daySkipType: DaySkipType.DELIVERY_ONLY
+                            }
+                        ]
                     }
                 }
             },

@@ -1,0 +1,2 @@
+-- AlterEnum
+ALTER TYPE "DaySkipType" ADD VALUE 'DELIVERY_ONLY';

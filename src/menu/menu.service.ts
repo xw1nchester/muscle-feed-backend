@@ -19,7 +19,11 @@ import { MenuRequestDto } from '@admin/menu/dto/menu-request.dto';
 import { MenuTypeRequestDto } from '@admin/menu/dto/menu-type-request.dto';
 import { DishService } from '@dish/dish.service';
 import { PaginationDto } from '@dto/pagination.dto';
-import { calculateDiscountedPrice, extractLocalizedFields } from '@utils';
+import {
+    addDays,
+    calculateDiscountedPrice,
+    extractLocalizedFields
+} from '@utils';
 
 @Injectable()
 export class MenuService {
@@ -682,14 +686,21 @@ export class MenuService {
             throw new NotFoundException('Меню не найдено');
         }
 
+        const nextDate = addDays(date, 1);
+
         const planData = await this.getMealPlan(
             individualOrderAvailableMenu.id,
-            date,
-            1
+            nextDate,
+            2
         );
 
-        const dishes = planData[0].dishes.map(dishData =>
-            this.dishService.createDto(dishData.dish)
+        const dishes = Array.from(
+            new Map(
+                planData
+                    .flatMap(data => data.dishes)
+                    .map(dishData => this.dishService.createDto(dishData.dish))
+                    .map(dish => [dish.id, dish])
+            ).values()
         );
 
         return { dishes };

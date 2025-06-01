@@ -5,6 +5,7 @@ import { PrismaService } from '@prisma/prisma.service';
 import { ContactRequestDto } from '@admin/settings/dto/contact-request.dto';
 import { CycleStartDateRequestDto } from '@admin/settings/dto/cycle-start-date-request.dto';
 import { UploadService } from '@upload/upload.service';
+import { getTodayZeroDate } from '@utils';
 
 @Injectable()
 export class SettingsService {
@@ -71,5 +72,22 @@ export class SettingsService {
         });
 
         return await this.getSettingsDto();
+    }
+
+    // TODO: метод получения даты ближайшей доставки
+    async getNextDeliveryDate(stepDays: number) {
+        const { cycleStartDate } = await this.findFirst();
+        const today = getTodayZeroDate();
+
+        const diffDays = Math.floor(
+            (today.getTime() - cycleStartDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+        const offset = (stepDays - (diffDays % stepDays)) % stepDays;
+
+        const nextDate = new Date(today);
+        nextDate.setDate(today.getDate() + offset);
+
+        return nextDate;
     }
 }

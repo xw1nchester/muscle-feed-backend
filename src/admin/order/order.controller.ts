@@ -95,6 +95,8 @@ export class OrderController {
         return await this.orderService.update(id, dto);
     }
 
+    @UseGuards(RoleGuard)
+    @Role(RoleEnum.MODERATOR)
     @Delete(':id')
     async delete(@Param('id', ParseIntPipe) id: number) {
         return await this.orderService.delete(id);

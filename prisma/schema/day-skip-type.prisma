@@ -1,4 +1,5 @@
 enum DaySkipType {
     WEEKDAY_SKIPPED
     FROZEN
+    DELIVERY_ONLY
 }
