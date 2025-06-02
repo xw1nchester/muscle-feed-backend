@@ -20,9 +20,11 @@ import { RoleGuard } from '@auth/guards/role.guard';
 import { SelectDishDto } from '@order/dto/select-dish.dto';
 import { OrderStatus } from '@order/enums/order-status.enum';
 import { OrderService } from '@order/order.service';
+import { OrderPipe } from '@order/pipes/order.pipe';
 
 import { AdminOrderRequestDto } from './dto/admin-order-request.dto';
 import { OrderChangeRequestUpdateDto } from './dto/order-change-request-update.dto';
+import { ValidateFreezeDates } from './pipes/validate-freeze-dates.pipe';
 
 @UseGuards(RoleGuard)
 @Role(RoleEnum.MODERATOR)
@@ -78,7 +80,9 @@ export class OrderController {
     }
 
     @Post()
-    async create(@Body() dto: AdminOrderRequestDto) {
+    async create(
+        @Body(OrderPipe, ValidateFreezeDates) dto: AdminOrderRequestDto
+    ) {
         return await this.orderService.adminCreate(dto);
     }
 
@@ -90,7 +94,7 @@ export class OrderController {
     @Patch(':id')
     async update(
         @Param('id', ParseIntPipe) id: number,
-        @Body() dto: AdminOrderRequestDto
+        @Body(OrderPipe, ValidateFreezeDates) dto: AdminOrderRequestDto
     ) {
         return await this.orderService.update(id, dto);
     }

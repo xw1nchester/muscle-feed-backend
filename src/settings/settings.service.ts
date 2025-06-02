@@ -74,7 +74,6 @@ export class SettingsService {
         return await this.getSettingsDto();
     }
 
-    // TODO: метод получения даты ближайшей доставки
     async getNextDeliveryDate(stepDays: number) {
         const { cycleStartDate } = await this.findFirst();
         const today = getTodayZeroDate();

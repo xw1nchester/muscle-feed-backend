@@ -19,7 +19,10 @@ import {
 } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
-import { AdminOrderRequestDto } from '@admin/order/dto/admin-order-request.dto';
+import {
+    AdminOrderRequestDto,
+    FreezeDto
+} from '@admin/order/dto/admin-order-request.dto';
 import { OrderChangeRequestUpdateDto } from '@admin/order/dto/order-change-request-update.dto';
 import { CityService } from '@city/city.service';
 import { DishService } from '@dish/dish.service';
@@ -41,6 +44,8 @@ import { OrderRequestDto } from './dto/order-request.dto';
 import { SelectDishDto } from './dto/select-dish.dto';
 import { OrderStatus } from './enums/order-status.enum';
 import { WeekDay } from './enums/weekday.enum';
+
+const STEP_DAYS = 2;
 
 @Injectable()
 export class OrderService {
@@ -128,6 +133,16 @@ export class OrderService {
                 }
             },
             orderDays: { orderBy: { date: Prisma.SortOrder.asc } },
+            orderFreezes: {
+                select: {
+                    id: true,
+                    startDate: true,
+                    endDate: true
+                },
+                orderBy: {
+                    startDate: Prisma.SortOrder.asc
+                }
+            },
             paymentMethod: true,
             city: true,
             user: true,
@@ -177,9 +192,7 @@ export class OrderService {
             giftDaysCount,
             paymentMethod,
             isPaid,
-            isIndividual,
-            freezeStartDate,
-            freezeEndDate
+            isIndividual
         } = order;
 
         const notSkippedDays = orderDays.filter(
@@ -225,9 +238,7 @@ export class OrderService {
                 : null,
             isPaid,
             isIndividual,
-            isFrozen,
-            freezeStartDate,
-            freezeEndDate
+            isFrozen
         };
     }
 
@@ -256,14 +267,12 @@ export class OrderService {
         }: OrderRequestDto,
         userId: number | null
     ) {
-        const stepDays = 2;
-
         const nextDeliveryDate =
-            await this.settingsService.getNextDeliveryDate(stepDays);
+            await this.settingsService.getNextDeliveryDate(STEP_DAYS);
 
         if (
             startDate < nextDeliveryDate ||
-            !isDeliveryDate(startDate, nextDeliveryDate, stepDays)
+            !isDeliveryDate(startDate, nextDeliveryDate, STEP_DAYS)
         ) {
             throw new BadRequestException({
                 message: {
@@ -312,6 +321,7 @@ export class OrderService {
             startDate,
             daysCount: daysCount + giftDaysCount,
             skippedWeekdays,
+            freezes: [],
             menuId,
             orderId: createdOrder.id
         });
@@ -322,18 +332,15 @@ export class OrderService {
     private getDaySkipInfo(
         date: Date,
         skippedWeekdays: WeekDay[],
-        freezeStartDate?: Date,
-        freezeEndDate?: Date
+        freezes: FreezeDto[]
     ) {
         const currentWeekDay = date.getDay() == 0 ? 7 : date.getDay();
 
         const isWeekDaySkip = skippedWeekdays.includes(currentWeekDay);
 
-        const isFrozen =
-            !!freezeStartDate &&
-            !!freezeEndDate &&
-            date >= freezeStartDate &&
-            date <= freezeEndDate;
+        const isFrozen = freezes.some(
+            item => date >= item.startDate && date <= item.endDate
+        );
 
         const isSkipped = isWeekDaySkip || isFrozen;
 
@@ -353,11 +360,9 @@ export class OrderService {
     private getFirstDeliveryDate(
         initialFirstDeliveryDate: Date,
         skippedWeekdays: WeekDay[],
-        freezeStartDate?: Date,
-        freezeEndDate?: Date
+        freezes: FreezeDto[]
     ) {
         let currentDate = new Date(initialFirstDeliveryDate);
-        const stepDays = 2;
         let nextDate: Date, afterNextDate: Date;
         let nextDayIsSkipped: boolean, afterNextDayIsSkipped: boolean;
 
@@ -368,18 +373,16 @@ export class OrderService {
             nextDayIsSkipped = this.getDaySkipInfo(
                 nextDate,
                 skippedWeekdays,
-                freezeStartDate,
-                freezeEndDate
+                freezes
             ).isSkipped;
             afterNextDayIsSkipped = this.getDaySkipInfo(
                 afterNextDate,
                 skippedWeekdays,
-                freezeStartDate,
-                freezeEndDate
+                freezes
             ).isSkipped;
 
             if (nextDayIsSkipped && afterNextDayIsSkipped) {
-                currentDate = addDays(currentDate, stepDays);
+                currentDate = addDays(currentDate, STEP_DAYS);
             }
         } while (nextDayIsSkipped && afterNextDayIsSkipped);
 
@@ -390,15 +393,13 @@ export class OrderService {
         initialFirstDeliveryDate: Date,
         daysCount: number,
         skippedWeekdays: WeekDay[],
-        freezeStartDate?: Date,
-        freezeEndDate?: Date
+        freezes: FreezeDto[]
     ) {
         // определение первой даты доставки
         const firstDeliveryDate = this.getFirstDeliveryDate(
             initialFirstDeliveryDate,
             skippedWeekdays,
-            freezeStartDate,
-            freezeEndDate
+            freezes
         );
 
         const orderDays: {
@@ -422,8 +423,7 @@ export class OrderService {
             const daySkipInfo = this.getDaySkipInfo(
                 currentDate,
                 skippedWeekdays,
-                freezeStartDate,
-                freezeEndDate
+                freezes
             );
 
             orderDays.push(daySkipInfo);
@@ -442,8 +442,7 @@ export class OrderService {
         startDate,
         daysCount,
         skippedWeekdays,
-        freezeStartDate,
-        freezeEndDate,
+        freezes,
         menuId,
         orderId,
         existingOrderDays: currentOrderDays = []
@@ -451,8 +450,7 @@ export class OrderService {
         startDate: Date;
         daysCount: number;
         skippedWeekdays: WeekDay[];
-        freezeStartDate?: Date;
-        freezeEndDate?: Date;
+        freezes: FreezeDto[];
         menuId: number;
         orderId: number;
         existingOrderDays?: (OrderDay & { orderDayDishes: OrderDayDish[] })[];
@@ -461,8 +459,7 @@ export class OrderService {
             startDate,
             daysCount,
             skippedWeekdays,
-            freezeStartDate,
-            freezeEndDate
+            freezes
         );
 
         const planData = await this.menuService.getMealPlan(
@@ -525,14 +522,10 @@ export class OrderService {
             activeCondition: {
                 isProcessed: true,
                 isCompleted: false,
-                orderDays: {
-                    some: {
-                        OR: [
-                            {
-                                date: today,
-                                daySkipType: { not: DaySkipType.FROZEN }
-                            }
-                        ]
+                orderFreezes: {
+                    none: {
+                        startDate: { lte: today },
+                        endDate: { gte: today }
                     }
                 }
             },
@@ -549,10 +542,10 @@ export class OrderService {
             frozenCondition: {
                 isProcessed: true,
                 isCompleted: false,
-                orderDays: {
+                orderFreezes: {
                     some: {
-                        date: today,
-                        daySkipType: DaySkipType.FROZEN
+                        startDate: { lte: today },
+                        endDate: { gte: today }
                     }
                 }
             },
@@ -740,6 +733,7 @@ export class OrderService {
             city,
             menu,
             orderDays,
+            orderFreezes,
             paymentMethod,
             promocodeId,
             giftDaysCount,
@@ -763,6 +757,7 @@ export class OrderService {
                 user: userId ? this.userService.createDto(user) : null,
                 city: this.cityService.createDto(city),
                 paymentMethod: this.createPaymentMethodDto(paymentMethod),
+                freezes: orderFreezes,
                 menu: menu ? this.menuService.createShortDto(menu) : null,
                 daysCount: notSkippedDays.length - giftDaysCount,
                 giftDaysCount,
@@ -782,6 +777,7 @@ export class OrderService {
         skippedWeekdays,
         giftDaysCount,
         menuId,
+        freezes,
         ...rest
     }: AdminOrderRequestDto) {
         await this.cityService.getById(cityId);
@@ -800,6 +796,9 @@ export class OrderService {
                 skippedWeekdays,
                 menuId,
                 giftDaysCount,
+                orderFreezes: {
+                    create: freezes
+                },
                 ...rest
             }
         });
@@ -809,8 +808,7 @@ export class OrderService {
                 startDate,
                 daysCount: daysCount + (giftDaysCount ?? 0),
                 skippedWeekdays,
-                freezeStartDate: rest.freezeStartDate,
-                freezeEndDate: rest.freezeEndDate,
+                freezes,
                 menuId,
                 orderId
             });
@@ -894,7 +892,8 @@ export class OrderService {
             isProcessed: false,
             isAllowedExtendion: false,
             isPaid: false,
-            isCompleted: false
+            isCompleted: false,
+            freezes: []
         });
     }
 
@@ -909,8 +908,7 @@ export class OrderService {
             skippedWeekdays,
             giftDaysCount,
             menuId,
-            freezeStartDate,
-            freezeEndDate,
+            freezes,
             ...rest
         }: AdminOrderRequestDto
     ) {
@@ -945,14 +943,16 @@ export class OrderService {
                 skippedWeekdays,
                 giftDaysCount,
                 menuId,
-                freezeStartDate: freezeStartDate ?? null,
-                freezeEndDate: freezeEndDate ?? null,
                 ...rest,
                 ...(!existingOrder.isIndividual && {
                     orderDays: {
                         deleteMany: {}
                     }
-                })
+                }),
+                orderFreezes: {
+                    deleteMany: {},
+                    create: freezes
+                }
             }
         });
 
@@ -961,8 +961,7 @@ export class OrderService {
                 startDate,
                 daysCount: daysCount + (giftDaysCount ?? 0),
                 skippedWeekdays,
-                freezeStartDate,
-                freezeEndDate,
+                freezes,
                 menuId,
                 orderId: id,
                 existingOrderDays: existingOrder.orderDays

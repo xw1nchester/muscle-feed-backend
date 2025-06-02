@@ -779,6 +779,17 @@ components:
         - cityId
         - street
         - house
+    FreezeDto:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date
+          example: 2025-02-17
+        endDate:
+          type: string
+          format: date
+          example: 2025-02-17
     OrderRequestAdminDto:
       allOf:
         - $ref: "#/components/schemas/OrderRequestDto"
@@ -795,14 +806,10 @@ components:
               type: integer
             finalPrice:
               type: integer
-            freezeStartDate:
-              type: string
-              format: date
-              example: 2025-02-17
-            freezeEndDate:
-              type: string
-              format: date
-              example: 2025-02-17
+            freezes:
+              type: array
+              items: 
+                $ref: "#/components/schemas/FreezeDto"
             isProcessed:
               type: boolean
             isAllowedExtendion:
@@ -882,14 +889,6 @@ components:
           type: boolean
         isFrozen:
           type: boolean
-        freezeStartDate:
-          type: string
-          format: date
-          example: 2025-02-17
-        freezeEndDate:
-          type: string
-          format: date
-          example: 2025-02-17
     TotalDto:
       type: object
       properties:
@@ -2829,6 +2828,14 @@ paths:
                         type: array
                         items:
                           type: integer
+                      freezes:
+                        type: array
+                        items:
+                          allOf:
+                            - properties:
+                                id:
+                                  type: integer
+                            - $ref: "#/components/schemas/FreezeDto"
     patch:
       tags:
         - Admin Order

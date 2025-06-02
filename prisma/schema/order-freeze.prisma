@@ -1,0 +1,9 @@
+model OrderFreeze {
+    id        Int      @id @default(autoincrement())
+    startDate DateTime @map("start_date")
+    endDate   DateTime @map("end_date")
+    order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+    orderId   Int      @map("order_id")
+
+    @@map("order_freezes")
+}

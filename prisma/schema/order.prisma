@@ -16,8 +16,6 @@ model Order {
     promocodeDiscount   Int                  @default(0) @map("promocode_discount")
     menuDiscount        Int                  @default(0) @map("menu_discount")
     finalPrice          Int                  @map("final_price")
-    freezeStartDate     DateTime?            @map("freeze_start_date")
-    freezeEndDate       DateTime?            @map("freeze_end_date")
     isProcessed         Boolean              @default(false) @map("is_processed")
     isAllowedExtendion  Boolean              @default(false) @map("is_allowed_extendion")
     isPaid              Boolean              @default(false) @map("is_paid")
@@ -37,6 +35,7 @@ model Order {
     promocodeId         Int?                 @map("promocode_id")
     orderDays           OrderDay[]
     orderChangeRequests OrderChangeRequest[]
+    orderFreezes        OrderFreeze[]
 
     @@map("orders")
 }
