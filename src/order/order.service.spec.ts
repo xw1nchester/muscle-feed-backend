@@ -49,7 +49,8 @@ describe('OrderService', () => {
                 input: {
                     firstDeliveryDate: new Date('2025-06-10'),
                     daysCount: 4,
-                    skippedWeekdays: []
+                    skippedWeekdays: [],
+                    freezes: []
                 },
                 expected: [
                     {
@@ -84,7 +85,8 @@ describe('OrderService', () => {
                 input: {
                     firstDeliveryDate: new Date('2025-06-10'),
                     daysCount: 4,
-                    skippedWeekdays: [5]
+                    skippedWeekdays: [5],
+                    freezes: []
                 },
                 expected: [
                     {
@@ -124,7 +126,8 @@ describe('OrderService', () => {
                 input: {
                     firstDeliveryDate: new Date('2025-06-18'),
                     daysCount: 4,
-                    skippedWeekdays: [5]
+                    skippedWeekdays: [5],
+                    freezes: []
                 },
                 expected: [
                     {
@@ -164,7 +167,8 @@ describe('OrderService', () => {
                 input: {
                     firstDeliveryDate: new Date('2025-06-12'),
                     daysCount: 4,
-                    skippedWeekdays: [5]
+                    skippedWeekdays: [5],
+                    freezes: []
                 },
                 expected: [
                     {
@@ -204,7 +208,8 @@ describe('OrderService', () => {
                 input: {
                     firstDeliveryDate: new Date('2025-06-10'),
                     daysCount: 4,
-                    skippedWeekdays: [5, 6]
+                    skippedWeekdays: [5, 6],
+                    freezes: []
                 },
                 expected: [
                     {
@@ -249,7 +254,8 @@ describe('OrderService', () => {
                 input: {
                     firstDeliveryDate: new Date('2025-06-18'),
                     daysCount: 4,
-                    skippedWeekdays: [5, 6]
+                    skippedWeekdays: [5, 6],
+                    freezes: []
                 },
                 expected: [
                     {
@@ -294,7 +300,8 @@ describe('OrderService', () => {
                 input: {
                     firstDeliveryDate: new Date('2025-06-12'),
                     daysCount: 4,
-                    skippedWeekdays: [5, 6]
+                    skippedWeekdays: [5, 6],
+                    freezes: []
                 },
                 expected: [
                     {
@@ -328,7 +335,8 @@ describe('OrderService', () => {
             const result = orderService.getDaysWithSkipInfo(
                 input.firstDeliveryDate,
                 input.daysCount,
-                input.skippedWeekdays
+                input.skippedWeekdays,
+                input.freezes
             );
             expect(result).toEqual(expected);
         });
