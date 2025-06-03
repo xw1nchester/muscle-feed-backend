@@ -21,6 +21,7 @@ import { SelectDishDto } from '@order/dto/select-dish.dto';
 import { OrderStatus } from '@order/enums/order-status.enum';
 import { OrderService } from '@order/order.service';
 import { OrderPipe } from '@order/pipes/order.pipe';
+import { DateValidationPipe } from '@validators';
 
 import { AdminOrderRequestDto } from './dto/admin-order-request.dto';
 import { OrderChangeRequestUpdateDto } from './dto/order-change-request-update.dto';
@@ -72,6 +73,21 @@ export class OrderController {
         @Body() dto: OrderChangeRequestUpdateDto
     ) {
         return await this.orderService.updateChangeRequest(id, dto);
+    }
+
+    @Get('calendar')
+    async getCalendar(
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+        @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number,
+        @Query('start_date', DateValidationPipe) startDate: Date,
+        @Query('end_date', DateValidationPipe) endDate: Date
+    ) {
+        return await this.orderService.getCalendar(
+            page,
+            limit,
+            startDate,
+            endDate
+        );
     }
 
     @Get(':id')

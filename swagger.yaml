@@ -928,6 +928,22 @@ components:
           format: date-time
         order:
           $ref: "#/components/schemas/OrderRequestDto"
+    OrderDayDto:  
+      type: object
+      properties:
+        id:
+          type: integer
+        date:
+          type: string
+          format: date-time
+        isSkipped:
+          type: boolean
+        daySkipType:
+          type: string
+          enum:
+            - WEEKDAY_SKIPPED
+            - FROZEN
+            - DELIVERY_ONLY
     FaqCategoryRequestDto:
       type: object
       properties:
@@ -2894,20 +2910,7 @@ paths:
                   days:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        date:
-                          type: string
-                          format: date-time
-                        isSkipped:
-                          type: boolean
-                        daySkipType:
-                          type: string
-                          enum:
-                            - WEEKDAY_SKIPPED
-                            - FROZEN
+                      $ref: "#/components/schemas/OrderDayDto"
   /api/admin/order/day/{dayId}:
     get:
       tags:
@@ -3083,6 +3086,49 @@ paths:
                 properties:
                   order:
                     $ref: "#/components/schemas/OrderResponseDto"
+  /api/admin/order/calendar:
+    get:
+        tags:
+          - Admin Order
+        parameters:
+          - $ref: "#/components/parameters/Page"
+          - $ref: "#/components/parameters/Limit"
+          - name: start_date
+            in: query
+            required: true
+            schema:
+              type: string
+              format: date
+              example: 2025-02-17
+          - name: end_date
+            in: query
+            required: true
+            schema:
+              type: string
+              format: date
+              example: 2025-02-17
+        responses:
+          "200":
+            description: "Success"
+            content:
+              application/json:
+                schema:
+                  allOf:
+                    - properties:
+                        orders:
+                          type: array
+                          items:
+                            type: object
+                            properties:
+                              id:
+                                type: integer
+                              fullName:
+                                type: string
+                              orderDays:
+                                type: array
+                                items:
+                                  $ref: "#/components/schemas/OrderDayDto"
+                    - $ref: "#/components/schemas/PaginationBodyFields"
   /api/admin/report/route-list:
     get:
       tags:
@@ -3457,20 +3503,7 @@ paths:
                   days:
                     type: array
                     items:
-                      type: object
-                      properties:
-                        id:
-                          type: integer
-                        date:
-                          type: string
-                          format: date-time
-                        isSkipped:
-                          type: boolean
-                        daySkipType:
-                          type: string
-                          enum:
-                            - WEEKDAY_SKIPPED
-                            - FROZEN
+                      $ref: "#/components/schemas/OrderDayDto"
   /api/order/day/{dayId}:
     get:
       tags:

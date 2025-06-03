@@ -722,6 +722,53 @@ export class OrderService {
         return new PaginationDto('orders', orders, totalCount, limit, page);
     }
 
+    async getCalendar(
+        page: number,
+        limit: number,
+        startDate: Date,
+        endDate: Date
+    ) {
+        const where = {
+            isProcessed: true,
+            isCompleted: false,
+            orderDays: {
+                some: {
+                    date: { gte: startDate, lte: endDate }
+                }
+            }
+        };
+
+        const skip = (page - 1) * limit;
+
+        const orders = await this.orderRepository.findMany({
+            where,
+            select: {
+                id: true,
+                fullName: true,
+                orderDays: {
+                    select: {
+                        id: true,
+                        date: true,
+                        isSkipped: true,
+                        daySkipType: true
+                    },
+                    where: {
+                        date: { gte: startDate, lte: endDate }
+                    }
+                }
+            },
+            orderBy: { createdAt: 'desc' },
+            take: limit,
+            skip
+        });
+
+        const totalCount = await this.orderRepository.count({
+            where
+        });
+
+        return new PaginationDto('orders', orders, totalCount, limit, page);
+    }
+
     async getAdminInfoById(id: number) {
         /* eslint-disable @typescript-eslint/no-unused-vars */
         const {
