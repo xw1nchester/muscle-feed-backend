@@ -2847,11 +2847,7 @@ paths:
                       freezes:
                         type: array
                         items:
-                          allOf:
-                            - properties:
-                                id:
-                                  type: integer
-                            - $ref: "#/components/schemas/FreezeDto"
+                          $ref: "#/components/schemas/FreezeDto"
     patch:
       tags:
         - Admin Order

@@ -135,7 +135,6 @@ export class OrderService {
             orderDays: { orderBy: { date: Prisma.SortOrder.asc } },
             orderFreezes: {
                 select: {
-                    id: true,
                     startDate: true,
                     endDate: true
                 },
