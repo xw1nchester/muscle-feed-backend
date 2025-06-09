@@ -118,11 +118,11 @@ export class ReportService {
             { header: 'Заказчик', key: 'fullName', width: 20 },
             { header: 'Телефон', key: 'phone', width: 20 },
             { header: 'Город', key: 'city', width: 10 },
-            { header: 'Улица', key: 'street', width: 15 },
+            { header: 'Улица', key: 'street', width: 20 },
             { header: 'Дом', key: 'house', width: 10 },
             { header: 'Этаж', key: 'floor', width: 10 },
             { header: 'Квартира', key: 'apartment', width: 10 },
-            { header: 'Комментарий', key: 'comment', width: 100 },
+            { header: 'Комментарий', key: 'comment', width: 75 },
             { header: 'Цена', key: 'price', width: 10 },
             { header: 'Способ оплаты', key: 'paymentMethod', width: 40 }
         ];
