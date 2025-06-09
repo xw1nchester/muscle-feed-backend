@@ -526,6 +526,11 @@ export class OrderService {
                         startDate: { lte: today },
                         endDate: { gte: today }
                     }
+                },
+                orderDays: {
+                    some: {
+                        date: today
+                    }
                 }
             },
             individualCondition: {
@@ -1311,8 +1316,13 @@ export class OrderService {
     async createIndividual(dto: IndividualOrderRequestDto, userId: number) {
         const { dishes, date, ...rest } = dto;
 
-        // TODO: проверять чтобы дата была не раньше ближайшей даты доставки (вынести дату начала доставки в env)
-        if (date < new Date()) {
+        const nextDeliveryDate =
+            await this.settingsService.getNextDeliveryDate(STEP_DAYS);
+
+        if (
+            date < nextDeliveryDate ||
+            !isDeliveryDate(date, nextDeliveryDate, STEP_DAYS)
+        ) {
             throw new BadRequestException({
                 message: {
                     ru: 'Некорректная дата начала заказа',
@@ -1376,20 +1386,30 @@ export class OrderService {
             }
         });
 
-        const { id: orderDayId } = await this.orderDayRepository.create({
+        // день доставки
+        await this.orderDayRepository.create({
             data: {
                 date,
-                orderId
+                orderId,
+                isSkipped: true,
+                daySkipType: DaySkipType.DELIVERY_ONLY
             }
         });
 
-        for (const { id: dishId } of existingAvailableDishes) {
-            const count = dishes.find(dish => dish.id == dishId).count;
-
-            await this.orderDayDishRepository.create({
-                data: { orderDayId, dishId, isSelected: true, count }
-            });
-        }
+        // день питания
+        await this.orderDayRepository.create({
+            data: {
+                date: addDays(date, 1),
+                orderId,
+                orderDayDishes: {
+                    create: existingAvailableDishes.map(({ id: dishId }) => ({
+                        dishId,
+                        isSelected: true,
+                        count: dishes.find(dish => dish.id == dishId).count
+                    }))
+                }
+            }
+        });
 
         return await this.createDtoById(orderId);
     }

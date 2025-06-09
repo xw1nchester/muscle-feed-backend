@@ -4,7 +4,6 @@ import { Response } from 'express';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
-import { DaySkipType } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { DishService } from '@dish/dish.service';
@@ -35,7 +34,10 @@ export class ReportService {
                     select: {
                         orderDayDishes: {
                             where: { isSelected: true },
-                            select: { dish: { include: { dishType: true } } },
+                            select: {
+                                dish: { include: { dishType: true } },
+                                count: true
+                            },
                             orderBy: { dishTypeId: 'asc' }
                         }
                     }
@@ -43,7 +45,7 @@ export class ReportService {
             },
             where: {
                 isProcessed: true,
-                isIndividual: false,
+                // isIndividual: false,
                 isCompleted: false,
                 orderDays: {
                     some: {
@@ -58,16 +60,17 @@ export class ReportService {
 
         const orders = ordersData.map(({ id, menu, orderDays }) => {
             const dishes = orderDays.flatMap(({ orderDayDishes }) =>
-                orderDayDishes.map(({ dish }) =>
-                    this.dishService.createDto(dish)
-                )
+                orderDayDishes.map(({ dish, count }) => ({
+                    ...this.dishService.createDto(dish),
+                    count
+                }))
             );
 
             const total = this.menuService.calculateTotalNutrients(dishes);
 
             return {
                 id,
-                menu: this.menuService.createShortDto(menu),
+                menu: menu && this.menuService.createShortDto(menu),
                 dishes,
                 total
             };
@@ -98,16 +101,8 @@ export class ReportService {
                 isCompleted: false,
                 orderDays: {
                     some: {
-                        OR: [
-                            {
-                                date: { gte: startDate, lte: endDate },
-                                isSkipped: false
-                            },
-                            {
-                                date: { gte: startDate, lte: endDate },
-                                daySkipType: DaySkipType.DELIVERY_ONLY
-                            }
-                        ]
+                        date: { gte: startDate, lte: endDate },
+                        isSkipped: false
                     }
                 }
             },
