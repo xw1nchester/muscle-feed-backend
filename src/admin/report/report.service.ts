@@ -259,7 +259,7 @@ export class ReportService {
             const menus = orderDayDishes.reduce((acc, item) => {
                 const name =
                     item.orderDay.order?.menu?.nameRu ||
-                    this.configService.get('INDIVIDUAL_ORDER_MENU_NAME');
+                    this.configService.get('INDIVIDUAL_ORDER_NAME');
                 const existingItem = acc.find(el => el.name === name);
 
                 const { count } = item;

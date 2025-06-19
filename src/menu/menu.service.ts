@@ -678,7 +678,7 @@ export class MenuService {
                     id: true
                 },
                 where: {
-                    nameRu: this.configService.get('INDIVIDUAL_ORDER_MENU_NAME')
+                    nameRu: this.configService.get('MOST_CALORIFIC_MENU_NAME')
                 }
             });
 
