@@ -1,6 +1,7 @@
 import {
     BadRequestException,
     Injectable,
+    Logger,
     NotFoundException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -49,6 +50,8 @@ const STEP_DAYS = 2;
 
 @Injectable()
 export class OrderService {
+    private readonly logger = new Logger(OrderService.name);
+
     constructor(
         private readonly prismaService: PrismaService,
         private readonly menuService: MenuService,
@@ -917,7 +920,18 @@ export class OrderService {
                 );
                 giftDaysCount = menuPriceData.giftDaysCount;
             }
-        } catch (error) {}
+        } catch (error) {
+            this.logger.error('Error when order prolongation', error.stack);
+        }
+
+        this.logger.debug(
+            'Order prolongation. Parameters: ' +
+                `oldOrderPrice: ${price}, ` +
+                `newOrderPrice: ${resolvedPrice}, ` +
+                `menuDiscount: ${price - finalPrice}, ` +
+                `giftDaysCount: ${giftDaysCount}, ` +
+                `finalPrice: ${finalPrice}`
+        );
 
         return await this.adminCreate({
             userId: user?.id,
@@ -937,6 +951,7 @@ export class OrderService {
             apartment,
             comment,
             price: resolvedPrice,
+            // TODO: возможно нужно делать resolvedPrice - finalPrice
             menuDiscount: price - finalPrice,
             giftDaysCount,
             finalPrice,
