@@ -926,11 +926,11 @@ export class OrderService {
 
         this.logger.debug(
             'Order prolongation. Parameters: ' +
-                `oldOrderPrice: ${price}, ` +
-                `newOrderPrice: ${resolvedPrice}, ` +
-                `menuDiscount: ${price - finalPrice}, ` +
-                `giftDaysCount: ${giftDaysCount}, ` +
-                `finalPrice: ${finalPrice}`
+                `oldOrderPrice=${price}, ` +
+                `newOrderPrice=${resolvedPrice}, ` +
+                `menuDiscount=${resolvedPrice - finalPrice}, ` +
+                `giftDaysCount=${giftDaysCount}, ` +
+                `finalPrice=${finalPrice}`
         );
 
         return await this.adminCreate({
@@ -952,7 +952,7 @@ export class OrderService {
             comment,
             price: resolvedPrice,
             // TODO: возможно нужно делать resolvedPrice - finalPrice
-            menuDiscount: price - finalPrice,
+            menuDiscount: resolvedPrice - finalPrice,
             giftDaysCount,
             finalPrice,
             isProcessed: false,

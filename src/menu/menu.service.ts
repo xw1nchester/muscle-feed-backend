@@ -688,17 +688,20 @@ export class MenuService {
                 }
             });
 
-        this.logger.debug(
-            'Fetching personal menu. Parameters: ' +
-                `deliveryDate: ${date.toLocaleDateString()}, ` +
-                `searchMenuName: ${nameRu}, ` +
-                `foundMenuId: ${individualOrderAvailableMenu.id}, ` +
-                `foundMenuName: ${individualOrderAvailableMenu.nameRu}`
-        );
-
         if (!individualOrderAvailableMenu) {
+            this.logger.error(
+                `Error when fetching personal menu: menu with name=${nameRu} not found`
+            );
             throw new NotFoundException('Меню не найдено');
         }
+
+        this.logger.debug(
+            'Fetching personal menu. Parameters: ' +
+                `deliveryDate=${date.toLocaleDateString()}, ` +
+                `searchMenuName=${nameRu}, ` +
+                `foundMenuId=${individualOrderAvailableMenu.id}, ` +
+                `foundMenuName=${individualOrderAvailableMenu.nameRu}`
+        );
 
         const nextDate = addDays(date, 1);
 
