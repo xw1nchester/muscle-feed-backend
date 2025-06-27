@@ -47,6 +47,7 @@ import { OrderStatus } from './enums/order-status.enum';
 import { WeekDay } from './enums/weekday.enum';
 
 const STEP_DAYS = 2;
+const ORDER_TRANSACTION_TIMEOUT_MS = 30000;
 
 @Injectable()
 export class OrderService {
@@ -304,31 +305,39 @@ export class OrderService {
 
         const promocodeDiscount = price - menuDiscount - finalPrice;
 
-        const createdOrder = await this.orderRepository.create({
-            data: {
-                ...rest,
-                skippedWeekdays,
-                menuId,
-                userId,
-                price,
-                finalPrice,
-                menuDiscount,
-                promocodeDiscount,
-                giftDaysCount,
-                isIndividual: false
-            }
-        });
+        const id = await this.prismaService.$transaction(
+            async tx => {
+                const { id } = await tx.order.create({
+                    data: {
+                        ...rest,
+                        skippedWeekdays,
+                        menuId,
+                        userId,
+                        price,
+                        finalPrice,
+                        menuDiscount,
+                        promocodeDiscount,
+                        giftDaysCount,
+                        isIndividual: false
+                    }
+                });
 
-        await this.createOrderPlanByMenu({
-            startDate,
-            daysCount: daysCount + giftDaysCount,
-            skippedWeekdays,
-            freezes: [],
-            menuId,
-            orderId: createdOrder.id
-        });
+                await this.createOrderPlanByMenu({
+                    tx,
+                    startDate,
+                    daysCount: daysCount + giftDaysCount,
+                    skippedWeekdays,
+                    freezes: [],
+                    menuId,
+                    orderId: id
+                });
 
-        return await this.createDtoById(createdOrder.id);
+                return id;
+            },
+            { timeout: ORDER_TRANSACTION_TIMEOUT_MS }
+        );
+
+        return await this.createDtoById(id);
     }
 
     private getDaySkipInfo(
@@ -441,6 +450,7 @@ export class OrderService {
     }
 
     private async createOrderPlanByMenu({
+        tx,
         startDate,
         daysCount,
         skippedWeekdays,
@@ -449,6 +459,7 @@ export class OrderService {
         orderId,
         existingOrderDays: currentOrderDays = []
     }: {
+        tx: Prisma.TransactionClient;
         startDate: Date;
         daysCount: number;
         skippedWeekdays: WeekDay[];
@@ -473,7 +484,7 @@ export class OrderService {
         for (let i = 0; i < orderDays.length; i++) {
             const { date, isSkipped, daySkipType } = orderDays[i];
 
-            const createdOrderDay = await this.orderDayRepository.create({
+            const createdOrderDay = await tx.orderDay.create({
                 data: {
                     orderId,
                     date,
@@ -497,7 +508,7 @@ export class OrderService {
                         orderDayDish.dishId == dish.id
                 );
 
-                await this.orderDayDishRepository.create({
+                await tx.orderDayDish.create({
                     data: {
                         orderDayId: createdOrderDay.id,
                         dishTypeId,
@@ -842,33 +853,41 @@ export class OrderService {
 
         await this.menuService.getById(menuId, true);
 
-        const { id: orderId } = await this.orderRepository.create({
-            data: {
-                cityId,
-                paymentMethodId,
-                userId,
-                skippedWeekdays,
-                menuId,
-                giftDaysCount,
-                orderFreezes: {
-                    create: freezes
-                },
-                ...rest
-            }
-        });
+        const id = await this.prismaService.$transaction(
+            async tx => {
+                const { id } = await tx.order.create({
+                    data: {
+                        cityId,
+                        paymentMethodId,
+                        userId,
+                        skippedWeekdays,
+                        menuId,
+                        giftDaysCount,
+                        orderFreezes: {
+                            create: freezes
+                        },
+                        ...rest
+                    }
+                });
 
-        if (menuId != undefined) {
-            await this.createOrderPlanByMenu({
-                startDate,
-                daysCount: daysCount + (giftDaysCount ?? 0),
-                skippedWeekdays,
-                freezes,
-                menuId,
-                orderId
-            });
-        }
+                if (menuId != undefined) {
+                    await this.createOrderPlanByMenu({
+                        tx,
+                        startDate,
+                        daysCount: daysCount + (giftDaysCount ?? 0),
+                        skippedWeekdays,
+                        freezes,
+                        menuId,
+                        orderId: id
+                    });
+                }
 
-        return await this.createDtoById(orderId);
+                return id;
+            },
+            { timeout: ORDER_TRANSACTION_TIMEOUT_MS }
+        );
+
+        return await this.createDtoById(id);
     }
 
     async prolong(id: number) {
@@ -1000,39 +1019,45 @@ export class OrderService {
             await this.menuService.getById(menuId, true);
         }
 
-        await this.orderRepository.update({
-            where: { id },
-            data: {
-                cityId,
-                paymentMethodId,
-                userId: userId ?? null,
-                skippedWeekdays,
-                giftDaysCount,
-                menuId,
-                ...rest,
-                ...(!existingOrder.isIndividual && {
-                    orderDays: {
-                        deleteMany: {}
+        await this.prismaService.$transaction(
+            async tx => {
+                await tx.order.update({
+                    where: { id },
+                    data: {
+                        cityId,
+                        paymentMethodId,
+                        userId: userId ?? null,
+                        skippedWeekdays,
+                        giftDaysCount,
+                        menuId,
+                        ...rest,
+                        ...(!existingOrder.isIndividual && {
+                            orderDays: {
+                                deleteMany: {}
+                            }
+                        }),
+                        orderFreezes: {
+                            deleteMany: {},
+                            create: freezes
+                        }
                     }
-                }),
-                orderFreezes: {
-                    deleteMany: {},
-                    create: freezes
-                }
-            }
-        });
+                });
 
-        if (!existingOrder.isIndividual) {
-            await this.createOrderPlanByMenu({
-                startDate,
-                daysCount: daysCount + (giftDaysCount ?? 0),
-                skippedWeekdays,
-                freezes,
-                menuId,
-                orderId: id,
-                existingOrderDays: existingOrder.orderDays
-            });
-        }
+                if (!existingOrder.isIndividual) {
+                    await this.createOrderPlanByMenu({
+                        tx,
+                        startDate,
+                        daysCount: daysCount + (giftDaysCount ?? 0),
+                        skippedWeekdays,
+                        freezes,
+                        menuId,
+                        orderId: id,
+                        existingOrderDays: existingOrder.orderDays
+                    });
+                }
+            },
+            { timeout: ORDER_TRANSACTION_TIMEOUT_MS }
+        );
 
         return await this.createDtoById(id);
     }
