@@ -1,6 +1,7 @@
 import {
     BadRequestException,
     Injectable,
+    Logger,
     NotFoundException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -27,6 +28,8 @@ import {
 
 @Injectable()
 export class MenuService {
+    private readonly logger = new Logger(MenuService.name);
+
     constructor(
         private readonly prismaService: PrismaService,
         private readonly dishService: DishService,
@@ -510,9 +513,6 @@ export class MenuService {
 
     // TODO: возможно кешировать
     async getMealPlan(id: number, startDate: Date, limit: number) {
-        // так как привозятся блюда на 2 дня вперед
-        // startDate.setDate(startDate.getDate() + 1);
-
         const existingMenu = await this.menuRepository.findFirst({
             where: { id, isPublished: true },
             select: {
@@ -672,19 +672,33 @@ export class MenuService {
     }
 
     async getPersonal(date: Date) {
+        const nameRu = this.configService.get('MOST_CALORIFIC_MENU_NAME');
+
         const individualOrderAvailableMenu =
             await this.menuRepository.findFirst({
                 select: {
-                    id: true
+                    id: true,
+                    nameRu: true
                 },
                 where: {
-                    nameRu: this.configService.get('MOST_CALORIFIC_MENU_NAME')
+                    nameRu
                 }
             });
 
         if (!individualOrderAvailableMenu) {
+            this.logger.error(
+                `Error when fetching personal menu: menu with name=${nameRu} not found`
+            );
             throw new NotFoundException('Меню не найдено');
         }
+
+        this.logger.debug(
+            'Fetching personal menu. Parameters: ' +
+                `deliveryDate=${date.toLocaleDateString()}, ` +
+                `searchMenuName=${nameRu}, ` +
+                `foundMenuId=${individualOrderAvailableMenu.id}, ` +
+                `foundMenuName=${individualOrderAvailableMenu.nameRu}`
+        );
 
         const nextDate = addDays(date, 1);
 
