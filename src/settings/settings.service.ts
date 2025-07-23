@@ -4,6 +4,7 @@ import { PrismaService } from '@prisma/prisma.service';
 
 import { ContactRequestDto } from '@admin/settings/dto/contact-request.dto';
 import { CycleStartDateRequestDto } from '@admin/settings/dto/cycle-start-date-request.dto';
+import { RedisService } from '@redis/redis.service';
 import { UploadService } from '@upload/upload.service';
 import { getTodayZeroDate } from '@utils';
 
@@ -12,6 +13,7 @@ export class SettingsService {
     constructor(
         private readonly prismaService: PrismaService,
         private readonly uploadService: UploadService
+        // private readonly redisService: RedisService
     ) {}
 
     async findFirst() {
@@ -19,6 +21,10 @@ export class SettingsService {
     }
 
     async getSettingsDto() {
+        // await this.redisService.set('ping', 'pong', 60);
+        // const value = await this.redisService.get('ping');
+        // console.log({ cachedValue: value });
+
         const settings = await this.findFirst();
         const socials = await this.prismaService.social.findMany();
 
