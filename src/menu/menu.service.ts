@@ -20,6 +20,7 @@ import { MenuRequestDto } from '@admin/menu/dto/menu-request.dto';
 import { MenuTypeRequestDto } from '@admin/menu/dto/menu-type-request.dto';
 import { DishService } from '@dish/dish.service';
 import { PaginationDto } from '@dto/pagination.dto';
+import { RedisService } from '@redis/redis.service';
 import {
     addDays,
     calculateDiscountedPrice,
@@ -33,7 +34,8 @@ export class MenuService {
     constructor(
         private readonly prismaService: PrismaService,
         private readonly dishService: DishService,
-        private readonly configService: ConfigService
+        private readonly configService: ConfigService,
+        private readonly redisService: RedisService
     ) {}
 
     private get menuRepository() {
@@ -101,6 +103,8 @@ export class MenuService {
             data: dto
         });
 
+        await this.redisService.del('menu:types');
+
         return { menuType: this.createTypeDto(createdType) };
     }
 
@@ -143,6 +147,8 @@ export class MenuService {
             }
         });
 
+        await this.redisService.del('menu:types');
+
         return {
             menuType: this.createTypeDto(updatedType, updatedType._count.menus)
         };
@@ -158,6 +164,8 @@ export class MenuService {
         }
 
         await this.menuTypeRepository.delete({ where: { id } });
+
+        await this.redisService.del('menu:types');
 
         return {
             menuType: this.createTypeDto(existingType)

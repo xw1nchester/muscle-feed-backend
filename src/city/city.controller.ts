@@ -1,4 +1,5 @@
-import { Controller, Get } from '@nestjs/common';
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
+import { Controller, Get, UseInterceptors } from '@nestjs/common';
 
 import { Public } from '@auth/decorators';
 
@@ -9,6 +10,9 @@ import { CityService } from './city.service';
 export class CityController {
     constructor(private readonly cityService: CityService) {}
 
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(0)
+    @CacheKey('cities')
     @Get()
     async find() {
         return await this.cityService.find();

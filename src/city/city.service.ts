@@ -4,11 +4,15 @@ import { City } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { CityRequestDto } from '@admin/city/dto/city-request.dto';
+import { RedisService } from '@redis/redis.service';
 import { extractLocalizedFields } from '@utils';
 
 @Injectable()
 export class CityService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly redisService: RedisService
+    ) {}
 
     private get cityRepository() {
         return this.prismaService.city;
@@ -36,6 +40,8 @@ export class CityService {
     async create(dto: CityRequestDto) {
         const createdCity = await this.cityRepository.create({ data: dto });
 
+        await this.redisService.del('cities');
+
         return { city: this.createDto(createdCity) };
     }
 
@@ -53,6 +59,8 @@ export class CityService {
             data: dto
         });
 
+        await this.redisService.del('cities');
+
         return { city: this.createDto(updatedCity) };
     }
 
@@ -60,6 +68,8 @@ export class CityService {
         const existingCity = await this.getById(id);
 
         await this.cityRepository.delete({ where: { id } });
+
+        await this.redisService.del('cities');
 
         return { city: this.createDto(existingCity) };
     }

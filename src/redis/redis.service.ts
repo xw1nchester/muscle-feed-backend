@@ -13,7 +13,7 @@ export class RedisService {
     private logger = new Logger(RedisService.name);
     constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
-    async set(key: string, value: unknown, ttl: number): Promise<void> {
+    async set(key: string, value: unknown, ttl: number) {
         try {
             await this.cacheManager.set(
                 key,
@@ -37,5 +37,12 @@ export class RedisService {
         }
     }
 
-    // TODO: delete
+    async del(key: string) {
+        try {
+            await this.cacheManager.del(key);
+        } catch (error) {
+            this.logger.error('failed to delete key from cache', error.stack);
+            throw new InternalServerErrorException();
+        }
+    }
 }

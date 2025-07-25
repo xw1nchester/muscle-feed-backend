@@ -3,7 +3,7 @@ services:
     image: redis:8-alpine
     restart: unless-stopped
     ports:
-      - '6378:6379'
+      - '6379:6379'
     # command: redis-server --requirepass $3CR3T
     volumes: 
       - cache:/data

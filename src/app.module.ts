@@ -1,13 +1,13 @@
-import { redisStore } from 'cache-manager-redis-store';
 import { join } from 'path';
 
-import { CacheModule, CacheModuleAsyncOptions } from '@nestjs/cache-manager';
+import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
+import { createKeyv } from '@keyv/redis';
 
 import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
@@ -29,35 +29,23 @@ import { TeamModule } from './team/team.module';
 import { UploadModule } from './upload/upload.module';
 import { UserModule } from './user/user.module';
 
-// TODO: вынести
-const redisOptions: CacheModuleAsyncOptions = {
-    isGlobal: true,
-    imports: [ConfigModule],
-    inject: [ConfigService],
-    useFactory: async (configService: ConfigService) => {
-        try {
-            const store = await redisStore({
-                socket: {
-                    host: configService.get<string>('REDIS_HOST'),
-                    port: parseInt(configService.get<string>('REDIS_PORT')!)
-                }
-            });
-
-            return {
-                store: () => store
-            };
-        } catch (error) {
-            console.error('failed connecting to redis', error.stack);
-        }
-    }
-};
-
 @Module({
     imports: [
         ConfigModule.forRoot({
             isGlobal: true
         }),
-        CacheModule.registerAsync(redisOptions),
+        CacheModule.registerAsync({
+            isGlobal: true,
+            inject: [ConfigService],
+            useFactory: async (configService: ConfigService) => {
+                const host = configService.get('REDIS_HOST');
+                const port = configService.get('REDIS_PORT');
+                return {
+                    stores: [createKeyv(`redis://${host}:${port}`)],
+                    ttl: 5000
+                };
+            }
+        }),
         ServeStaticModule.forRoot({
             serveRoot: '/static',
             rootPath: join(__dirname, '..', 'uploads')

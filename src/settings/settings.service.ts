@@ -12,8 +12,8 @@ import { getTodayZeroDate } from '@utils';
 export class SettingsService {
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly uploadService: UploadService
-        // private readonly redisService: RedisService
+        private readonly uploadService: UploadService,
+        private readonly redisService: RedisService
     ) {}
 
     async findFirst() {
@@ -21,10 +21,6 @@ export class SettingsService {
     }
 
     async getSettingsDto() {
-        // await this.redisService.set('ping', 'pong', 60);
-        // const value = await this.redisService.get('ping');
-        // console.log({ cachedValue: value });
-
         const settings = await this.findFirst();
         const socials = await this.prismaService.social.findMany();
 
@@ -40,6 +36,8 @@ export class SettingsService {
                 cycleStartDate
             }
         });
+
+        await this.redisService.del('settings');
 
         return await this.getSettingsDto();
     }
@@ -76,6 +74,8 @@ export class SettingsService {
                 await prisma.social.create({ data });
             }
         });
+
+        await this.redisService.del('settings');
 
         return await this.getSettingsDto();
     }

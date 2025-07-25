@@ -1,10 +1,12 @@
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import {
     Controller,
     DefaultValuePipe,
     Get,
     Param,
     ParseIntPipe,
-    Query
+    Query,
+    UseInterceptors
 } from '@nestjs/common';
 
 import { Public } from '@auth/decorators';
@@ -17,6 +19,9 @@ import { MenuService } from './menu.service';
 export class MenuController {
     constructor(private readonly menuService: MenuService) {}
 
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(0)
+    @CacheKey('menu:types')
     @Get('type')
     async getTypes() {
         return await this.menuService.getTypes(true);
