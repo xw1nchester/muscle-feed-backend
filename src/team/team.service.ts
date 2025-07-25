@@ -4,6 +4,7 @@ import { Team } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { TeamRequestDto } from '@admin/team/dto/team-request.dto';
+import { RedisService } from '@redis/redis.service';
 import { UploadService } from '@upload/upload.service';
 import { extractLocalizedFields } from '@utils';
 
@@ -11,7 +12,8 @@ import { extractLocalizedFields } from '@utils';
 export class TeamService {
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly uploadService: UploadService
+        private readonly uploadService: UploadService,
+        private readonly redisService: RedisService
     ) {}
 
     createDto(team: Team) {
@@ -32,6 +34,8 @@ export class TeamService {
         const createdTeam = await this.prismaService.team.create({
             data: dto
         });
+
+        await this.redisService.del('team');
 
         return { employee: this.createDto(createdTeam) };
     }
@@ -66,6 +70,8 @@ export class TeamService {
             this.uploadService.delete(existingTeam.picture);
         }
 
+        await this.redisService.del('team');
+
         return { employee: this.createDto(updatedTeam) };
     }
 
@@ -75,6 +81,8 @@ export class TeamService {
         await this.prismaService.team.delete({ where: { id } });
 
         this.uploadService.delete(existingTeam.picture);
+
+        await this.redisService.del('team');
 
         return { employee: this.createDto(existingTeam) };
     }

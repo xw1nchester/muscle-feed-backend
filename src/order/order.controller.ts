@@ -1,3 +1,4 @@
+import { CacheInterceptor, CacheKey, CacheTTL } from '@nestjs/cache-manager';
 import {
     Body,
     Controller,
@@ -8,7 +9,8 @@ import {
     ParseIntPipe,
     Post,
     Query,
-    UseGuards
+    UseGuards,
+    UseInterceptors
 } from '@nestjs/common';
 
 import { CurrentUser, Public } from '@auth/decorators';
@@ -27,6 +29,9 @@ import { OrderPipe } from './pipes/order.pipe';
 export class OrderController {
     constructor(private readonly orderService: OrderService) {}
 
+    @UseInterceptors(CacheInterceptor)
+    @CacheTTL(0)
+    @CacheKey('payment:methods')
     @Public()
     @Get('payment-method')
     async getPaymentMethods() {

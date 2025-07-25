@@ -4,6 +4,7 @@ import { PrismaService } from '@prisma/prisma.service';
 
 import { ContactRequestDto } from '@admin/settings/dto/contact-request.dto';
 import { CycleStartDateRequestDto } from '@admin/settings/dto/cycle-start-date-request.dto';
+import { RedisService } from '@redis/redis.service';
 import { UploadService } from '@upload/upload.service';
 import { getTodayZeroDate } from '@utils';
 
@@ -11,7 +12,8 @@ import { getTodayZeroDate } from '@utils';
 export class SettingsService {
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly uploadService: UploadService
+        private readonly uploadService: UploadService,
+        private readonly redisService: RedisService
     ) {}
 
     async findFirst() {
@@ -34,6 +36,8 @@ export class SettingsService {
                 cycleStartDate
             }
         });
+
+        await this.redisService.del('settings');
 
         return await this.getSettingsDto();
     }
@@ -70,6 +74,8 @@ export class SettingsService {
                 await prisma.social.create({ data });
             }
         });
+
+        await this.redisService.del('settings');
 
         return await this.getSettingsDto();
     }

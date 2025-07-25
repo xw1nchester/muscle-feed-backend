@@ -1,11 +1,13 @@
 import { join } from 'path';
 
+import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
 
 import { JwtAuthGuard } from '@auth/guards/jwt-auth.guard';
+import { createKeyv } from '@keyv/redis';
 
 import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
@@ -20,6 +22,7 @@ import { MenuModule } from './menu/menu.module';
 import { OrderModule } from './order/order.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { PromocodeModule } from './promocode/promocode.module';
+import { RedisModule } from './redis/redis.module';
 import { ReviewModule } from './review/review.module';
 import { SettingsModule } from './settings/settings.module';
 import { TeamModule } from './team/team.module';
@@ -30,6 +33,18 @@ import { UserModule } from './user/user.module';
     imports: [
         ConfigModule.forRoot({
             isGlobal: true
+        }),
+        CacheModule.registerAsync({
+            isGlobal: true,
+            inject: [ConfigService],
+            useFactory: async (configService: ConfigService) => {
+                const host = configService.get('REDIS_HOST');
+                const port = configService.get('REDIS_PORT');
+                return {
+                    stores: [createKeyv(`redis://${host}:${port}`)],
+                    ttl: 5000
+                };
+            }
         }),
         ServeStaticModule.forRoot({
             serveRoot: '/static',
@@ -50,7 +65,8 @@ import { UserModule } from './user/user.module';
         CityModule,
         OrderModule,
         PromocodeModule,
-        SettingsModule
+        SettingsModule,
+        RedisModule
     ],
     controllers: [AppController],
     providers: [

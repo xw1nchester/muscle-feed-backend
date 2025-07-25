@@ -57,7 +57,9 @@
             "@promocode": ["src/promocode"],
             "@promocode/*": ["src/promocode/*"],
             "@settings": ["src/settings"],
-            "@settings/*": ["src/settings/*"]
+            "@settings/*": ["src/settings/*"],
+            "@redis": ["src/redis"],
+            "@redis/*": ["src/redis/*"]
         }
     }
 }
