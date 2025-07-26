@@ -143,7 +143,9 @@
             "^@promocode/(.*)$": "<rootDir>/promocode/$1",
             "^@promocode$": "<rootDir>/promocode",
             "^@settings/(.*)$": "<rootDir>/settings/$1",
-            "^@settings$": "<rootDir>/settings"
+            "^@settings$": "<rootDir>/settings",
+            "^@redis/(.*)$": "<rootDir>/redis/$1",
+            "^@redis$": "<rootDir>/redis"
         }
     }
 }
