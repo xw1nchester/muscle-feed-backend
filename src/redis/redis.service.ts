@@ -1,28 +1,18 @@
 import { Cache } from 'cache-manager';
 
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import {
-    Inject,
-    Injectable,
-    InternalServerErrorException,
-    Logger
-} from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class RedisService {
     private logger = new Logger(RedisService.name);
     constructor(@Inject(CACHE_MANAGER) private cacheManager: Cache) {}
 
-    async set(key: string, value: unknown, ttl: number) {
+    async set(key: string, value: string, ttl: number) {
         try {
-            await this.cacheManager.set(
-                key,
-                JSON.stringify({ [key]: value }),
-                ttl
-            );
+            await this.cacheManager.set(key, value, ttl);
         } catch (error) {
             this.logger.error('failed to set value to chache', error.stack);
-            throw new InternalServerErrorException();
         }
     }
 
@@ -33,7 +23,6 @@ export class RedisService {
             return jsonData ? JSON.parse(jsonData!) : undefined;
         } catch (error) {
             this.logger.error('failed to get value from cache', error.stack);
-            throw new InternalServerErrorException();
         }
     }
 
@@ -42,7 +31,16 @@ export class RedisService {
             await this.cacheManager.del(key);
         } catch (error) {
             this.logger.error('failed to delete key from cache', error.stack);
-            throw new InternalServerErrorException();
+        }
+    }
+
+    // TODO: подумать как можно не очищать весь кеш, а удалять ключи по паттерну
+    // сейчас это используется при изменении информации о меню, чтобы удалить все ключи personal:date
+    async clear() {
+        try {
+            await this.cacheManager.clear();
+        } catch (error) {
+            this.logger.error('failed to clear all cache', error.stack);
         }
     }
 }
