@@ -11,6 +11,7 @@ import { CityService } from '@city/city.service';
 import { DishService } from '@dish/dish.service';
 import { MenuService } from '@menu/menu.service';
 import { PromocodeService } from '@promocode/promocode.service';
+import { RedisService } from '@redis/redis.service';
 import { SettingsService } from '@settings/settings.service';
 import { UploadService } from '@upload/upload.service';
 import { UserService } from '@user/user.service';
@@ -52,7 +53,16 @@ describe('OrderService', () => {
                 PromocodeService,
                 ConfigService,
                 SettingsService,
-                UploadService
+                UploadService,
+                {
+                    provide: RedisService,
+                    useValue: {
+                        get: jest.fn(),
+                        set: jest.fn(),
+                        del: jest.fn(),
+                        clear: jest.fn()
+                    }
+                }
             ]
         }).compile();
 

@@ -46,6 +46,8 @@
         "^@promocode/(.*)$": "<rootDir>/../src/promocode/$1",
         "^@promocode$": "<rootDir>/../src/promocode",
         "^@settings/(.*)$": "<rootDir>/../src/settings/$1",
-        "^@settings$": "<rootDir>/../src/settings"
+        "^@settings$": "<rootDir>/../src/settings",
+        "^@redis/(?!client)(.*)$": "<rootDir>/../src/redis/$1",
+        "^@redis$": "<rootDir>/../src/redis"
     }
 }

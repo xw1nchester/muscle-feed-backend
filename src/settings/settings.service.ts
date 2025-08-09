@@ -37,7 +37,8 @@ export class SettingsService {
             }
         });
 
-        await this.redisService.del('settings');
+        // await this.redisService.del('settings');
+        await this.redisService.clear();
 
         return await this.getSettingsDto();
     }

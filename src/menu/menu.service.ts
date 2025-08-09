@@ -336,6 +336,8 @@ export class MenuService {
             include: this.getMenuInclude()
         });
 
+        await this.redisService.clear();
+
         return { menu: this.createDto(createdMenu) };
     }
 
@@ -486,6 +488,8 @@ export class MenuService {
             include: this.getMenuInclude()
         });
 
+        await this.redisService.clear();
+
         return { menu: this.createDto(updatedMenu) };
     }
 
@@ -499,6 +503,8 @@ export class MenuService {
         }
 
         await this.menuRepository.delete({ where: { id } });
+
+        await this.redisService.clear();
 
         return { menu: this.createDto(existingMenu) };
     }
@@ -519,7 +525,6 @@ export class MenuService {
         return await this.find({ page, limit, isPublished: true, menuTypeId });
     }
 
-    // TODO: возможно кешировать
     async getMealPlan(id: number, startDate: Date, limit: number) {
         const existingMenu = await this.menuRepository.findFirst({
             where: { id, isPublished: true },
@@ -682,6 +687,24 @@ export class MenuService {
     async getPersonal(date: Date) {
         const nameRu = this.configService.get('MOST_CALORIFIC_MENU_NAME');
 
+        const searchParams = JSON.stringify({
+            deliveryDate: date.toLocaleDateString(),
+            searchMenuName: nameRu
+        });
+
+        this.logger.debug(`Fetching personal menu ${searchParams}`);
+
+        const cacheKey = `personal:${date.toLocaleDateString()}`;
+
+        const cached = await this.redisService.get(cacheKey);
+
+        if (cached) {
+            this.logger.debug(
+                `Received personal menu from the cache ${JSON.stringify({ deliveryDate: date.toLocaleDateString() })}`
+            );
+            return cached;
+        }
+
         const individualOrderAvailableMenu =
             await this.menuRepository.findFirst({
                 select: {
@@ -694,19 +717,9 @@ export class MenuService {
             });
 
         if (!individualOrderAvailableMenu) {
-            this.logger.error(
-                `Error when fetching personal menu: menu with name=${nameRu} not found`
-            );
+            this.logger.error('Not found error when fetching personal menu');
             throw new NotFoundException('Меню не найдено');
         }
-
-        this.logger.debug(
-            'Fetching personal menu. Parameters: ' +
-                `deliveryDate=${date.toLocaleDateString()}, ` +
-                `searchMenuName=${nameRu}, ` +
-                `foundMenuId=${individualOrderAvailableMenu.id}, ` +
-                `foundMenuName=${individualOrderAvailableMenu.nameRu}`
-        );
 
         const nextDate = addDays(date, 1);
 
@@ -723,6 +736,12 @@ export class MenuService {
                     .map(dishData => this.dishService.createDto(dishData.dish))
                     .map(dish => [dish.id, dish])
             ).values()
+        );
+
+        this.redisService.set(cacheKey, JSON.stringify({ dishes }), 0);
+
+        this.logger.debug(
+            `Cached personal menu ${JSON.stringify({ deliveryDate: date.toLocaleDateString() })}`
         );
 
         return { dishes };

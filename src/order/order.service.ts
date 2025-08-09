@@ -692,7 +692,9 @@ export class OrderService {
             ...(status == OrderStatus.UNPROCESSED && unprocessedCondition),
             ...(!!search && {
                 OR: [
-                    ...(!isNaN(Number(search))
+                    ...(Number.isInteger(Number(search)) &&
+                    Number(search) >= -2147483648 &&
+                    Number(search) <= 2147483647
                         ? [
                               {
                                   id: Number(search)
