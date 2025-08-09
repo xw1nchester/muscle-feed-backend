@@ -685,6 +685,15 @@ export class MenuService {
     }
 
     async getPersonal(date: Date) {
+        const nameRu = this.configService.get('MOST_CALORIFIC_MENU_NAME');
+
+        const searchParams = JSON.stringify({
+            deliveryDate: date.toLocaleDateString(),
+            searchMenuName: nameRu
+        });
+
+        this.logger.debug(`Fetching personal menu ${searchParams}`);
+
         const cacheKey = `personal:${date.toLocaleDateString()}`;
 
         const cached = await this.redisService.get(cacheKey);
@@ -695,8 +704,6 @@ export class MenuService {
             );
             return cached;
         }
-
-        const nameRu = this.configService.get('MOST_CALORIFIC_MENU_NAME');
 
         const individualOrderAvailableMenu =
             await this.menuRepository.findFirst({
@@ -709,21 +716,10 @@ export class MenuService {
                 }
             });
 
-        const params = JSON.stringify({
-            deliveryDate: date.toLocaleDateString(),
-            searchMenuName: nameRu,
-            foundMenuId: individualOrderAvailableMenu.id,
-            foundMenuName: individualOrderAvailableMenu.nameRu
-        });
-
         if (!individualOrderAvailableMenu) {
-            this.logger.error(
-                `Not found error when fetching personal menu ${params}`
-            );
+            this.logger.error('Not found error when fetching personal menu');
             throw new NotFoundException('Меню не найдено');
         }
-
-        this.logger.debug(`Fetching personal menu ${params}`);
 
         const nextDate = addDays(date, 1);
 
