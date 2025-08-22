@@ -24,7 +24,8 @@ import { RedisService } from '@redis/redis.service';
 import {
     addDays,
     calculateDiscountedPrice,
-    extractLocalizedFields
+    extractLocalizedFields,
+    getTodayZeroDate
 } from '@utils';
 
 @Injectable()
@@ -249,6 +250,8 @@ export class MenuService {
     }
 
     private getMenuInclude() {
+        const today = getTodayZeroDate();
+
         return {
             menuType: {
                 select: {
@@ -260,7 +263,21 @@ export class MenuService {
             },
             menuPrices: true,
             _count: {
-                select: { menuDays: true, orders: true }
+                select: {
+                    menuDays: true,
+                    orders: {
+                        where: {
+                            AND: [
+                                { isCompleted: false },
+                                {
+                                    orderDays: {
+                                        some: { date: { gte: today } }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
             }
         };
     }
@@ -498,7 +515,7 @@ export class MenuService {
 
         if (existingMenu._count.orders > 0) {
             throw new BadRequestException(
-                'Нельзя удалить меню, так как есть заказ с ним'
+                'Нельзя удалить меню, так как есть как минимум один заказ с этим меню'
             );
         }
 
@@ -653,6 +670,7 @@ export class MenuService {
     async getRecomendations(calories: number) {
         let menusData = await this.menuRepository.findMany({
             where: {
+                isPublished: true,
                 calories: { gte: calories - 300, lte: calories + 300 }
             },
             orderBy: { calories: 'asc' },
@@ -661,12 +679,14 @@ export class MenuService {
 
         if (menusData.length === 0) {
             const minCaloriesMenu = await this.menuRepository.findMany({
+                where: { isPublished: true },
                 orderBy: { calories: 'asc' },
                 take: 1,
                 include: this.getMenuInclude()
             });
 
             const maxCaloriesMenu = await this.menuRepository.findMany({
+                where: { isPublished: true },
                 orderBy: { calories: 'desc' },
                 take: 1,
                 include: this.getMenuInclude()
