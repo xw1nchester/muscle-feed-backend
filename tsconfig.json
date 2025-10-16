@@ -59,7 +59,9 @@
             "@settings": ["src/settings"],
             "@settings/*": ["src/settings/*"],
             "@redis": ["src/redis"],
-            "@redis/*": ["src/redis/*"]
+            "@redis/*": ["src/redis/*"],
+            "@shared": ["src/shared"],
+            "@shared/*": ["src/shared/*"]
         }
     }
 }

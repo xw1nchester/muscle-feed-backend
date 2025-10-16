@@ -21,6 +21,7 @@ import { MenuTypeRequestDto } from '@admin/menu/dto/menu-type-request.dto';
 import { DishService } from '@dish/dish.service';
 import { PaginationDto } from '@dto/pagination.dto';
 import { RedisService } from '@redis/redis.service';
+import { SettingsService } from '@settings/settings.service';
 import {
     addDays,
     calculateDiscountedPrice,
@@ -35,6 +36,7 @@ export class MenuService {
     constructor(
         private readonly prismaService: PrismaService,
         private readonly dishService: DishService,
+        private readonly settingsService: SettingsService,
         private readonly configService: ConfigService,
         private readonly redisService: RedisService
     ) {}
@@ -705,10 +707,20 @@ export class MenuService {
     }
 
     async getPersonal(date: Date) {
+        const isDeliveryDate = await this.settingsService.isDeliveryDate(date);
+
+        if (!isDeliveryDate) {
+            throw new BadRequestException('Некорректная дата');
+        }
+
+        const startDate = addDays(date, 1);
+        const limit = await this.settingsService.daysToNextDelivery(date);
         const nameRu = this.configService.get('MOST_CALORIFIC_MENU_NAME');
 
         const searchParams = JSON.stringify({
             deliveryDate: date.toLocaleDateString(),
+            startDate: startDate.toLocaleDateString(),
+            limit,
             searchMenuName: nameRu
         });
 
@@ -741,12 +753,10 @@ export class MenuService {
             throw new NotFoundException('Меню не найдено');
         }
 
-        const nextDate = addDays(date, 1);
-
         const planData = await this.getMealPlan(
             individualOrderAvailableMenu.id,
-            nextDate,
-            2
+            startDate,
+            limit
         );
 
         const dishes = Array.from(
@@ -758,11 +768,11 @@ export class MenuService {
             ).values()
         );
 
-        this.redisService.set(cacheKey, JSON.stringify({ dishes }), 0);
+        // this.redisService.set(cacheKey, JSON.stringify({ dishes }), 0);
 
-        this.logger.debug(
-            `Cached personal menu ${JSON.stringify({ deliveryDate: date.toLocaleDateString() })}`
-        );
+        // this.logger.debug(
+        //     `Cached personal menu ${JSON.stringify({ deliveryDate: date.toLocaleDateString() })}`
+        // );
 
         return { dishes };
     }

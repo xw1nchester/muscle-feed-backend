@@ -13,10 +13,10 @@ import { MenuService } from '@menu/menu.service';
 import { PromocodeService } from '@promocode/promocode.service';
 import { RedisService } from '@redis/redis.service';
 import { SettingsService } from '@settings/settings.service';
+import { WeekDay } from '@shared/enums/weekday.enum';
 import { UploadService } from '@upload/upload.service';
 import { UserService } from '@user/user.service';
 
-import { WeekDay } from './enums/weekday.enum';
 import { OrderService } from './order.service';
 
 interface getDaysWithSkipInfoInput {
