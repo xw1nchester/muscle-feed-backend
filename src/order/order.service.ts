@@ -422,13 +422,11 @@ export class OrderService {
             }
 
             const daysToNextDelivery =
-                await this.settingsService.daysToNextDelivery(
-                    initialFirstDeliveryDate
-                );
+                await this.settingsService.daysToNextDelivery(currentDate);
             let allDaysSkipped = true;
 
-            for (let j = 0; j < daysToNextDelivery; j++) {
-                const dateToCheck = addDays(currentDate, j + 1);
+            for (let i = 0; i < daysToNextDelivery; i++) {
+                const dateToCheck = addDays(currentDate, i + 1);
                 const { isSkipped } = this.getDaySkipInfo(
                     dateToCheck,
                     skippedWeekdays,
