@@ -33,8 +33,14 @@ import { MenuService } from '@menu/menu.service';
 import { PromocodeService } from '@promocode/promocode.service';
 import { SettingsService } from '@settings/settings.service';
 import { WeekDay } from '@shared/enums/weekday.enum';
+import { DeliveryMap } from '@shared/types/delivery-map.type';
 import { UserService } from '@user/user.service';
-import { addDays, calculateDiscountedPrice, getTodayZeroDate } from '@utils';
+import {
+    addDays,
+    calculateDiscountedPrice,
+    getTodayZeroDate,
+    getWeekdayNumber
+} from '@utils';
 
 import { IndividualOrderRequestDto } from './dto/individual-order-request.dto';
 import { OrderChangeRequestDto } from './dto/order-change-request.dto';
@@ -340,7 +346,7 @@ export class OrderService {
         skippedWeekdays: WeekDay[],
         freezes: FreezeDto[]
     ) {
-        const weekday = date.getDay() == 0 ? 7 : date.getDay();
+        const weekday = getWeekdayNumber(date);
 
         const isWeekDaySkip = skippedWeekdays.includes(weekday);
 
@@ -396,33 +402,27 @@ export class OrderService {
     //     return currentDate;
     // }
 
-    // TODO: как вариант передавать Map, где каждому дню недели (1, 2...)
-    // будет соответствовать количество дней до следующей доставки
-    // а также передавать доставочные дни недели
-    // это позволит сделать данную функцию и getDaysWithSkipInfo асинхронными и возможность тестировать без моков
-    // переписать тесты
-    private async getFirstDeliveryDate(
+    private getFirstDeliveryDate(
         initialFirstDeliveryDate: Date,
+        deliveryMap: DeliveryMap,
         skippedWeekdays: WeekDay[],
         freezes: FreezeDto[]
     ) {
         let currentDate = new Date(initialFirstDeliveryDate);
-        const MAX_ITERATIONS = 10;
         let iteration = 0;
+        const MAX_ITERATIONS = 10;
 
         while (iteration < MAX_ITERATIONS) {
             iteration++;
 
-            const isDeliveryDate =
-                await this.settingsService.isDeliveryDate(currentDate);
+            const weekday = getWeekdayNumber(currentDate);
 
-            if (!isDeliveryDate) {
+            if (!deliveryMap[weekday].isDelivery) {
                 currentDate = addDays(currentDate, 1);
                 continue;
             }
 
-            const daysToNextDelivery =
-                await this.settingsService.daysToNextDelivery(currentDate);
+            const daysToNextDelivery = deliveryMap[weekday].daysToNext;
             let allDaysSkipped = true;
 
             for (let i = 0; i < daysToNextDelivery; i++) {
@@ -446,19 +446,21 @@ export class OrderService {
         }
 
         throw new InternalServerErrorException(
-            'Не удалось определить дату начала доставки'
+            'Не удалось найти ближайшую дату доставки'
         );
     }
 
-    async getDaysWithSkipInfo(
+    getDaysWithSkipInfo(
         initialFirstDeliveryDate: Date,
         daysCount: number,
+        deliveryMap: DeliveryMap,
         skippedWeekdays: WeekDay[],
         freezes: FreezeDto[]
     ) {
         // определение первой даты доставки в соответствии с пропусками
-        const firstDeliveryDate = await this.getFirstDeliveryDate(
+        const firstDeliveryDate = this.getFirstDeliveryDate(
             initialFirstDeliveryDate,
+            deliveryMap,
             skippedWeekdays,
             freezes
         );
@@ -518,9 +520,12 @@ export class OrderService {
         orderId: number;
         existingOrderDays?: (OrderDay & { orderDayDishes: OrderDayDish[] })[];
     }) {
-        const orderDays = await this.getDaysWithSkipInfo(
+        const deliveryMap = await this.settingsService.getDeliveryMap();
+
+        const orderDays = this.getDaysWithSkipInfo(
             startDate,
             daysCount,
+            deliveryMap,
             skippedWeekdays,
             freezes
         );

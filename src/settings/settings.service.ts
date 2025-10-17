@@ -6,8 +6,9 @@ import { ContactRequestDto } from '@admin/settings/dto/contact-request.dto';
 import { CycleStartDateRequestDto } from '@admin/settings/dto/cycle-start-date-request.dto';
 import { DeliveryConfigDto } from '@admin/settings/dto/delivery-config.dto';
 import { RedisService } from '@redis/redis.service';
+import { DeliveryMap } from '@shared/types/delivery-map.type';
 import { UploadService } from '@upload/upload.service';
-import { addDays, getTodayZeroDate } from '@utils';
+import { addDays, getTodayZeroDate, getWeekdayNumber } from '@utils';
 
 @Injectable()
 export class SettingsService {
@@ -93,44 +94,35 @@ export class SettingsService {
         return await this.getSettingsDto();
     }
 
-    async isDeliveryDate(date: Date) {
+    async getDeliveryMap(): Promise<DeliveryMap> {
         const { deliveryWeekdays } = await this.findFirst();
-        const jsDay = date.getDay();
-        const day = jsDay === 0 ? 7 : jsDay;
-        return deliveryWeekdays.includes(day);
-    }
+        const deliveryMap = {} as DeliveryMap;
 
-    async daysToNextDelivery(date: Date) {
-        const jsDay = date.getDay();
-        const day = jsDay === 0 ? 7 : jsDay;
-
-        const { deliveryWeekdays } = await this.findFirst();
-
-        for (const d of deliveryWeekdays) {
-            if (d > day) {
-                return d - day;
+        for (let day = 1; day <= 7; day++) {
+            if (deliveryWeekdays.includes(day)) {
+                const daysToNext = deliveryWeekdays
+                    .map(d => (d > day ? d - day : d + 7 - day))
+                    .sort((a, b) => a - b)[0];
+                deliveryMap[day] = { isDelivery: true, daysToNext };
+            } else {
+                deliveryMap[day] = { isDelivery: false };
             }
         }
 
-        return 7 - day + deliveryWeekdays[0];
+        return deliveryMap;
+    }
+
+    async isDeliveryDate(date: Date) {
+        const { deliveryWeekdays } = await this.findFirst();
+        const weekday = getWeekdayNumber(date);
+        return deliveryWeekdays.includes(weekday);
     }
 
     async getNextDeliveryDate() {
         const today = getTodayZeroDate();
-        const jsDay = today.getDay();
-        const todayNumber = jsDay === 0 ? 7 : jsDay;
-
-        const { deliveryWeekdays } = await this.findFirst();
-
-        for (const d of deliveryWeekdays) {
-            if (d > todayNumber) {
-                const diff = d - todayNumber;
-                return addDays(today, diff);
-            }
-        }
-
-        const diff = 7 - todayNumber + deliveryWeekdays[0];
-
+        const weekday = getWeekdayNumber(today);
+        const deliveryMap = await this.getDeliveryMap();
+        const diff = deliveryMap[weekday].daysToNext;
         return addDays(today, diff);
     }
 

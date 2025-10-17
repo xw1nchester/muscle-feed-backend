@@ -26,7 +26,8 @@ import {
     addDays,
     calculateDiscountedPrice,
     extractLocalizedFields,
-    getTodayZeroDate
+    getTodayZeroDate,
+    getWeekdayNumber
 } from '@utils';
 
 @Injectable()
@@ -707,19 +708,20 @@ export class MenuService {
     }
 
     async getPersonal(date: Date) {
-        const isDeliveryDate = await this.settingsService.isDeliveryDate(date);
+        const deliveryMap = await this.settingsService.getDeliveryMap();
+        const weekday = getWeekdayNumber(date);
 
-        if (!isDeliveryDate) {
+        if (!deliveryMap[weekday].isDelivery) {
             throw new BadRequestException('Некорректная дата');
         }
 
-        const startDate = addDays(date, 1);
-        const limit = await this.settingsService.daysToNextDelivery(date);
+        const feedStartDate = addDays(date, 1);
+        const limit = deliveryMap[weekday].daysToNext;
         const nameRu = this.configService.get('MOST_CALORIFIC_MENU_NAME');
 
         const searchParams = JSON.stringify({
             deliveryDate: date.toLocaleDateString(),
-            startDate: startDate.toLocaleDateString(),
+            feedStartDate: feedStartDate.toLocaleDateString(),
             limit,
             searchMenuName: nameRu
         });
@@ -755,7 +757,7 @@ export class MenuService {
 
         const planData = await this.getMealPlan(
             individualOrderAvailableMenu.id,
-            startDate,
+            feedStartDate,
             limit
         );
 
@@ -768,11 +770,11 @@ export class MenuService {
             ).values()
         );
 
-        // this.redisService.set(cacheKey, JSON.stringify({ dishes }), 0);
+        this.redisService.set(cacheKey, JSON.stringify({ dishes }), 0);
 
-        // this.logger.debug(
-        //     `Cached personal menu ${JSON.stringify({ deliveryDate: date.toLocaleDateString() })}`
-        // );
+        this.logger.debug(
+            `Cached personal menu ${JSON.stringify({ deliveryDate: date.toLocaleDateString() })}`
+        );
 
         return { dishes };
     }
