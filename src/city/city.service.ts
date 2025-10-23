@@ -78,7 +78,9 @@ export class CityService {
     }
 
     async find() {
-        const citiesData = await this.cityRepository.findMany();
+        const citiesData = await this.cityRepository.findMany({
+            orderBy: { id: 'asc' }
+        });
 
         const cities = citiesData.map(city => this.createDto(city));
 
