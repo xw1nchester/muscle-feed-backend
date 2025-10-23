@@ -33,6 +33,7 @@ export class CityService {
 
         return {
             id: city.id,
+            code: city.code,
             ...localizedFields
         };
     }
@@ -53,6 +54,8 @@ export class CityService {
 
     async update(id: number, dto: CityRequestDto) {
         await this.getById(id);
+
+        if (!dto.code) dto.code = null;
 
         const updatedCity = await this.cityRepository.update({
             where: { id },

@@ -41,6 +41,11 @@ export class ReportService {
                             orderBy: { dishTypeId: 'asc' }
                         }
                     }
+                },
+                city: {
+                    select: {
+                        code: true
+                    }
                 }
             },
             where: {
@@ -58,7 +63,7 @@ export class ReportService {
             orderBy: { id: 'asc' }
         });
 
-        const orders = ordersData.map(({ id, menu, orderDays }) => {
+        const orders = ordersData.map(({ id, menu, orderDays, city }) => {
             const dishes = orderDays.flatMap(({ orderDayDishes }) =>
                 orderDayDishes.map(({ dish, count }) => ({
                     ...this.dishService.createDto(dish),
@@ -70,6 +75,7 @@ export class ReportService {
 
             return {
                 id,
+                cityCode: city.code,
                 menu: menu && this.menuService.createShortDto(menu),
                 dishes,
                 total
@@ -177,7 +183,7 @@ export class ReportService {
             const price = !isPaid ? finalPrice - paidAmount : 0;
 
             const row = worksheet.addRow({
-                id,
+                id: city.code ? `${city.code}-${id}` : id,
                 fullName,
                 phone,
                 city: city.nameHe,

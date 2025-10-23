@@ -1038,11 +1038,20 @@ components:
         nameHe:
           type: string
           example: "חיפה"
+        code:
+          type: string
+          example: "150"
+      required:
+        - nameRu
+        - nameHe
     CityResponseDto:
       type: object
       properties:
         id:
           type: integer
+        code:
+          type: string
+          example: "150"
         name:
           type: object
           properties:
@@ -3178,6 +3187,8 @@ paths:
                       properties:
                         id:
                           type: integer
+                        cityCode:
+                          type: string
                         menu:
                           $ref: "#/components/schemas/MenuResponseShortDto"
                         dishes:
