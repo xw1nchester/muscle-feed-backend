@@ -60,7 +60,7 @@ export class ReportService {
                     }
                 }
             },
-            orderBy: { id: 'asc' }
+            orderBy: [{ menu: { calories: 'asc' } }, { id: 'asc' }]
         });
 
         const orders = ordersData.map(({ id, menu, orderDays, city }) => {
