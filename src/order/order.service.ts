@@ -1,6 +1,7 @@
 import {
     BadRequestException,
     Injectable,
+    InternalServerErrorException,
     Logger,
     NotFoundException
 } from '@nestjs/common';
@@ -31,12 +32,14 @@ import { PaginationDto } from '@dto/pagination.dto';
 import { MenuService } from '@menu/menu.service';
 import { PromocodeService } from '@promocode/promocode.service';
 import { SettingsService } from '@settings/settings.service';
+import { WeekDay } from '@shared/enums/weekday.enum';
+import { DeliveryMap } from '@shared/types/delivery-map.type';
 import { UserService } from '@user/user.service';
 import {
     addDays,
     calculateDiscountedPrice,
     getTodayZeroDate,
-    isDeliveryDate
+    getWeekdayNumber
 } from '@utils';
 
 import { IndividualOrderRequestDto } from './dto/individual-order-request.dto';
@@ -44,9 +47,7 @@ import { OrderChangeRequestDto } from './dto/order-change-request.dto';
 import { OrderRequestDto } from './dto/order-request.dto';
 import { SelectDishDto } from './dto/select-dish.dto';
 import { OrderStatus } from './enums/order-status.enum';
-import { WeekDay } from './enums/weekday.enum';
 
-const STEP_DAYS = 2;
 const ORDER_TRANSACTION_TIMEOUT_MS = 30000;
 
 @Injectable()
@@ -271,12 +272,12 @@ export class OrderService {
         userId: number | null
     ) {
         const nextDeliveryDate =
-            await this.settingsService.getNextDeliveryDate(STEP_DAYS);
+            await this.settingsService.getNextDeliveryDate();
 
-        if (
-            startDate < nextDeliveryDate ||
-            !isDeliveryDate(startDate, nextDeliveryDate, STEP_DAYS)
-        ) {
+        const isDeliveryDate =
+            await this.settingsService.isDeliveryDate(startDate);
+
+        if (startDate < nextDeliveryDate || !isDeliveryDate) {
             throw new BadRequestException({
                 message: {
                     ru: 'Некорректная дата начала заказа',
@@ -345,9 +346,9 @@ export class OrderService {
         skippedWeekdays: WeekDay[],
         freezes: FreezeDto[]
     ) {
-        const currentWeekDay = date.getDay() == 0 ? 7 : date.getDay();
+        const weekday = getWeekdayNumber(date);
 
-        const isWeekDaySkip = skippedWeekdays.includes(currentWeekDay);
+        const isWeekDaySkip = skippedWeekdays.includes(weekday);
 
         const isFrozen = freezes.some(
             item => date >= item.startDate && date <= item.endDate
@@ -368,47 +369,98 @@ export class OrderService {
         return { date, isSkipped, daySkipType };
     }
 
+    // старая логика с чередованием дней доставки через день
+    // private getFirstDeliveryDate(
+    //     initialFirstDeliveryDate: Date,
+    //     skippedWeekdays: WeekDay[],
+    //     freezes: FreezeDto[]
+    // ) {
+    //     let currentDate = new Date(initialFirstDeliveryDate);
+    //     let nextDate: Date, afterNextDate: Date;
+    //     let nextDayIsSkipped: boolean, afterNextDayIsSkipped: boolean;
+
+    //     do {
+    //         nextDate = addDays(currentDate, 1);
+    //         afterNextDate = addDays(currentDate, 2);
+
+    //         nextDayIsSkipped = this.getDaySkipInfo(
+    //             nextDate,
+    //             skippedWeekdays,
+    //             freezes
+    //         ).isSkipped;
+    //         afterNextDayIsSkipped = this.getDaySkipInfo(
+    //             afterNextDate,
+    //             skippedWeekdays,
+    //             freezes
+    //         ).isSkipped;
+
+    //         if (nextDayIsSkipped && afterNextDayIsSkipped) {
+    //             currentDate = addDays(currentDate, STEP_DAYS);
+    //         }
+    //     } while (nextDayIsSkipped && afterNextDayIsSkipped);
+
+    //     return currentDate;
+    // }
+
     private getFirstDeliveryDate(
         initialFirstDeliveryDate: Date,
+        deliveryMap: DeliveryMap,
         skippedWeekdays: WeekDay[],
         freezes: FreezeDto[]
     ) {
         let currentDate = new Date(initialFirstDeliveryDate);
-        let nextDate: Date, afterNextDate: Date;
-        let nextDayIsSkipped: boolean, afterNextDayIsSkipped: boolean;
+        let iteration = 0;
+        const MAX_ITERATIONS = 10;
 
-        do {
-            nextDate = addDays(currentDate, 1);
-            afterNextDate = addDays(currentDate, 2);
+        while (iteration < MAX_ITERATIONS) {
+            iteration++;
 
-            nextDayIsSkipped = this.getDaySkipInfo(
-                nextDate,
-                skippedWeekdays,
-                freezes
-            ).isSkipped;
-            afterNextDayIsSkipped = this.getDaySkipInfo(
-                afterNextDate,
-                skippedWeekdays,
-                freezes
-            ).isSkipped;
+            const weekday = getWeekdayNumber(currentDate);
 
-            if (nextDayIsSkipped && afterNextDayIsSkipped) {
-                currentDate = addDays(currentDate, STEP_DAYS);
+            if (!deliveryMap[weekday].isDelivery) {
+                currentDate = addDays(currentDate, 1);
+                continue;
             }
-        } while (nextDayIsSkipped && afterNextDayIsSkipped);
 
-        return currentDate;
+            const daysToNextDelivery = deliveryMap[weekday].daysToNext;
+            let allDaysSkipped = true;
+
+            for (let i = 0; i < daysToNextDelivery; i++) {
+                const dateToCheck = addDays(currentDate, i + 1);
+                const { isSkipped } = this.getDaySkipInfo(
+                    dateToCheck,
+                    skippedWeekdays,
+                    freezes
+                );
+                if (!isSkipped) {
+                    allDaysSkipped = false;
+                    break;
+                }
+            }
+
+            if (!allDaysSkipped) {
+                return currentDate;
+            }
+
+            currentDate = addDays(currentDate, daysToNextDelivery);
+        }
+
+        throw new InternalServerErrorException(
+            'Не удалось найти ближайшую дату доставки'
+        );
     }
 
     getDaysWithSkipInfo(
         initialFirstDeliveryDate: Date,
         daysCount: number,
+        deliveryMap: DeliveryMap,
         skippedWeekdays: WeekDay[],
         freezes: FreezeDto[]
     ) {
-        // определение первой даты доставки
+        // определение первой даты доставки в соответствии с пропусками
         const firstDeliveryDate = this.getFirstDeliveryDate(
             initialFirstDeliveryDate,
+            deliveryMap,
             skippedWeekdays,
             freezes
         );
@@ -468,12 +520,17 @@ export class OrderService {
         orderId: number;
         existingOrderDays?: (OrderDay & { orderDayDishes: OrderDayDish[] })[];
     }) {
+        const deliveryMap = await this.settingsService.getDeliveryMap();
+
         const orderDays = this.getDaysWithSkipInfo(
             startDate,
             daysCount,
+            deliveryMap,
             skippedWeekdays,
             freezes
         );
+
+        console.log({ orderDays });
 
         const planData = await this.menuService.getMealPlan(
             menuId,
@@ -972,7 +1029,6 @@ export class OrderService {
             apartment,
             comment,
             price: resolvedPrice,
-            // TODO: возможно нужно делать resolvedPrice - finalPrice
             menuDiscount: resolvedPrice - finalPrice,
             giftDaysCount,
             finalPrice,
@@ -1358,13 +1414,12 @@ export class OrderService {
     async createIndividual(dto: IndividualOrderRequestDto, userId: number) {
         const { dishes, date, ...rest } = dto;
 
-        const nextDeliveryDate =
-            await this.settingsService.getNextDeliveryDate(STEP_DAYS);
+        const nearestDeliveryDate =
+            await this.settingsService.getNextDeliveryDate();
 
-        if (
-            date < nextDeliveryDate ||
-            !isDeliveryDate(date, nextDeliveryDate, STEP_DAYS)
-        ) {
+        const isDeliveryDate = await this.settingsService.isDeliveryDate(date);
+
+        if (date < nearestDeliveryDate || !isDeliveryDate) {
             throw new BadRequestException({
                 message: {
                     ru: 'Некорректная дата начала заказа',

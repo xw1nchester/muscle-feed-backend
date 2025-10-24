@@ -33,6 +33,7 @@ export class CityService {
 
         return {
             id: city.id,
+            code: city.code,
             ...localizedFields
         };
     }
@@ -53,6 +54,8 @@ export class CityService {
 
     async update(id: number, dto: CityRequestDto) {
         await this.getById(id);
+
+        if (!dto.code) dto.code = null;
 
         const updatedCity = await this.cityRepository.update({
             where: { id },
@@ -75,7 +78,9 @@ export class CityService {
     }
 
     async find() {
-        const citiesData = await this.cityRepository.findMany();
+        const citiesData = await this.cityRepository.findMany({
+            orderBy: { id: 'asc' }
+        });
 
         const cities = citiesData.map(city => this.createDto(city));
 

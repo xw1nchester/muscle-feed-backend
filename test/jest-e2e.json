@@ -48,6 +48,8 @@
         "^@settings/(.*)$": "<rootDir>/../src/settings/$1",
         "^@settings$": "<rootDir>/../src/settings",
         "^@redis/(?!client)(.*)$": "<rootDir>/../src/redis/$1",
-        "^@redis$": "<rootDir>/../src/redis"
+        "^@redis$": "<rootDir>/../src/redis",
+        "^@shared/(.*)$": "<rootDir>/../src/shared/$1",
+        "^@shared$": "<rootDir>/../src/shared"
     }
 }

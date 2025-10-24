@@ -8,6 +8,7 @@ import { SettingsService } from '@settings/settings.service';
 
 import { ContactRequestDto } from './dto/contact-request.dto';
 import { CycleStartDateRequestDto } from './dto/cycle-start-date-request.dto';
+import { DeliveryConfigDto } from './dto/delivery-config.dto';
 
 @UseGuards(RoleGuard)
 @Role(RoleEnum.ADMIN)
@@ -18,6 +19,11 @@ export class SettingsController {
     @Patch('cycle-start-date')
     async updateCycleStartDate(@Body() dto: CycleStartDateRequestDto) {
         return await this.settingsService.updateCycleStartDate(dto);
+    }
+
+    @Patch('delivery-config')
+    async updateDeliveryConfig(@Body() dto: DeliveryConfigDto) {
+        return await this.settingsService.updateDeliveryConfig(dto);
     }
 
     @Patch('contact')

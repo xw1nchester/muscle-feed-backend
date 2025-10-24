@@ -1,3 +1,4 @@
+// TODO: избавиться
 export const isDeliveryDate = (
     dateToCheck: Date,
     cycleStart: Date,

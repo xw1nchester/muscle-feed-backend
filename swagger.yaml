@@ -1038,11 +1038,20 @@ components:
         nameHe:
           type: string
           example: "חיפה"
+        code:
+          type: string
+          example: "150"
+      required:
+        - nameRu
+        - nameHe
     CityResponseDto:
       type: object
       properties:
         id:
           type: integer
+        code:
+          type: string
+          example: "150"
         name:
           type: object
           properties:
@@ -1089,6 +1098,11 @@ components:
           type: string
           format: date
           example: 2025-02-17
+        deliveryWeekdays:
+          description: Numbers from 1 to 7 (1 - Mon, 2 Tues, etc.). It may be empty.
+          type: array
+          items:
+            type: integer
         phoneNumber:
           type: string
         email:
@@ -3173,6 +3187,8 @@ paths:
                       properties:
                         id:
                           type: integer
+                        cityCode:
+                          type: string
                         menu:
                           $ref: "#/components/schemas/MenuResponseShortDto"
                         dishes:
@@ -3718,6 +3734,30 @@ paths:
                   type: string
                   format: date
                   example: 2025-02-17
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  settings:
+                    $ref: "#/components/schemas/SettingsResponseDto"
+  /admin/settings/delivery-config:
+    patch:
+      tags:
+        - Admin Settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                deliveryWeekdays:
+                  description: Numbers from 1 to 7 (1 - Mon, 2 Tues, etc.). It may be empty.
+                  type: array
+                  items:
+                    type: integer
       responses:
         "200":
           description: "Success"

@@ -10,7 +10,7 @@ import {
     Min
 } from 'class-validator';
 
-import { WeekDay } from '@order/enums/weekday.enum';
+import { WeekDay } from '@shared/enums/weekday.enum';
 
 export class OrderRequestDto {
     @Transform(({ value }) => Number(value))

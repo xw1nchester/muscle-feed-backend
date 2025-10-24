@@ -21,11 +21,13 @@ import { MenuTypeRequestDto } from '@admin/menu/dto/menu-type-request.dto';
 import { DishService } from '@dish/dish.service';
 import { PaginationDto } from '@dto/pagination.dto';
 import { RedisService } from '@redis/redis.service';
+import { SettingsService } from '@settings/settings.service';
 import {
     addDays,
     calculateDiscountedPrice,
     extractLocalizedFields,
-    getTodayZeroDate
+    getTodayZeroDate,
+    getWeekdayNumber
 } from '@utils';
 
 @Injectable()
@@ -35,6 +37,7 @@ export class MenuService {
     constructor(
         private readonly prismaService: PrismaService,
         private readonly dishService: DishService,
+        private readonly settingsService: SettingsService,
         private readonly configService: ConfigService,
         private readonly redisService: RedisService
     ) {}
@@ -705,10 +708,21 @@ export class MenuService {
     }
 
     async getPersonal(date: Date) {
+        const deliveryMap = await this.settingsService.getDeliveryMap();
+        const weekday = getWeekdayNumber(date);
+
+        if (!deliveryMap[weekday].isDelivery) {
+            throw new BadRequestException('Некорректная дата');
+        }
+
+        const feedStartDate = addDays(date, 1);
+        const limit = deliveryMap[weekday].daysToNext;
         const nameRu = this.configService.get('MOST_CALORIFIC_MENU_NAME');
 
         const searchParams = JSON.stringify({
             deliveryDate: date.toLocaleDateString(),
+            feedStartDate: feedStartDate.toLocaleDateString(),
+            limit,
             searchMenuName: nameRu
         });
 
@@ -741,12 +755,10 @@ export class MenuService {
             throw new NotFoundException('Меню не найдено');
         }
 
-        const nextDate = addDays(date, 1);
-
         const planData = await this.getMealPlan(
             individualOrderAvailableMenu.id,
-            nextDate,
-            2
+            feedStartDate,
+            limit
         );
 
         const dishes = Array.from(
