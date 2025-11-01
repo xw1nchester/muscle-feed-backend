@@ -470,6 +470,8 @@ export class MenuService {
 
         await this.validateMenuDto(dto);
 
+        this.logger.debug(`Updating menu with id ${id}`);
+
         const updatedMenu = await this.menuRepository.update({
             where: { id },
             data: {

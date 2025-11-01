@@ -323,6 +323,8 @@ export class OrderService {
                     }
                 });
 
+                this.logger.debug(`Order ${id} was created by client`);
+
                 await this.createOrderPlanByMenu({
                     tx,
                     startDate,
@@ -530,7 +532,11 @@ export class OrderService {
             freezes
         );
 
-        console.log({ orderDays });
+        // for logging
+        const debugOrderDays = orderDays.map(od => ({
+            ...od,
+            dishes: []
+        }));
 
         const planData = await this.menuService.getMealPlan(
             menuId,
@@ -564,19 +570,30 @@ export class OrderService {
                         orderDayDish.dishTypeId == dishTypeId &&
                         orderDayDish.dishId == dish.id
                 );
+                const isSelected = existingDish
+                    ? existingDish.isSelected
+                    : isPrimary;
 
                 await tx.orderDayDish.create({
                     data: {
                         orderDayId: createdOrderDay.id,
                         dishTypeId,
                         dishId: dish.id,
-                        isSelected: existingDish
-                            ? existingDish.isSelected
-                            : isPrimary
+                        isSelected
                     }
+                });
+
+                debugOrderDays[i].dishes.push({
+                    dishType: dish.dishType.nameRu,
+                    dish: dish.nameRu,
+                    isSelected
                 });
             }
         }
+
+        this.logger.debug(
+            `Saved dishes of the order ${orderId}: ${JSON.stringify(debugOrderDays)}`
+        );
     }
 
     private getStatusesConditions() {
@@ -929,6 +946,8 @@ export class OrderService {
                     }
                 });
 
+                this.logger.debug(`Order ${id} was created by admin`);
+
                 if (menuId != undefined) {
                     await this.createOrderPlanByMenu({
                         tx,
@@ -1101,6 +1120,8 @@ export class OrderService {
                     }
                 });
 
+                this.logger.debug(`Order ${id} was updated by admin`);
+
                 if (!existingOrder.isIndividual) {
                     await this.createOrderPlanByMenu({
                         tx,
@@ -1242,7 +1263,7 @@ export class OrderService {
             select: {
                 isSelected: true,
                 dish: { include: { dishType: true } },
-                orderDay: { select: { date: true } }
+                orderDay: { select: { date: true, orderId: true } }
             }
         });
 
@@ -1265,6 +1286,13 @@ export class OrderService {
         }
 
         if (!existingOrderDish.isSelected) {
+            const actor = userId ? 'client' : 'admin';
+            const { orderId, date } = existingOrderDish.orderDay;
+            const { dish } = existingOrderDish;
+            this.logger.debug(
+                `Replacements of dishes in the order ${orderId} by ${actor} ${JSON.stringify({ date, dishType: dish.dishType.nameRu, selectedDish: dish.nameRu })}`
+            );
+
             await this.orderDayDishRepository.updateMany({
                 where: {
                     dishTypeId,
