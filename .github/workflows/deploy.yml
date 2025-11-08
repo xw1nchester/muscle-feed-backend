@@ -93,6 +93,7 @@ jobs:
           message: "❌ Tests failed! Check logs for details. 🛑"
 
   docker-push:
+    if: github.ref == 'refs/heads/dev'
     needs: test
     runs-on: ubuntu-latest
 

@@ -78,27 +78,32 @@ describe('OrderService', () => {
     describe('getDaysWithSkipInfo', () => {
         const deliveryMap: DeliveryMap = {
             '1': {
-                isDelivery: false
+                isDelivery: false,
+                daysToNext: 1
             },
             '2': {
                 isDelivery: true,
                 daysToNext: 2
             },
             '3': {
-                isDelivery: false
+                isDelivery: false,
+                daysToNext: 1
             },
             '4': {
                 isDelivery: true,
                 daysToNext: 5
             },
             '5': {
-                isDelivery: false
+                isDelivery: false,
+                daysToNext: 4
             },
             '6': {
-                isDelivery: false
+                isDelivery: false,
+                daysToNext: 3
             },
             '7': {
-                isDelivery: false
+                isDelivery: false,
+                daysToNext: 2
             }
         };
 
