@@ -140,7 +140,8 @@ jobs:
           message: "❌ Docker image push failed! Check logs. 🔥"
 
   deploy:
-    needs: docker-push
+    needs: [test, docker-push]
+    if: ${{ always() }}
     runs-on: ubuntu-latest
 
     steps:
