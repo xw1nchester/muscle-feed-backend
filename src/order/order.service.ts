@@ -533,14 +533,18 @@ export class OrderService {
         );
 
         // for logging
-        const debugOrderDays = orderDays.map(od => ({
-            ...od,
-            dishes: []
-        }));
+        const debugOrderDishes = orderDays.map(
+            ({ date, isSkipped, daySkipType }) => ({
+                date: date.toLocaleDateString(),
+                skip: Number(isSkipped),
+                skipType: daySkipType,
+                dishes: []
+            })
+        );
 
         const planData = await this.menuService.getMealPlan(
             menuId,
-            startDate,
+            orderDays[0].date,
             orderDays.length
         );
 
@@ -583,16 +587,16 @@ export class OrderService {
                     }
                 });
 
-                debugOrderDays[i].dishes.push({
-                    dishType: dish.dishType.nameRu,
-                    dish: dish.nameRu,
-                    isSelected
+                debugOrderDishes[i].dishes.push({
+                    type: dish.dishType.nameRu,
+                    dish: dish.nameRu.split(' ')[0],
+                    select: Number(isSelected)
                 });
             }
         }
 
         this.logger.debug(
-            `Saved dishes of the order ${orderId}: ${JSON.stringify(debugOrderDays)}`
+            `Saved dishes of the order ${orderId}: ${JSON.stringify(debugOrderDishes)}`
         );
     }
 
@@ -1022,12 +1026,7 @@ export class OrderService {
         }
 
         this.logger.debug(
-            'Order prolongation. Parameters: ' +
-                `oldOrderPrice=${price}, ` +
-                `newOrderPrice=${resolvedPrice}, ` +
-                `menuDiscount=${resolvedPrice - finalPrice}, ` +
-                `giftDaysCount=${giftDaysCount}, ` +
-                `finalPrice=${finalPrice}`
+            `Order ${id} prolongation ${JSON.stringify({ oldOrderPrice: price, newOrderPrice: resolvedPrice, menuDiscount: resolvedPrice - finalPrice, giftDaysCount, finalPrice })}`
         );
 
         return await this.adminCreate({
@@ -1447,7 +1446,7 @@ export class OrderService {
 
         const isDeliveryDate = await this.settingsService.isDeliveryDate(date);
 
-        if (date < nearestDeliveryDate || !isDeliveryDate) {
+        if (!isDeliveryDate || date < nearestDeliveryDate) {
             throw new BadRequestException({
                 message: {
                     ru: 'Некорректная дата начала заказа',
@@ -1500,40 +1499,47 @@ export class OrderService {
             );
         }
 
-        const { id: orderId } = await this.orderRepository.create({
-            data: {
-                ...rest,
-                userId,
-                price: totalPrice,
-                finalPrice,
-                promocodeDiscount: totalPrice - finalPrice,
-                isIndividual: true
-            }
-        });
-
-        // день доставки
-        await this.orderDayRepository.create({
-            data: {
-                date,
-                orderId,
-                isSkipped: true,
-                daySkipType: DaySkipType.DELIVERY_ONLY
-            }
-        });
-
-        // день питания
-        await this.orderDayRepository.create({
-            data: {
-                date: addDays(date, 1),
-                orderId,
-                orderDayDishes: {
-                    create: existingAvailableDishes.map(({ id: dishId }) => ({
-                        dishId,
-                        isSelected: true,
-                        count: dishes.find(dish => dish.id == dishId).count
-                    }))
+        const orderId = await this.prismaService.$transaction(async tx => {
+            const { id: orderId } = await tx.order.create({
+                data: {
+                    ...rest,
+                    userId,
+                    price: totalPrice,
+                    finalPrice,
+                    promocodeDiscount: totalPrice - finalPrice,
+                    isIndividual: true
                 }
-            }
+            });
+
+            // день доставки
+            await tx.orderDay.create({
+                data: {
+                    date,
+                    orderId,
+                    isSkipped: true,
+                    daySkipType: DaySkipType.DELIVERY_ONLY
+                }
+            });
+
+            // день питания
+            await tx.orderDay.create({
+                data: {
+                    date: addDays(date, 1),
+                    orderId,
+                    orderDayDishes: {
+                        create: existingAvailableDishes.map(
+                            ({ id: dishId }) => ({
+                                dishId,
+                                isSelected: true,
+                                count: dishes.find(dish => dish.id == dishId)
+                                    .count
+                            })
+                        )
+                    }
+                }
+            });
+
+            return orderId;
         });
 
         return await this.createDtoById(orderId);

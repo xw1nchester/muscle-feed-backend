@@ -2,7 +2,7 @@ import { WeekDay } from '@shared/enums/weekday.enum';
 
 interface DeliveryInfo {
     isDelivery: boolean;
-    daysToNext?: number;
+    daysToNext: number;
 }
 
 export type DeliveryMap = {

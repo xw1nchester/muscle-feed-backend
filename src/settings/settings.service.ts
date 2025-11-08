@@ -99,14 +99,13 @@ export class SettingsService {
         const deliveryMap = {} as DeliveryMap;
 
         for (let day = 1; day <= 7; day++) {
-            if (deliveryWeekdays.includes(day)) {
-                const daysToNext = deliveryWeekdays
-                    .map(d => (d > day ? d - day : d + 7 - day))
-                    .sort((a, b) => a - b)[0];
-                deliveryMap[day] = { isDelivery: true, daysToNext };
-            } else {
-                deliveryMap[day] = { isDelivery: false };
-            }
+            const daysToNext = deliveryWeekdays
+                .map(d => (d > day ? d - day : d + 7 - day))
+                .sort((a, b) => a - b)[0];
+            deliveryMap[day] = {
+                isDelivery: deliveryWeekdays.includes(day),
+                daysToNext
+            };
         }
 
         return deliveryMap;
