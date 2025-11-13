@@ -40,6 +40,7 @@ interface getDaysWithSkipInfoTestCase {
     expected: getDaysWithSkipInfoInputOutputItem[];
 }
 
+// npm run test order.service
 describe('OrderService', () => {
     let orderService: OrderService;
 
@@ -47,23 +48,45 @@ describe('OrderService', () => {
         const module: TestingModule = await Test.createTestingModule({
             providers: [
                 OrderService,
-                PrismaService,
-                MenuService,
-                CityService,
-                UserService,
-                DishService,
-                PromocodeService,
-                ConfigService,
-                SettingsService,
-                UploadService,
+                {
+                    provide: PrismaService,
+                    useValue: {}
+                },
+                {
+                    provide: MenuService,
+                    useValue: {}
+                },
+                {
+                    provide: CityService,
+                    useValue: {}
+                },
+                {
+                    provide: UserService,
+                    useValue: {}
+                },
+                {
+                    provide: DishService,
+                    useValue: {}
+                },
+                {
+                    provide: PromocodeService,
+                    useValue: {}
+                },
+                {
+                    provide: ConfigService,
+                    useValue: {}
+                },
+                {
+                    provide: SettingsService,
+                    useValue: {}
+                },
+                {
+                    provide: UploadService,
+                    useValue: {}
+                },
                 {
                     provide: RedisService,
-                    useValue: {
-                        get: jest.fn(),
-                        set: jest.fn(),
-                        del: jest.fn(),
-                        clear: jest.fn()
-                    }
+                    useValue: {}
                 }
             ]
         }).compile();
