@@ -719,7 +719,7 @@ export class MenuService {
 
         const feedStartDate = addDays(date, 1);
         const limit = deliveryMap[weekday].daysToNext;
-        const nameRu = this.configService.get('INDIVIDUAL_ORDER_MENU_NAME');
+        const nameRu = this.configService.get('MOST_CALORIFIC_MENU_NAME');
 
         const searchParams = JSON.stringify({
             deliveryDate: date.toLocaleDateString(),
