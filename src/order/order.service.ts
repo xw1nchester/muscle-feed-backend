@@ -1285,33 +1285,35 @@ export class OrderService {
         }
 
         if (!existingOrderDish.isSelected) {
-            const actor = userId ? 'client' : 'admin';
-            const { orderId, date } = existingOrderDish.orderDay;
-            const { dish } = existingOrderDish;
-            this.logger.debug(
-                `Replacements of dishes in the order ${orderId} by ${actor} ${JSON.stringify({ date, dishType: dish.dishType.nameRu, selectedDish: dish.nameRu })}`
-            );
+            await this.prismaService.$transaction(async tx => {
+                await tx.orderDayDish.updateMany({
+                    where: {
+                        dishTypeId,
+                        isSelected: true,
+                        orderDay: { id: dayId }
+                    },
+                    data: {
+                        isSelected: false
+                    }
+                });
 
-            await this.orderDayDishRepository.updateMany({
-                where: {
-                    dishTypeId,
-                    isSelected: true,
-                    orderDay: { id: dayId }
-                },
-                data: {
-                    isSelected: false
-                }
-            });
+                await tx.orderDayDish.updateMany({
+                    where: {
+                        dishTypeId,
+                        dishId,
+                        orderDay: { id: dayId }
+                    },
+                    data: {
+                        isSelected: true
+                    }
+                });
 
-            await this.orderDayDishRepository.updateMany({
-                where: {
-                    dishTypeId,
-                    dishId,
-                    orderDay: { id: dayId }
-                },
-                data: {
-                    isSelected: true
-                }
+                const actor = userId ? 'client' : 'admin';
+                const { orderId, date } = existingOrderDish.orderDay;
+                const { dish } = existingOrderDish;
+                this.logger.debug(
+                    `Replacements of dishes in the order ${orderId} by ${actor} ${JSON.stringify({ date, dishType: dish.dishType.nameRu, selectedDish: dish.nameRu })}`
+                );
             });
         }
 
