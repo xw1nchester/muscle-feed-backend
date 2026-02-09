@@ -137,7 +137,7 @@ export class DishService {
     }) {
         const where = {
             ...(isPublished != undefined && { isPublished }),
-            ...(search != undefined && {
+            ...(search && {
                 adminName: {
                     contains: search,
                     mode: 'insensitive'
