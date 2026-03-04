@@ -406,7 +406,7 @@ export class MenuService {
         return new PaginationDto('menus', menus, totalCount, limit, page);
     }
 
-    async getAdminDtoById(id: number) {
+    async findByIdWithRelations(id: number) {
         const existingMenu = await this.menuRepository.findFirst({
             where: { id },
             include: {
@@ -439,6 +439,16 @@ export class MenuService {
                 }
             }
         });
+
+        if (!existingMenu) {
+            throw new NotFoundException('Меню не найдено');
+        }
+
+        return existingMenu;
+    }
+
+    async getAdminDtoById(id: number) {
+        const existingMenu = await this.findByIdWithRelations(id);
 
         const localizedFields = extractLocalizedFields(existingMenu);
 
@@ -529,6 +539,23 @@ export class MenuService {
         await this.redisService.clear();
 
         return { menu: this.createDto(existingMenu) };
+    }
+
+    async copy(id: number) {
+        const existingMenu = await this.findByIdWithRelations(id);
+
+        const dto: MenuRequestDto = {
+            ...existingMenu,
+            isPublished: false,
+            adminName: `${existingMenu.adminName} (Копия)`,
+            days: existingMenu.menuDays.map(menuDay => ({
+                number: menuDay.day,
+                dishes: menuDay.menuDayDishes
+            })),
+            prices: existingMenu.menuPrices
+        };
+
+        return await this.create(dto);
     }
 
     async findPublishedByTypeId(

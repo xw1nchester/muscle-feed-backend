@@ -98,4 +98,9 @@ export class MenuController {
     async delete(@Param('id', ParseIntPipe) id: number) {
         return await this.menuService.delete(id);
     }
+
+    @Post(':id/copy')
+    async copy(@Param('id', ParseIntPipe) id: number) {
+        return await this.menuService.copy(id);
+    }
 }
