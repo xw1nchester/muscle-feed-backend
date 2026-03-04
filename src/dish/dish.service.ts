@@ -268,13 +268,13 @@ export class DishService {
         } = await this.getById(id);
         /* eslint-enable @typescript-eslint/no-unused-vars */
 
-        const createdDish = await this.dishRepository.create({
+        const copiedDish = await this.dishRepository.create({
             data: rest,
             include: {
                 dishType: true
             }
         });
 
-        return { dish: this.createDto(createdDish) };
+        return { dish: this.createDto(copiedDish) };
     }
 }
