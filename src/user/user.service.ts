@@ -14,6 +14,7 @@ import { RegisterRequestDto } from '@auth/dto/register-request.dto';
 import { JwtPayload } from '@auth/interfaces';
 import { CityService } from '@city/city.service';
 import { PaginationDto } from '@dto/pagination.dto';
+import { UploadService } from '@upload/upload.service';
 
 import { AddressRequestDto } from './dto/address-request.dto';
 import { ProfileRequestDto } from './dto/profile-request.dto';
@@ -22,7 +23,8 @@ import { ProfileRequestDto } from './dto/profile-request.dto';
 export class UserService {
     constructor(
         private readonly prismaService: PrismaService,
-        private readonly cityService: CityService
+        private readonly cityService: CityService,
+        private readonly uploadService: UploadService
     ) {}
 
     async getById(id: number) {
@@ -60,7 +62,8 @@ export class UserService {
             firstName,
             lastName,
             phone,
-            allergies
+            allergies,
+            avatar
         } = user;
 
         return {
@@ -71,7 +74,8 @@ export class UserService {
             firstName,
             lastName,
             phone,
-            allergies
+            allergies,
+            avatar
         };
     }
 
@@ -258,6 +262,36 @@ export class UserService {
         });
 
         return { address: this.createAddressDto(updatedAddress) };
+    }
+
+    async updateAvatar(userId: number, avatar: string) {
+        const user = await this.getById(userId);
+
+        await this.prismaService.user.update({
+            where: { id: userId },
+            data: { avatar }
+        });
+
+        if (user.avatar && avatar != user.avatar) {
+            this.uploadService.delete(user.avatar);
+        }
+
+        return await this.getDtoById(userId);
+    }
+
+    async deleteAvatar(userId: number) {
+        const user = await this.getById(userId);
+
+        await this.prismaService.user.update({
+            where: { id: userId },
+            data: { avatar: null }
+        });
+
+        if (user.avatar) {
+            this.uploadService.delete(user.avatar);
+        }
+
+        return await this.getDtoById(userId);
     }
 
     async find(page: number, limit: number) {

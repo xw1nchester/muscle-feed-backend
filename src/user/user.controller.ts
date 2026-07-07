@@ -13,6 +13,7 @@ import { CurrentUser } from '@auth/decorators';
 import { JwtPayload } from '@auth/interfaces';
 
 import { AddressRequestDto } from './dto/address-request.dto';
+import { AvatarRequestDto } from './dto/avatar-request.dto';
 import { ProfileRequestDto } from './dto/profile-request.dto';
 import { UserService } from './user.service';
 
@@ -69,5 +70,18 @@ export class UserController {
         @CurrentUser() user: JwtPayload
     ) {
         return await this.userService.togglePrimaryAddress(id, user.id);
+    }
+
+    @Patch('avatar')
+    async updateAvatar(
+        @CurrentUser() user: JwtPayload,
+        @Body() dto: AvatarRequestDto
+    ) {
+        return await this.userService.updateAvatar(user.id, dto.avatar);
+    }
+
+    @Delete('avatar')
+    async deleteAvatar(@CurrentUser() user: JwtPayload) {
+        return await this.userService.deleteAvatar(user.id);
     }
 }

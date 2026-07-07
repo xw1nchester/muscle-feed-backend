@@ -1,4 +1,4 @@
-# Muscle Feed – Сервис доставки питания
+# Серверная часть food delivery платформы Muscle Feed
 
 ![CI/CD Status](https://github.com/vetrovegor/muscle-feed-backend/actions/workflows/deploy.yml/badge.svg)
 

@@ -39,6 +39,7 @@ export class RedisService {
     async clear() {
         try {
             await this.cacheManager.clear();
+            this.logger.debug('cache was cleared');
         } catch (error) {
             this.logger.error('failed to clear all cache', error.stack);
         }

@@ -3,13 +3,13 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 import { Dish, DishType, Prisma } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { DishRequestDto } from '@admin/dish/dto/dish-request.dto';
 import { PaginationDto } from '@dto/pagination.dto';
+import { RedisService } from '@redis/redis.service';
 import { UploadService } from '@upload/upload.service';
 import { extractLocalizedFields } from '@utils';
 
@@ -18,7 +18,7 @@ export class DishService {
     constructor(
         private readonly prismaService: PrismaService,
         private readonly uploadService: UploadService,
-        private readonly configService: ConfigService
+        private readonly redisService: RedisService
     ) {}
 
     private get dishTypeRepository() {
@@ -184,6 +184,8 @@ export class DishService {
         if (picture != dto.picture && dishesWithPictureCount == 0) {
             this.uploadService.delete(picture);
         }
+
+        await this.redisService.clear();
 
         return { dish: this.createDto(updatedDish) };
     }

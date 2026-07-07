@@ -588,7 +588,10 @@ export class OrderService {
                 });
 
                 debugOrderDishes[i].dishes.push({
-                    type: dish.dishType.nameRu,
+                    type: dish.dishType.nameRu
+                        .split(' ')
+                        .map(w => w[0].toUpperCase())
+                        .join('_'),
                     dish: dish.nameRu.split(' ')[0],
                     select: Number(isSelected)
                 });
