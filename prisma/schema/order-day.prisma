@@ -7,5 +7,6 @@ model OrderDay {
     orderId        Int            @map("order_id")
     orderDayDishes OrderDayDish[]
 
+    @@index([date, orderId], map: "idx_order_days_date_order_id")
     @@map("order_days")
 }

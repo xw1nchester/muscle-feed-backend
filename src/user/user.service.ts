@@ -106,6 +106,19 @@ export class UserService {
     }
 
     async updateProfile(id: number, dto: ProfileRequestDto) {
+        const existingUser = await this.prismaService.user.findFirst({
+            where: { email: dto.email, id: { not: id } }
+        });
+
+        if (existingUser) {
+            throw new BadRequestException({
+                message: {
+                    ru: 'Пользователь с таким email уже существует',
+                    he: 'משתמש עם כתובת דוא"ל זו כבר קיים.'
+                }
+            });
+        }
+
         const updatedUser = await this.prismaService.user.update({
             where: { id },
             data: dto
@@ -115,16 +128,27 @@ export class UserService {
     }
 
     createAddressDto(address: Address & { city: City }) {
-        const { id, city, street, house, floor, apartment, isPrimary } =
-            address;
+        const {
+            id,
+            name,
+            city,
+            street,
+            house,
+            floor,
+            apartment,
+            comment,
+            isPrimary
+        } = address;
 
         return {
             id,
+            name,
             city: this.cityService.createDto(city),
             street,
             house,
             floor,
             apartment,
+            comment,
             isPrimary
         };
     }
@@ -331,6 +355,19 @@ export class UserService {
             throw new BadRequestException(
                 'Нельзя забрать роль администратора у самого себя'
             );
+        }
+
+        const existingUserWithEmail = await this.prismaService.user.findFirst({
+            where: { email: dto.email, id: { not: id } }
+        });
+
+        if (existingUserWithEmail) {
+            throw new BadRequestException({
+                message: {
+                    ru: 'Пользователь с таким email уже существует',
+                    he: 'משתמש עם כתובת דוא"ל זו כבר קיים.'
+                }
+            });
         }
 
         const updatedUser = await this.prismaService.user.update({

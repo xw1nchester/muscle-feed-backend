@@ -9,5 +9,6 @@ model OrderDayDish {
     dish       Dish      @relation(fields: [dishId], references: [id], onDelete: Cascade)
     dishId     Int       @map("dish_id")
 
+    @@index([orderDayId, isSelected], map: "idx_order_day_dishes_order_day_selected")
     @@map("order_day_dishes")
 }

@@ -2,7 +2,9 @@ import { IsArray, IsBoolean, IsEnum } from 'class-validator';
 
 import { Role } from '@prisma/client';
 
-export class UpdateUserDto {
+import { ProfileRequestDto } from '@user/dto/profile-request.dto';
+
+export class UpdateUserDto extends ProfileRequestDto {
     @IsBoolean()
     isVerified: boolean;
 

@@ -137,6 +137,9 @@ components:
       properties:
         cityId:
           type: number
+        name:
+          type: string
+          example: Офис
         street:
           type: string
           example: ул. Советская
@@ -147,6 +150,9 @@ components:
           type: integer
         apartment:
           type: integer
+        comment:
+          type: string
+          example: Позвонить за 15 минут
       required:
         - city
         - street
@@ -158,6 +164,9 @@ components:
           type: integer
         city:
           $ref: "#/components/schemas/CityResponseDto"
+        name:
+            type: string
+            example: Офис
         street:
           type: string
           example: ул. Советская
@@ -168,6 +177,9 @@ components:
           type: integer
         apartment:
           type: integer
+        comment:
+            type: string
+            example: Позвонить за 15 минут
         isPrimary:
           type: boolean
     ReviewResponseDto:
@@ -1647,6 +1659,9 @@ paths:
           application/json:
             schema:
               properties:
+                email:
+                  type: string
+                  format: email
                 firstName:
                   type: string
                   example: Rob
@@ -3739,6 +3754,21 @@ paths:
           application/json:
             schema:
               properties:
+                email:
+                  type: string
+                  format: email
+                firstName:
+                  type: string
+                  example: Rob
+                lastName:
+                  type: string
+                  example: Top
+                phone:
+                  type: string
+                  example: +79123456789
+                allergies:
+                  type: string
+                  example: "Морковь"
                 isVerified:
                   type: boolean
                 roles:
