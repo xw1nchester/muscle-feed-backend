@@ -1,5 +1,6 @@
 model Review {
     id          Int      @id @default(autoincrement())
+    rating      Int?
     picture     String?
     authorRu    String?  @map("author_ru")
     authorHe    String?  @map("author_he")

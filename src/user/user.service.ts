@@ -214,6 +214,11 @@ export class UserService {
         return address;
     }
 
+    async getUserAddressDto(id: number, userId: number) {
+        const address = await this.getUserAddress(id, userId);
+        return { address: this.createAddressDto(address) };
+    }
+
     async updateAddress(
         addressId: number,
         userId: number,

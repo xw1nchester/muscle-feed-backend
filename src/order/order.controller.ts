@@ -48,6 +48,11 @@ export class OrderController {
         return await this.orderService.create(dto, user.id);
     }
 
+    @Get('stats')
+    async getStats(@CurrentUser() user: JwtPayload) {
+        return await this.orderService.getStats(user.id);
+    }
+
     @Get()
     async find(
         @CurrentUser() user: JwtPayload,

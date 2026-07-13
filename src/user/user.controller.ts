@@ -56,6 +56,14 @@ export class UserController {
         return await this.userService.updateAddress(id, user.id, dto);
     }
 
+    @Get('address/:id')
+    async getUserAddressDto(
+        @Param('id', ParseIntPipe) id: number,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.userService.getUserAddressDto(id, user.id);
+    }
+
     @Delete('address/:id')
     async deleteAddress(
         @Param('id', ParseIntPipe) id: number,

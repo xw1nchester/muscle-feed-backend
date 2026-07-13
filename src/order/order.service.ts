@@ -688,7 +688,7 @@ export class OrderService {
         };
     }
 
-    async getStats() {
+    async getStats(userId?: number) {
         const {
             activeCondition,
             individualCondition,
@@ -699,6 +699,20 @@ export class OrderService {
             terminatingCondition,
             unprocessedCondition
         } = this.getStatusesConditions();
+
+        const userFilter = userId
+            ? {
+                  userId
+              }
+            : {};
+
+        const count = (condition = {}) =>
+            this.orderRepository.count({
+                where: {
+                    ...condition,
+                    ...userFilter
+                }
+            });
 
         const [
             allCount,
@@ -711,15 +725,15 @@ export class OrderService {
             terminatingCount,
             unprocessedCount
         ] = await Promise.all([
-            this.orderRepository.count(),
-            this.orderRepository.count({ where: activeCondition }),
-            this.orderRepository.count({ where: individualCondition }),
-            this.orderRepository.count({ where: frozenCondition }),
-            this.orderRepository.count({ where: unpaidCondition }),
-            this.orderRepository.count({ where: completedCondition }),
-            this.orderRepository.count({ where: pendingCondition }),
-            this.orderRepository.count({ where: terminatingCondition }),
-            this.orderRepository.count({ where: unprocessedCondition })
+            count(),
+            count(activeCondition),
+            count(individualCondition),
+            count(frozenCondition),
+            count(unpaidCondition),
+            count(completedCondition),
+            count(pendingCondition),
+            count(terminatingCondition),
+            count(unprocessedCondition)
         ]);
 
         return {

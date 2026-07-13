@@ -1,6 +1,20 @@
-import { IsBoolean, IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import {
+    IsBoolean,
+    IsNotEmpty,
+    IsNumber,
+    IsString,
+    Max,
+    Min
+} from 'class-validator';
 
 export class ReviewRequestDto {
+    @IsNumber()
+    @Transform(({ value }) => Number(value))
+    @Min(1)
+    @Max(5)
+    rating: number;
+
     @IsString()
     @IsNotEmpty()
     picture: string;

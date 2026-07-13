@@ -30,12 +30,14 @@ export class ReviewService {
     }
 
     createDto(review: Review) {
-        const { id, picture, isPublished, createdAt, updatedAt } = review;
+        const { id, rating, picture, isPublished, createdAt, updatedAt } =
+            review;
 
         const localizedFields = extractLocalizedFields(review);
 
         return {
             id,
+            rating,
             picture,
             ...localizedFields,
             isPublished,
@@ -44,9 +46,16 @@ export class ReviewService {
         };
     }
 
-    async create({ picture, author, text, language }: ReviewRequestDto) {
+    async create({
+        rating,
+        picture,
+        author,
+        text,
+        language
+    }: ReviewRequestDto) {
         const createdReview = await this.prismaService.review.create({
             data: {
+                rating,
                 picture,
                 ...(language == Language.RU
                     ? {
