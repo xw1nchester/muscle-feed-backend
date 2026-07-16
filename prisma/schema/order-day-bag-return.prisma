@@ -1,0 +1,16 @@
+enum BagReturnStatus {
+    REPORTED
+    CONFIRMED
+    REJECTED
+}
+
+model OrderDayBagReturn {
+    id         Int             @id @default(autoincrement())
+    status     BagReturnStatus @default(REPORTED)
+    createdAt  DateTime        @default(now()) @map("created_at")
+    updatedAt  DateTime        @updatedAt @map("updated_at")
+    orderDay   OrderDay        @relation(fields: [orderDayId], references: [id], onDelete: Cascade)
+    orderDayId Int             @unique @map("order_day_id")
+
+    @@map("order_day_bag_returns")
+}

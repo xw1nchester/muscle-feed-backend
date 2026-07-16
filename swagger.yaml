@@ -36,6 +36,8 @@ components:
         avatar:
           type: string
           example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        bonusPoints:
+          type: integer
     AuthDto:
       type: object
       properties:
@@ -165,8 +167,8 @@ components:
         city:
           $ref: "#/components/schemas/CityResponseDto"
         name:
-            type: string
-            example: Офис
+          type: string
+          example: Офис
         street:
           type: string
           example: ул. Советская
@@ -178,8 +180,8 @@ components:
         apartment:
           type: integer
         comment:
-            type: string
-            example: Позвонить за 15 минут
+          type: string
+          example: Позвонить за 15 минут
         isPrimary:
           type: boolean
     ReviewResponseDto:
@@ -968,6 +970,36 @@ components:
           format: date-time
         order:
           $ref: "#/components/schemas/OrderRequestDto"
+    BagReturnShortDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        status:
+          enum:
+            - REPORTED
+            - CONFIRMED
+            - REJECTED
+        createdAt:
+          type: string
+          format: date-time
+        updateddAt:
+          type: string
+          format: date-time
+    BagReturnDto:
+      allOf:
+        - $ref: "#/components/schemas/BagReturnShortDto"
+        - properties:
+            orderDay:
+              type: object
+              properties:
+                id:
+                  type: integer
+                date:
+                  type: string
+                  format: date-time
+            order:
+              $ref: "#/components/schemas/OrderResponseDto"
     OrderDayDto:
       type: object
       properties:
@@ -984,6 +1016,8 @@ components:
             - WEEKDAY_SKIPPED
             - FROZEN
             - DELIVERY_ONLY
+        bagReturn:
+          $ref: "#/components/schemas/BagReturnShortDto"
     FaqCategoryRequestDto:
       type: object
       properties:
@@ -3070,6 +3104,81 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/DishResponseDto"
+  /api/admin/order/bag-return:
+    get:
+      tags:
+        - Admin Order
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      bagReturns:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/BagReturnDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/order/bag-return/unprocessed-count:
+    get:
+      tags:
+        - Admin Order
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  count:
+                    type: integer
+  /api/admin/order/bag-return/{bagReturnId}:
+    get:
+      tags:
+        - Admin Order
+      parameters:
+        - name: bagReturnId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  count:
+                    $ref: "#/components/schemas/BagReturnDto"
+    patch:
+      tags:
+        - Admin Order
+      parameters:
+        - name: bagReturnId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - REPORTED
+                    - CONFIRMED
+                    - REJECTED
+      responses:
+        "200":
+          description: "Success"
   /api/admin/order/select:
     post:
       tags:
@@ -3450,7 +3559,7 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/PaymentMethodResponseDto"
-  
+
   /api/order/stats:
     get:
       tags:
@@ -3679,6 +3788,31 @@ paths:
                     type: array
                     items:
                       $ref: "#/components/schemas/DishResponseDto"
+  /api/order/day/{dayId}/bag-return:
+    post:
+      tags:
+        - Order
+      parameters:
+        - name: dayId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+    delete:
+      tags:
+        - Order
+      parameters:
+        - name: dayId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
   /api/order/select:
     post:
       tags:
@@ -3818,6 +3952,8 @@ paths:
                     enum:
                       - MODERATOR
                       - ADMIN
+                bonusPoints:
+                  type: integer
       responses:
         "200":
           description: "Success"

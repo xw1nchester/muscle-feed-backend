@@ -42,11 +42,11 @@ import {
     getWeekdayNumber
 } from '@utils';
 
-import { IndividualOrderRequestDto } from './dto/individual-order-request.dto';
-import { OrderChangeRequestDto } from './dto/order-change-request.dto';
-import { OrderRequestDto } from './dto/order-request.dto';
-import { SelectDishDto } from './dto/select-dish.dto';
-import { OrderStatus } from './enums/order-status.enum';
+import { IndividualOrderRequestDto } from '../dto/individual-order-request.dto';
+import { OrderChangeRequestDto } from '../dto/order-change-request.dto';
+import { OrderRequestDto } from '../dto/order-request.dto';
+import { SelectDishDto } from '../dto/select-dish.dto';
+import { OrderStatus } from '../enums/order-status.enum';
 
 const ORDER_TRANSACTION_TIMEOUT_MS = 30000;
 
@@ -603,7 +603,7 @@ export class OrderService {
         );
     }
 
-    private getStatusesConditions() {
+    getStatusesConditions() {
         const today = getTodayZeroDate();
 
         const expiryDate = new Date(today);
@@ -1176,7 +1176,15 @@ export class OrderService {
                         id: true,
                         date: true,
                         isSkipped: true,
-                        daySkipType: true
+                        daySkipType: true,
+                        bagReturn: {
+                            select: {
+                                id: true,
+                                status: true,
+                                createdAt: true,
+                                updatedAt: true
+                            }
+                        }
                     },
                     orderBy: { date: 'asc' }
                 }

@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsEnum } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsArray, IsBoolean, IsEnum, IsNumber, Min } from 'class-validator';
 
 import { Role } from '@prisma/client';
 
@@ -11,4 +12,9 @@ export class UpdateUserDto extends ProfileRequestDto {
     @IsArray()
     @IsEnum(Role, { each: true })
     roles: Role[];
+
+    @Transform(({ value }) => Number(value))
+    @IsNumber()
+    @Min(0)
+    bonusPoints: number;
 }

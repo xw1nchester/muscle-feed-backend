@@ -3,6 +3,7 @@ import {
     Body,
     Controller,
     DefaultValuePipe,
+    Delete,
     Get,
     Param,
     ParseEnumPipe,
@@ -22,12 +23,16 @@ import { OrderChangeRequestDto } from './dto/order-change-request.dto';
 import { OrderRequestDto } from './dto/order-request.dto';
 import { SelectDishDto } from './dto/select-dish.dto';
 import { OrderStatus } from './enums/order-status.enum';
-import { OrderService } from './order.service';
 import { OrderPipe } from './pipes/order.pipe';
+import { BagReturnService } from './services/bag-return.service';
+import { OrderService } from './services/order.service';
 
 @Controller('order')
 export class OrderController {
-    constructor(private readonly orderService: OrderService) {}
+    constructor(
+        private readonly orderService: OrderService,
+        private readonly bagReturnService: BagReturnService
+    ) {}
 
     @UseInterceptors(CacheInterceptor)
     @CacheTTL(0)
@@ -104,6 +109,22 @@ export class OrderController {
             dishTypeId,
             user.id
         );
+    }
+
+    @Post('day/:id/bag-return')
+    async reportBagReturn(
+        @Param('id', ParseIntPipe) dayId: number,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.bagReturnService.report(dayId, user.id);
+    }
+
+    @Delete('bag-return/:id')
+    async cancelBagReturn(
+        @Param('id', ParseIntPipe) id: number,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.bagReturnService.cancel(id, user.id);
     }
 
     @Post('select')

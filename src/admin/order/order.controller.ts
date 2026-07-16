@@ -19,11 +19,13 @@ import { Role } from '@auth/decorators';
 import { RoleGuard } from '@auth/guards/role.guard';
 import { SelectDishDto } from '@order/dto/select-dish.dto';
 import { OrderStatus } from '@order/enums/order-status.enum';
-import { OrderService } from '@order/order.service';
 import { OrderPipe } from '@order/pipes/order.pipe';
+import { BagReturnService } from '@order/services/bag-return.service';
+import { OrderService } from '@order/services/order.service';
 import { DateValidationPipe } from '@validators';
 
 import { AdminOrderRequestDto } from './dto/admin-order-request.dto';
+import { BagReturnRequestDto } from './dto/bag-return-request.dto';
 import { OrderChangeRequestUpdateDto } from './dto/order-change-request-update.dto';
 import { ValidateFreezeDates } from './pipes/validate-freeze-dates.pipe';
 
@@ -31,7 +33,10 @@ import { ValidateFreezeDates } from './pipes/validate-freeze-dates.pipe';
 @Role(RoleEnum.MODERATOR)
 @Controller('admin/order')
 export class OrderController {
-    constructor(private readonly orderService: OrderService) {}
+    constructor(
+        private readonly orderService: OrderService,
+        private readonly bagReturnService: BagReturnService
+    ) {}
 
     @Get('stats')
     async getStats() {
@@ -88,6 +93,32 @@ export class OrderController {
             startDate,
             endDate
         );
+    }
+
+    @Get('bag-return')
+    async getBagReturns(
+        @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
+        @Query('limit', new DefaultValuePipe(5), ParseIntPipe) limit: number
+    ) {
+        return await this.bagReturnService.findAll(page, limit);
+    }
+
+    @Get('bag-return/unprocessed-count')
+    async getUnprocessedBagReturnCount() {
+        return await this.bagReturnService.getUnprocessedBagReturnCount();
+    }
+
+    @Get('bag-return/:id')
+    async getBagReturnDtoById(@Param('id', ParseIntPipe) id: number) {
+        return await this.bagReturnService.getDtoById(id);
+    }
+
+    @Patch('bag-return/:id')
+    async updateBagReturnStatus(
+        @Param('id', ParseIntPipe) id: number,
+        @Body() dto: BagReturnRequestDto
+    ) {
+        return await this.bagReturnService.updateStatus(id, dto.status);
     }
 
     @Get(':id')

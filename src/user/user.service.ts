@@ -6,7 +6,7 @@ import {
     NotFoundException
 } from '@nestjs/common';
 
-import { Address, City, Role, User } from '@prisma/client';
+import { Address, City, Prisma, Role, User } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { UpdateUserDto } from '@admin/user/dto/update-user.dto';
@@ -54,28 +54,17 @@ export class UserService {
     }
 
     createDto(user: User) {
-        const {
-            id,
-            email,
-            isVerified,
-            roles,
-            firstName,
-            lastName,
-            phone,
-            allergies,
-            avatar
-        } = user;
-
         return {
-            id,
-            email,
-            isVerified,
-            roles,
-            firstName,
-            lastName,
-            phone,
-            allergies,
-            avatar
+            id: user.id,
+            email: user.email,
+            isVerified: user.isVerified,
+            roles: user.roles,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            phone: user.phone,
+            allergies: user.allergies,
+            avatar: user.avatar,
+            bonusPoints: user.bonusPoints
         };
     }
 
@@ -393,5 +382,12 @@ export class UserService {
         await this.prismaService.user.delete({ where: { id } });
 
         return { user: this.createDto(existingUser) };
+    }
+
+    async reward(tx: Prisma.TransactionClient, id: number, amount: number) {
+        await tx.user.update({
+            where: { id },
+            data: { bonusPoints: { increment: amount } }
+        });
     }
 }

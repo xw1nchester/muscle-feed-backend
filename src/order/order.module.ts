@@ -8,7 +8,8 @@ import { SettingsModule } from '@settings/settings.module';
 import { UserModule } from '@user/user.module';
 
 import { OrderController } from './order.controller';
-import { OrderService } from './order.service';
+import { BagReturnService } from './services/bag-return.service';
+import { OrderService } from './services/order.service';
 
 @Module({
     imports: [
@@ -20,7 +21,7 @@ import { OrderService } from './order.service';
         SettingsModule
     ],
     controllers: [OrderController],
-    providers: [OrderService],
-    exports: [OrderService]
+    providers: [OrderService, BagReturnService],
+    exports: [OrderService, BagReturnService]
 })
 export class OrderModule {}
