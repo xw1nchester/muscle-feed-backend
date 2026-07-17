@@ -5,8 +5,16 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
-import { Address, City, Prisma, Role, User } from '@prisma/client';
+import {
+    Address,
+    BagReturnStatus,
+    City,
+    Prisma,
+    Role,
+    User
+} from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { UpdateUserDto } from '@admin/user/dto/update-user.dto';
@@ -23,6 +31,7 @@ import { ProfileRequestDto } from './dto/profile-request.dto';
 export class UserService {
     constructor(
         private readonly prismaService: PrismaService,
+        private readonly configService: ConfigService,
         private readonly cityService: CityService,
         private readonly uploadService: UploadService
     ) {}
@@ -389,5 +398,22 @@ export class UserService {
             where: { id },
             data: { bonusPoints: { increment: amount } }
         });
+    }
+
+    async getUserLoyalty(id: number) {
+        const returnedBagsCount =
+            await this.prismaService.orderDayBagReturn.count({
+                where: {
+                    orderDay: { order: { userId: id } },
+                    status: BagReturnStatus.CONFIRMED
+                }
+            });
+
+        return {
+            returnedBagsCount,
+            earnedBonusForBagReturns:
+                returnedBagsCount *
+                Number(this.configService.get('BAG_RETURN_BONUS_AMOUNT'))
+        };
     }
 }

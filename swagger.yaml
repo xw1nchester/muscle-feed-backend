@@ -1887,6 +1887,21 @@ paths:
                 properties:
                   user:
                     $ref: "#/components/schemas/UserDto"
+  /api/loyalty:
+    get:
+      tags:
+        - User
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  returnedBagsCount:
+                    type: integer
+                  earnedBonusForBagReturns:
+                    type: integer
   /api/review:
     post:
       tags:
@@ -3154,7 +3169,7 @@ paths:
             application/json:
               schema:
                 properties:
-                  count:
+                  bagReturn:
                     $ref: "#/components/schemas/BagReturnDto"
     patch:
       tags:
@@ -3801,11 +3816,12 @@ paths:
       responses:
         "200":
           description: "Success"
+  /api/order/bag-return/{bagReturnId}:
     delete:
       tags:
         - Order
       parameters:
-        - name: dayId
+        - name: bagReturnId
           in: path
           required: true
           schema:
