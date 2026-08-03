@@ -160,7 +160,7 @@ jobs:
           username: ${{ secrets.DEVELOPMENT_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /var/www/muscle-backend
+            cd /srv/muscle
             docker compose pull
             docker compose up -d
 

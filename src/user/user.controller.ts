@@ -93,6 +93,7 @@ export class UserController {
         return await this.userService.deleteAvatar(user.id);
     }
 
+    // напришивается LoyaltyModule
     @Get('loyalty')
     async getUserLoyalty(@CurrentUser() user: JwtPayload) {
         return await this.userService.getUserLoyalty(user.id);

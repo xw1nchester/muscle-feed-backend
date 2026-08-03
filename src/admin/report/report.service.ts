@@ -218,11 +218,242 @@ export class ReportService {
             .send(buffer);
     }
 
+    // async getDishReport(res: Response, startDate: Date, endDate: Date) {
+    //     const distinctDishes = await this.prismaService.dish.findMany({
+    //         distinct: 'nameRu',
+    //         select: { nameRu: true }
+    //     });
+
+    //     const result: {
+    //         name: string;
+    //         menus: { name: string; count: number }[];
+    //         totalCount: number;
+    //     }[] = [];
+
+    //     for (const { nameRu } of distinctDishes) {
+    //         const orderDayDishes =
+    //             await this.prismaService.orderDayDish.findMany({
+    //                 where: {
+    //                     dish: { nameRu },
+    //                     isSelected: true,
+    //                     orderDay: {
+    //                         isSkipped: false,
+    //                         daySkipType: null,
+    //                         date: { gte: startDate, lte: endDate },
+    //                         order: {
+    //                             isProcessed: true,
+    //                             isCompleted: false
+    //                         }
+    //                     }
+    //                 },
+    //                 select: {
+    //                     count: true,
+    //                     orderDay: {
+    //                         select: {
+    //                             order: {
+    //                                 select: {
+    //                                     menu: { select: { nameRu: true } }
+    //                                 }
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             });
+
+    //         let totalCount = 0;
+
+    //         const menus = orderDayDishes.reduce((acc, item) => {
+    //             const name =
+    //                 item.orderDay.order?.menu?.nameRu ||
+    //                 this.configService.get('INDIVIDUAL_ORDER_NAME');
+    //             const existingItem = acc.find(el => el.name === name);
+
+    //             const { count } = item;
+
+    //             if (existingItem) {
+    //                 existingItem.count += count;
+    //             } else {
+    //                 acc.push({ name, count });
+    //             }
+
+    //             totalCount += count;
+
+    //             return acc;
+    //         }, []);
+
+    //         if (orderDayDishes.length > 0) {
+    //             result.push({ name: nameRu, menus, totalCount });
+    //         }
+    //     }
+
+    //     const workbook = new Workbook();
+
+    //     const worksheet = workbook.addWorksheet();
+
+    //     worksheet.columns = [
+    //         { header: 'Блюдо', key: 'dishName', width: 50 },
+    //         { header: 'План питания', key: 'menu', width: 50 },
+    //         { header: 'Количество', key: 'count', width: 12 },
+    //         { header: 'Всего', key: 'total', width: 6 }
+    //     ];
+
+    //     worksheet.spliceRows(1, 0, []);
+
+    //     const title = `Блюда ${startDate.toLocaleDateString()} - ${endDate.toLocaleDateString()}`;
+
+    //     const titleRow = worksheet.getRow(1);
+    //     titleRow.getCell(1).value = title;
+
+    //     worksheet.mergeCells(1, 1, 1, worksheet.columns.length);
+
+    //     titleRow.eachCell(cell => {
+    //         cell.border = {
+    //             top: { style: 'thin' },
+    //             left: { style: 'thin' },
+    //             bottom: { style: 'thin' },
+    //             right: { style: 'thin' }
+    //         };
+    //         cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    //     });
+
+    //     const headerRow = worksheet.getRow(2);
+
+    //     headerRow.eachCell(cell => {
+    //         cell.border = {
+    //             top: { style: 'thin' },
+    //             left: { style: 'thin' },
+    //             bottom: { style: 'thin' },
+    //             right: { style: 'thin' }
+    //         };
+    //         cell.font = { bold: true };
+    //         cell.alignment = { horizontal: 'center', vertical: 'middle' };
+    //     });
+
+    //     let currentRow = 3;
+
+    //     result.forEach(item => {
+    //         const rowSpan = item.menus.length;
+
+    //         item.menus.forEach((menu, index) => {
+    //             const addedRow = worksheet.addRow({
+    //                 dishName: item.name,
+    //                 menu: menu.name,
+    //                 count: menu.count,
+    //                 total: index === 0 ? item.totalCount : null
+    //             });
+
+    //             addedRow.eachCell(cell => {
+    //                 cell.border = {
+    //                     top: { style: 'thin' },
+    //                     left: { style: 'thin' },
+    //                     bottom: { style: 'thin' },
+    //                     right: { style: 'thin' }
+    //                 };
+    //                 cell.alignment = {
+    //                     horizontal: 'center',
+    //                     vertical: 'middle'
+    //                 };
+    //             });
+    //         });
+
+    //         if (rowSpan > 1) {
+    //             worksheet.mergeCells(
+    //                 currentRow,
+    //                 4,
+    //                 currentRow + rowSpan - 1,
+    //                 4
+    //             );
+    //         }
+
+    //         currentRow += rowSpan;
+    //     });
+
+    //     const buffer = await workbook.xlsx.writeBuffer();
+
+    //     return res
+    //         .set('Content-Disposition', `attachment; filename=dishes.xlsx`)
+    //         .send(buffer);
+    // }
+
     async getDishReport(res: Response, startDate: Date, endDate: Date) {
         const distinctDishes = await this.prismaService.dish.findMany({
             distinct: 'nameRu',
             select: { nameRu: true }
         });
+
+        const dishNames = distinctDishes.map(({ nameRu }) => nameRu);
+
+        const orderDayDishes = dishNames.length
+            ? await this.prismaService.orderDayDish.findMany({
+                  where: {
+                      dish: { nameRu: { in: dishNames } },
+                      isSelected: true,
+                      orderDay: {
+                          isSkipped: false,
+                          daySkipType: null,
+                          date: { gte: startDate, lte: endDate },
+                          order: {
+                              isProcessed: true,
+                              isCompleted: false
+                          }
+                      }
+                  },
+                  select: {
+                      count: true,
+                      dish: {
+                          select: {
+                              nameRu: true
+                          }
+                      },
+                      orderDay: {
+                          select: {
+                              order: {
+                                  select: {
+                                      menu: { select: { nameRu: true } }
+                                  }
+                              }
+                          }
+                      }
+                  }
+              })
+            : [];
+
+        const individualOrderName = this.configService.get<string>(
+            'INDIVIDUAL_ORDER_NAME'
+        );
+
+        const groupedByDishName = new Map<
+            string,
+            {
+                menus: { name: string; count: number }[];
+                totalCount: number;
+            }
+        >();
+
+        for (const item of orderDayDishes) {
+            const dishName = item.dish.nameRu;
+
+            let dishReport = groupedByDishName.get(dishName);
+
+            if (!dishReport) {
+                dishReport = { menus: [], totalCount: 0 };
+                groupedByDishName.set(dishName, dishReport);
+            }
+
+            const name =
+                item.orderDay.order?.menu?.nameRu || individualOrderName;
+            const existingItem = dishReport.menus.find(el => el.name === name);
+
+            const { count } = item;
+
+            if (existingItem) {
+                existingItem.count += count;
+            } else {
+                dishReport.menus.push({ name, count });
+            }
+
+            dishReport.totalCount += count;
+        }
 
         const result: {
             name: string;
@@ -231,58 +462,14 @@ export class ReportService {
         }[] = [];
 
         for (const { nameRu } of distinctDishes) {
-            const orderDayDishes =
-                await this.prismaService.orderDayDish.findMany({
-                    where: {
-                        dish: { nameRu },
-                        isSelected: true,
-                        orderDay: {
-                            isSkipped: false,
-                            daySkipType: null,
-                            date: { gte: startDate, lte: endDate },
-                            order: {
-                                isProcessed: true,
-                                isCompleted: false
-                            }
-                        }
-                    },
-                    select: {
-                        count: true,
-                        orderDay: {
-                            select: {
-                                order: {
-                                    select: {
-                                        menu: { select: { nameRu: true } }
-                                    }
-                                }
-                            }
-                        }
-                    }
+            const dishReport = groupedByDishName.get(nameRu);
+
+            if (dishReport) {
+                result.push({
+                    name: nameRu,
+                    menus: dishReport.menus,
+                    totalCount: dishReport.totalCount
                 });
-
-            let totalCount = 0;
-
-            const menus = orderDayDishes.reduce((acc, item) => {
-                const name =
-                    item.orderDay.order?.menu?.nameRu ||
-                    this.configService.get('INDIVIDUAL_ORDER_NAME');
-                const existingItem = acc.find(el => el.name === name);
-
-                const { count } = item;
-
-                if (existingItem) {
-                    existingItem.count += count;
-                } else {
-                    acc.push({ name, count });
-                }
-
-                totalCount += count;
-
-                return acc;
-            }, []);
-
-            if (orderDayDishes.length > 0) {
-                result.push({ name: nameRu, menus, totalCount });
             }
         }
 
