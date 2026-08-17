@@ -348,6 +348,108 @@ components:
         - durationHe
         - calories
         - isPublished
+    PromotionResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        picture:
+          type: string
+          example: http://153.80.247.94:3002/img/action-img.png
+        badgeText:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: 10%
+            he:
+              type: string
+              example: 10%
+        title:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Скидка 10% на месячный рацион
+            he:
+              type: string
+              example: 10% הנחה על תפריט חודשי
+        description:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Действует до 31 мая. На любую программу 28+ дней
+            he:
+              type: string
+              example: בתוקף עד 31 במאי. לכל תוכנית של 28+ ימים
+        actionType:
+          type: string
+          enum:
+            - ORDER
+            - REGISTER
+            - REVIEW
+            - NONE
+          example: ORDER
+        order:
+          type: integer
+          example: 1
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    PromotionRequestAdminDto:
+      type: object
+      properties:
+        picture:
+          type: string
+          example: http://153.80.247.94:3002/img/action-img.png
+        badgeTextRu:
+          type: string
+          example: 10%
+        badgeTextHe:
+          type: string
+          example: 10%
+        titleRu:
+          type: string
+          example: Скидка 10% на месячный рацион
+        titleHe:
+          type: string
+          example: 10% הנחה על תפריט חודשי
+        descriptionRu:
+          type: string
+          example: Действует до 31 мая. На любую программу 28+ дней
+        descriptionHe:
+          type: string
+          example: בתוקף עד 31 במאי. לכל תוכנית של 28+ ימים
+        actionType:
+          type: string
+          enum:
+            - ORDER
+            - REGISTER
+            - REVIEW
+            - NONE
+          example: ORDER
+        order:
+          type: integer
+          example: 1
+        isPublished:
+          type: boolean
+      required:
+        - picture
+        - badgeTextRu
+        - badgeTextHe
+        - titleRu
+        - titleHe
+        - descriptionRu
+        - descriptionHe
+        - actionType
+        - order
+        - isPublished
     DishRequestDto:
       type: object
       properties:
@@ -1361,6 +1463,11 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/BeforeAfterRequestAdminDto"
+    AdminPromotion:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PromotionRequestAdminDto"
     Dish:
       content:
         application/json:
@@ -2319,6 +2426,142 @@ paths:
                 properties:
                   beforeAfter:
                     $ref: "#/components/schemas/BeforeAfterResponseDto"
+  /api/promotion:
+    get:
+      tags:
+        - Promotion
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      promotions:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/PromotionResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/promotion:
+    post:
+      tags:
+        - Admin Promotion
+      requestBody:
+        $ref: "#/components/requestBodies/AdminPromotion"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  promotion:
+                    $ref: "#/components/schemas/PromotionResponseDto"
+    get:
+      tags:
+        - Admin Promotion
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: published
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      promotions:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/PromotionResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/promotion/{promotionId}:
+    get:
+      tags:
+        - Admin Promotion
+      parameters:
+        - name: promotionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  promotion:
+                    $ref: "#/components/schemas/PromotionResponseDto"
+    patch:
+      tags:
+        - Admin Promotion
+      parameters:
+        - name: promotionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/AdminPromotion"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  promotion:
+                    $ref: "#/components/schemas/PromotionResponseDto"
+    delete:
+      tags:
+        - Admin Promotion
+      parameters:
+        - name: promotionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  promotion:
+                    $ref: "#/components/schemas/PromotionResponseDto"
+  /api/admin/promotion/{promotionId}/toggle-publish:
+    patch:
+      tags:
+        - Admin Promotion
+      parameters:
+        - name: promotionId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  promotion:
+                    $ref: "#/components/schemas/PromotionResponseDto"
   /api/dish/type:
     get:
       tags:

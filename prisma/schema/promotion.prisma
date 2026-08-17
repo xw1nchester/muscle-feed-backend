@@ -1,0 +1,24 @@
+enum PromotionActionType {
+    ORDER
+    REGISTER
+    REVIEW
+    NONE
+}
+
+model Promotion {
+    id            Int                 @id @default(autoincrement())
+    picture       String
+    badgeTextRu   String              @map("badge_text_ru")
+    badgeTextHe   String              @map("badge_text_he")
+    titleRu       String              @map("title_ru")
+    titleHe       String              @map("title_he")
+    descriptionRu String              @map("description_ru")
+    descriptionHe String              @map("description_he")
+    actionType    PromotionActionType @default(NONE) @map("action_type")
+    order         Int                 @default(0)
+    isPublished   Boolean             @default(false) @map("is_published")
+    createdAt     DateTime            @default(now()) @map("created_at")
+    updatedAt     DateTime            @updatedAt @map("updated_at")
+
+    @@map("promotions")
+}

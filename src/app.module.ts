@@ -23,6 +23,7 @@ import { MenuModule } from './menu/menu.module';
 import { OrderModule } from './order/order.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { PromocodeModule } from './promocode/promocode.module';
+import { PromotionModule } from './promotion/promotion.module';
 import { RedisModule } from './redis/redis.module';
 import { ReviewModule } from './review/review.module';
 import { SettingsModule } from './settings/settings.module';
@@ -68,7 +69,8 @@ import { UserModule } from './user/user.module';
         PromocodeModule,
         SettingsModule,
         RedisModule,
-        BeforeAfterModule
+        BeforeAfterModule,
+        PromotionModule
     ],
     controllers: [AppController],
     providers: [

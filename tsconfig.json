@@ -63,7 +63,9 @@
             "@shared": ["src/shared"],
             "@shared/*": ["src/shared/*"],
             "@before-after": ["src/before-after"],
-            "@before-after/*": ["src/before-after/*"]
+            "@before-after/*": ["src/before-after/*"],
+            "@promotion": ["src/promotion"],
+            "@promotion/*": ["src/promotion/*"]
         }
     }
 }
