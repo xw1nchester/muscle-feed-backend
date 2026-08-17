@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+import { BeforeAfterModule } from '@before-after/before-after.module';
 import { CityModule } from '@city/city.module';
 import { DishModule } from '@dish/dish.module';
 import { FaqModule } from '@faq/faq.module';
@@ -12,6 +13,7 @@ import { TeamModule } from '@team/team.module';
 import { UploadModule } from '@upload/upload.module';
 import { UserModule } from '@user/user.module';
 
+import { BeforeAfterController } from './before-after/before-after.controller';
 import { CityController } from './city/city.controller';
 import { DishController } from './dish/dish.controller';
 import { FaqController } from './faq/faq.controller';
@@ -38,7 +40,8 @@ import { UserController } from './user/user.controller';
         UserModule,
         PromocodeModule,
         SettingsModule,
-        UploadModule
+        UploadModule,
+        BeforeAfterModule
     ],
     controllers: [
         TeamController,
@@ -52,7 +55,8 @@ import { UserController } from './user/user.controller';
         UserController,
         ReportController,
         PromocodeController,
-        SettingsController
+        SettingsController,
+        BeforeAfterController
     ],
     providers: [ReportService]
 })

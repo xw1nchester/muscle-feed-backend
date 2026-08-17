@@ -12,6 +12,7 @@ import { createKeyv } from '@keyv/redis';
 import { AdminModule } from './admin/admin.module';
 import { AppController } from './app.controller';
 import { AuthModule } from './auth/auth.module';
+import { BeforeAfterModule } from './before-after/before-after.module';
 import { CityModule } from './city/city.module';
 import { CodeModule } from './code/code.module';
 import { DishModule } from './dish/dish.module';
@@ -66,7 +67,8 @@ import { UserModule } from './user/user.module';
         OrderModule,
         PromocodeModule,
         SettingsModule,
-        RedisModule
+        RedisModule,
+        BeforeAfterModule
     ],
     controllers: [AppController],
     providers: [

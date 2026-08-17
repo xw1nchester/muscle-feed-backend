@@ -242,6 +242,112 @@ components:
           example: ביקורת נהדרת!
         isPublished:
           type: boolean
+    BeforeAfterResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        beforePicture:
+          type: string
+          example: http://localhost:8080/static/641380c6-b381-4f60-bb36-e52defa1b506.jpeg
+        afterPicture:
+          type: string
+          example: http://localhost:8080/static/f9fe7616-50a4-47b7-85e8-e777dee0dafd.jpeg
+        author:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Александр
+            he:
+              type: string
+              example: אלכסנדר
+        text:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: Едой очень доволен, очень вкусно, разнообразно.
+            he:
+              type: string
+              example: אני מאוד מרוצה מהאוכל, טעים ומגוון.
+        weightBefore:
+          type: integer
+          example: 106
+        weightAfter:
+          type: integer
+          example: 78
+        duration:
+          type: object
+          properties:
+            ru:
+              type: string
+              example: 8 месяцев
+            he:
+              type: string
+              example: 8 חודשים
+        calories:
+          type: integer
+          example: 1800
+        isPublished:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    BeforeAfterRequestAdminDto:
+      type: object
+      properties:
+        beforePicture:
+          type: string
+          example: http://localhost:8080/static/641380c6-b381-4f60-bb36-e52defa1b506.jpeg
+        afterPicture:
+          type: string
+          example: http://localhost:8080/static/f9fe7616-50a4-47b7-85e8-e777dee0dafd.jpeg
+        authorRu:
+          type: string
+          example: Александр
+        authorHe:
+          type: string
+          example: אלכסנדר
+        textRu:
+          type: string
+          example: Едой очень доволен, очень вкусно, разнообразно.
+        textHe:
+          type: string
+          example: אני מאוד מרוצה מהאוכל, טעים ומגוון.
+        weightBefore:
+          type: integer
+          example: 106
+        weightAfter:
+          type: integer
+          example: 78
+        durationRu:
+          type: string
+          example: 8 месяцев
+        durationHe:
+          type: string
+          example: 8 חודשים
+        calories:
+          type: integer
+          example: 1800
+        isPublished:
+          type: boolean
+      required:
+        - beforePicture
+        - afterPicture
+        - authorRu
+        - authorHe
+        - textRu
+        - textHe
+        - weightBefore
+        - weightAfter
+        - durationRu
+        - durationHe
+        - calories
+        - isPublished
     DishRequestDto:
       type: object
       properties:
@@ -1250,6 +1356,11 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/ReviewRequestAdminDto"
+    AdminBeforeAfter:
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BeforeAfterRequestAdminDto"
     Dish:
       content:
         application/json:
@@ -2072,6 +2183,142 @@ paths:
                 properties:
                   review:
                     $ref: "#/components/schemas/ReviewResponseDto"
+  /api/before-after:
+    get:
+      tags:
+        - Before After
+      security: []
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      beforeAfter:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/BeforeAfterResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/before-after:
+    post:
+      tags:
+        - Admin Before After
+      requestBody:
+        $ref: "#/components/requestBodies/AdminBeforeAfter"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  beforeAfter:
+                    $ref: "#/components/schemas/BeforeAfterResponseDto"
+    get:
+      tags:
+        - Admin Before After
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+        - name: published
+          in: query
+          required: false
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      beforeAfter:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/BeforeAfterResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/before-after/{beforeAfterId}:
+    get:
+      tags:
+        - Admin Before After
+      parameters:
+        - name: beforeAfterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  beforeAfter:
+                    $ref: "#/components/schemas/BeforeAfterResponseDto"
+    patch:
+      tags:
+        - Admin Before After
+      parameters:
+        - name: beforeAfterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        $ref: "#/components/requestBodies/AdminBeforeAfter"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  beforeAfter:
+                    $ref: "#/components/schemas/BeforeAfterResponseDto"
+    delete:
+      tags:
+        - Admin Before After
+      parameters:
+        - name: beforeAfterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  beforeAfter:
+                    $ref: "#/components/schemas/BeforeAfterResponseDto"
+  /api/admin/before-after/{beforeAfterId}/toggle-publish:
+    patch:
+      tags:
+        - Admin Before After
+      parameters:
+        - name: beforeAfterId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  beforeAfter:
+                    $ref: "#/components/schemas/BeforeAfterResponseDto"
   /api/dish/type:
     get:
       tags:

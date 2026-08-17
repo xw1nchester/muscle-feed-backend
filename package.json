@@ -147,7 +147,9 @@
             "^@redis/(.*)$": "<rootDir>/redis/$1",
             "^@redis$": "<rootDir>/redis",
             "^@shared/(.*)$": "<rootDir>/shared/$1",
-            "^@shared$": "<rootDir>/shared"
+            "^@shared$": "<rootDir>/shared",
+            "^@before-after/(.*)$": "<rootDir>/before-after/$1",
+            "^@before-after$": "<rootDir>/before-after"
         }
     }
 }

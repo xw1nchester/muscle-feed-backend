@@ -6,5 +6,8 @@
         "deleteOutDir": true,
         "assets": ["mail/templates/**/*"],
         "watchAssets": true
+    },
+    "generateOptions": {
+        "spec": false
     }
 }

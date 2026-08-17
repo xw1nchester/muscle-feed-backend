@@ -1,0 +1,19 @@
+model BeforeAfter {
+    id            Int      @id @default(autoincrement())
+    beforePicture String   @map("before_picture")
+    afterPicture  String   @map("after_picture")
+    authorRu      String   @map("author_ru")
+    authorHe      String   @map("author_he")
+    textRu        String   @map("text_ru")
+    textHe        String   @map("text_he")
+    weightBefore  Int      @map("weight_before")
+    weightAfter   Int      @map("weight_after")
+    durationRu    String   @map("duration_ru")
+    durationHe    String   @map("duration_he")
+    calories      Int
+    isPublished   Boolean  @default(false) @map("is_published")
+    createdAt     DateTime @default(now()) @map("created_at")
+    updatedAt     DateTime @updatedAt @map("updated_at")
+
+    @@map("before_after")
+}
