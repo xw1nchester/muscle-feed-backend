@@ -4,6 +4,7 @@ import { BeforeAfterModule } from '@before-after/before-after.module';
 import { CityModule } from '@city/city.module';
 import { DishModule } from '@dish/dish.module';
 import { FaqModule } from '@faq/faq.module';
+import { FeedbackModule } from '@feedback/feedback.module';
 import { MenuModule } from '@menu/menu.module';
 import { OrderModule } from '@order/order.module';
 import { PromocodeModule } from '@promocode/promocode.module';
@@ -18,6 +19,7 @@ import { BeforeAfterController } from './before-after/before-after.controller';
 import { CityController } from './city/city.controller';
 import { DishController } from './dish/dish.controller';
 import { FaqController } from './faq/faq.controller';
+import { FeedbackController } from './feedback/feedback.controller';
 import { MenuController } from './menu/menu.controller';
 import { OrderController } from './order/order.controller';
 import { PromocodeController } from './promocode/promocode.controller';
@@ -44,7 +46,8 @@ import { UserController } from './user/user.controller';
         SettingsModule,
         UploadModule,
         BeforeAfterModule,
-        PromotionModule
+        PromotionModule,
+        FeedbackModule
     ],
     controllers: [
         TeamController,
@@ -60,7 +63,8 @@ import { UserController } from './user/user.controller';
         PromocodeController,
         SettingsController,
         BeforeAfterController,
-        PromotionController
+        PromotionController,
+        FeedbackController
     ],
     providers: [ReportService]
 })

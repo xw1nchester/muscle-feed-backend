@@ -65,7 +65,9 @@
             "@before-after": ["src/before-after"],
             "@before-after/*": ["src/before-after/*"],
             "@promotion": ["src/promotion"],
-            "@promotion/*": ["src/promotion/*"]
+            "@promotion/*": ["src/promotion/*"],
+            "@feedback": ["src/feedback"],
+            "@feedback/*": ["src/feedback/*"]
         }
     }
 }

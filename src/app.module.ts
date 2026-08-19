@@ -17,6 +17,7 @@ import { CityModule } from './city/city.module';
 import { CodeModule } from './code/code.module';
 import { DishModule } from './dish/dish.module';
 import { FaqModule } from './faq/faq.module';
+import { FeedbackModule } from './feedback/feedback.module';
 import { LoggerMiddleware } from './logger.midleware';
 import { MailModule } from './mail/mail.module';
 import { MenuModule } from './menu/menu.module';
@@ -70,7 +71,8 @@ import { UserModule } from './user/user.module';
         SettingsModule,
         RedisModule,
         BeforeAfterModule,
-        PromotionModule
+        PromotionModule,
+        FeedbackModule
     ],
     controllers: [AppController],
     providers: [

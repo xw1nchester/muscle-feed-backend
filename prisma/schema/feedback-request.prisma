@@ -1,0 +1,17 @@
+enum FeedbackRequestType {
+    CITY_DELIVERY_CHECK
+    OTHER
+}
+
+model FeedbackRequest {
+    id                  Int                 @id @default(autoincrement())
+    feedbackRequestType FeedbackRequestType @map("feedback_request_type")
+    name                String
+    phone               String
+    cityName            String?             @map("city_name")
+    isProcessed         Boolean             @default(false) @map("is_processed")
+    createdAt           DateTime            @default(now()) @map("created_at")
+    updatedAt           DateTime            @updatedAt @map("updated_at")
+
+    @@map("feedback_requests")
+}

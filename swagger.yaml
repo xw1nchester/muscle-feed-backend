@@ -1178,6 +1178,54 @@ components:
           format: date-time
         order:
           $ref: "#/components/schemas/OrderRequestDto"
+    FeedbackRequestDto:
+      type: object
+      properties:
+        feedbackRequestType:
+          type: string
+          enum:
+            - CITY_DELIVERY_CHECK
+            - OTHER
+        name:
+          type: string
+          example: Анна Иванова
+        phone:
+          type: string
+          example: "+972501234567"
+        cityName:
+          type: string
+          example: Ашдод
+      required:
+        - feedbackRequestType
+        - name
+        - phone
+    FeedbackRequestResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        feedbackRequestType:
+          type: string
+          enum:
+            - CITY_DELIVERY_CHECK
+            - OTHER
+        name:
+          type: string
+          example: Анна Иванова
+        phone:
+          type: string
+          example: "+972501234567"
+        cityName:
+          type: string
+          example: Ашдод
+        isProcessed:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
     BagReturnShortDto:
       type: object
       properties:
@@ -3787,6 +3835,83 @@ paths:
                 properties:
                   orderChangeRequest:
                     $ref: "#/components/schemas/OrderChangeRequestResponseDto"
+  /api/admin/feedback:
+    get:
+      tags:
+        - Admin Feedback
+      parameters:
+        - $ref: "#/components/parameters/Page"
+        - $ref: "#/components/parameters/Limit"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - properties:
+                      feedbackRequests:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/FeedbackRequestResponseDto"
+                  - $ref: "#/components/schemas/PaginationBodyFields"
+  /api/admin/feedback/unprocessed-count:
+    get:
+      tags:
+        - Admin Feedback
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  count:
+                    type: integer
+  /api/admin/feedback/{feedbackRequestId}:
+    get:
+      tags:
+        - Admin Feedback
+      parameters:
+        - name: feedbackRequestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  feedbackRequest:
+                    $ref: "#/components/schemas/FeedbackRequestResponseDto"
+    patch:
+      tags:
+        - Admin Feedback
+      parameters:
+        - name: feedbackRequestId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                isProcessed:
+                  type: boolean
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  feedbackRequest:
+                    $ref: "#/components/schemas/FeedbackRequestResponseDto"
   /api/admin/order/{orderId}/prolongation:
     post:
       tags:
@@ -4381,6 +4506,25 @@ paths:
                 properties:
                   orderChangeRequest:
                     $ref: "#/components/schemas/OrderChangeRequestResponseDto"
+  /api/feedback:
+    post:
+      tags:
+        - Feedback
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FeedbackRequestDto"
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  feedbackRequest:
+                    $ref: "#/components/schemas/FeedbackRequestResponseDto"
   /admin/user:
     get:
       tags:
