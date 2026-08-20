@@ -5,6 +5,7 @@ import { PrismaService } from '@prisma/prisma.service';
 import { ContactRequestDto } from '@admin/settings/dto/contact-request.dto';
 import { CycleStartDateRequestDto } from '@admin/settings/dto/cycle-start-date-request.dto';
 import { DeliveryConfigDto } from '@admin/settings/dto/delivery-config.dto';
+import { DeliveryCutoffConfigDto } from '@admin/settings/dto/delivery-cutoff-config.dto';
 import { RedisService } from '@redis/redis.service';
 import { DeliveryMap } from '@shared/types/delivery-map.type';
 import { UploadService } from '@upload/upload.service';
@@ -30,6 +31,9 @@ export class SettingsService {
                   deliveryWeekdays: number[];
                   phoneNumber: string;
                   email: string;
+                  nextDayOrderCutoffEnabled: boolean;
+                  nextDayOrderCutoffMinutes: number;
+                  businessTimeZone: string;
               }
             | undefined;
 
@@ -51,7 +55,25 @@ export class SettingsService {
         const settings = await this.findFirst();
         const socials = await this.prismaService.social.findMany();
 
-        return { settings: { ...settings, socials } };
+        const hours = Math.floor(settings.nextDayOrderCutoffMinutes / 60);
+        const minutes = settings.nextDayOrderCutoffMinutes % 60;
+
+        return {
+            settings: {
+                id: settings.id,
+                cycleStartDate: settings.cycleStartDate,
+                deliveryWeekdays: settings.deliveryWeekdays,
+                phoneNumber: settings.phoneNumber,
+                email: settings.email,
+                deliveryCutoff: {
+                    enabled: settings.nextDayOrderCutoffEnabled,
+                    hours,
+                    minutes,
+                    timeZone: settings.businessTimeZone
+                },
+                socials
+            }
+        };
     }
 
     async updateCycleStartDate({ cycleStartDate }: CycleStartDateRequestDto) {
@@ -161,5 +183,96 @@ export class SettingsService {
         await this.redisService.del('settings');
 
         return await this.getSettingsDto();
+    }
+
+    async updateDeliveryCutoffConfig(dto: DeliveryCutoffConfigDto) {
+        const { id } = await this.findFirst();
+
+        const nextDayOrderCutoffMinutes = dto.hours * 60 + dto.minutes;
+
+        await this.prismaService.settings.update({
+            where: { id },
+            data: {
+                nextDayOrderCutoffEnabled: dto.enabled,
+                nextDayOrderCutoffMinutes,
+                ...(dto.timeZone && { businessTimeZone: dto.timeZone })
+            }
+        });
+
+        await this.redisService.clear();
+
+        return await this.getSettingsDto();
+    }
+
+    private getZonedDateParts(date: Date, timeZone: string) {
+        const parts = new Intl.DateTimeFormat('en-US', {
+            timeZone,
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hourCycle: 'h23'
+        }).formatToParts(date);
+
+        const get = (type: string) =>
+            Number(parts.find(part => part.type === type)?.value);
+
+        return {
+            year: get('year'),
+            month: get('month'),
+            day: get('day'),
+            hour: get('hour'),
+            minute: get('minute')
+        };
+    }
+
+    private getZonedDateKey(date: Date, timeZone: string) {
+        const { year, month, day } = this.getZonedDateParts(date, timeZone);
+
+        return [
+            year,
+            String(month).padStart(2, '0'),
+            String(day).padStart(2, '0')
+        ].join('-');
+    }
+
+    private getTomorrowZonedDateKey(now: Date, timeZone: string) {
+        const { year, month, day } = this.getZonedDateParts(now, timeZone);
+
+        const tomorrow = new Date(Date.UTC(year, month - 1, day + 1, 12));
+
+        return this.getZonedDateKey(tomorrow, timeZone);
+    }
+
+    async isNextDayOrderCutoffReached(deliveryDate: Date, now = new Date()) {
+        const {
+            nextDayOrderCutoffEnabled,
+            nextDayOrderCutoffMinutes,
+            businessTimeZone
+        } = await this.findFirst();
+
+        if (!nextDayOrderCutoffEnabled) {
+            return false;
+        }
+
+        const nowParts = this.getZonedDateParts(now, businessTimeZone);
+        const currentMinutes = nowParts.hour * 60 + nowParts.minute;
+
+        if (currentMinutes < nextDayOrderCutoffMinutes) {
+            return false;
+        }
+
+        const deliveryDateKey = this.getZonedDateKey(
+            deliveryDate,
+            businessTimeZone
+        );
+
+        const tomorrowDateKey = this.getTomorrowZonedDateKey(
+            now,
+            businessTimeZone
+        );
+
+        return deliveryDateKey === tomorrowDateKey;
     }
 }

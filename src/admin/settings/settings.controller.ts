@@ -9,6 +9,7 @@ import { SettingsService } from '@settings/settings.service';
 import { ContactRequestDto } from './dto/contact-request.dto';
 import { CycleStartDateRequestDto } from './dto/cycle-start-date-request.dto';
 import { DeliveryConfigDto } from './dto/delivery-config.dto';
+import { DeliveryCutoffConfigDto } from './dto/delivery-cutoff-config.dto';
 
 @UseGuards(RoleGuard)
 @Role(RoleEnum.ADMIN)
@@ -29,5 +30,10 @@ export class SettingsController {
     @Patch('contact')
     async updateContactInfo(@Body() dto: ContactRequestDto) {
         return await this.settingsService.updateContactInfo(dto);
+    }
+
+    @Patch('delivery-cutoff')
+    async updateDeliveryCutoffConfig(@Body() dto: DeliveryCutoffConfigDto) {
+        return await this.settingsService.updateDeliveryCutoffConfig(dto);
     }
 }

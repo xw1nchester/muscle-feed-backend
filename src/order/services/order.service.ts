@@ -286,6 +286,15 @@ export class OrderService {
             });
         }
 
+        if (await this.settingsService.isNextDayOrderCutoffReached(startDate)) {
+            throw new BadRequestException({
+                message: {
+                    ru: 'Заказ на завтрашнюю доставку уже недоступен',
+                    he: 'לא ניתן לבצע הזמנה למשלוח מחר'
+                }
+            });
+        }
+
         await this.cityService.getById(rest.cityId);
 
         await this.getPaymentMethodById(rest.paymentMethodId);
@@ -1297,6 +1306,22 @@ export class OrderService {
             });
         }
 
+        // если меняет обычный пользователь, то userId - его id
+        // при смене админом userId - undefined
+        if (
+            userId != undefined &&
+            (await this.settingsService.isNextDayOrderCutoffReached(
+                existingOrderDish.orderDay.date
+            ))
+        ) {
+            throw new BadRequestException({
+                message: {
+                    ru: 'Замена блюда на завтрашнюю доставку уже недоступна',
+                    he: 'לא ניתן להחליף מנה למשלוח מחר'
+                }
+            });
+        }
+
         if (
             userId != undefined &&
             existingOrderDish.orderDay.date < new Date()
@@ -1478,6 +1503,15 @@ export class OrderService {
                 message: {
                     ru: 'Некорректная дата начала заказа',
                     he: 'תאריך התחלה שגוי להזמנה'
+                }
+            });
+        }
+
+        if (await this.settingsService.isNextDayOrderCutoffReached(date)) {
+            throw new BadRequestException({
+                message: {
+                    ru: 'Заказ на завтрашнюю доставку уже недоступен',
+                    he: 'לא ניתן לבצע הזמנה למשלוח מחר'
                 }
             });
         }

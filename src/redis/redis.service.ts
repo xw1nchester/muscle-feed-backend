@@ -12,7 +12,7 @@ export class RedisService {
         try {
             await this.cacheManager.set(key, value, ttl);
         } catch (error) {
-            this.logger.error('failed to set value to chache', error.stack);
+            this.logger.error('Failed to set value to chache', error.stack);
         }
     }
 
@@ -22,7 +22,7 @@ export class RedisService {
                 await this.cacheManager.get<string>(key);
             return jsonData ? JSON.parse(jsonData!) : undefined;
         } catch (error) {
-            this.logger.error('failed to get value from cache', error.stack);
+            this.logger.error('Failed to get value from cache', error.stack);
         }
     }
 
@@ -30,7 +30,7 @@ export class RedisService {
         try {
             await this.cacheManager.del(key);
         } catch (error) {
-            this.logger.error('failed to delete key from cache', error.stack);
+            this.logger.error('Failed to delete key from cache', error.stack);
         }
     }
 
@@ -39,9 +39,9 @@ export class RedisService {
     async clear() {
         try {
             await this.cacheManager.clear();
-            this.logger.debug('cache was cleared');
+            this.logger.debug('Cache was cleared');
         } catch (error) {
-            this.logger.error('failed to clear all cache', error.stack);
+            this.logger.error('Failed to clear all cache', error.stack);
         }
     }
 }

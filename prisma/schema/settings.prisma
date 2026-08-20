@@ -5,5 +5,9 @@ model Settings {
     phoneNumber      String?  @map("phone_number")
     email            String?
 
+    nextDayOrderCutoffEnabled Boolean @default(true) @map("next_day_order_cutoff_enabled")
+    nextDayOrderCutoffMinutes Int     @default(1020) @map("next_day_order_cutoff_minutes")
+    businessTimeZone          String  @default("Asia/Jerusalem") @map("business_time_zone")
+
     @@map("settings")
 }

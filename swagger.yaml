@@ -1419,6 +1419,25 @@ components:
         icon:
           type: string
           example: "http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.svg"
+    DeliveryCutoffConfigDto:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          example: true
+        hours:
+          type: integer
+          minimum: 0
+          maximum: 23
+          example: 17
+        minutes:
+          type: integer
+          minimum: 0
+          maximum: 59
+          example: 0
+        timeZone:
+          type: string
+          example: Asia/Jerusalem
     SettingsResponseDto:
       type: object
       properties:
@@ -1437,6 +1456,8 @@ components:
           type: string
         email:
           type: string
+        deliveryCutoff:
+          $ref: "#/components/schemas/DeliveryCutoffConfigDto"
         socials:
           type: array
           items:
@@ -4669,6 +4690,24 @@ paths:
                   type: array
                   items:
                     type: integer
+      responses:
+        "200":
+          description: "Success"
+          content:
+            application/json:
+              schema:
+                properties:
+                  settings:
+                    $ref: "#/components/schemas/SettingsResponseDto"
+  /admin/settings/delivery-cutoff:
+    patch:
+      tags:
+        - Admin Settings
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DeliveryCutoffConfigDto"
       responses:
         "200":
           description: "Success"
