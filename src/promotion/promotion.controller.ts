@@ -23,7 +23,8 @@ export class PromotionController {
         return await this.promotionService.find({
             page,
             limit,
-            isPublished: true
+            isPublished: true,
+            onlyActive: true
         });
     }
 }

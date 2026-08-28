@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 
-import { Promotion } from '@prisma/client';
+import { Prisma, Promotion } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { PromotionRequestDto } from '@admin/promotion/dto/promotion-request.dto';
@@ -22,6 +22,7 @@ export class PromotionService {
             actionType,
             order,
             isPublished,
+            expiresAt,
             createdAt,
             updatedAt
         } = promotion;
@@ -35,6 +36,7 @@ export class PromotionService {
             actionType,
             order,
             isPublished,
+            expiresAt,
             createdAt,
             updatedAt
         };
@@ -55,13 +57,20 @@ export class PromotionService {
     async find({
         page,
         limit,
-        isPublished
+        isPublished,
+        onlyActive
     }: {
         page: number;
         limit: number;
-        isPublished: boolean;
+        isPublished?: boolean;
+        onlyActive?: boolean;
     }) {
-        const where = { ...(isPublished != undefined && { isPublished }) };
+        const where: Prisma.PromotionWhereInput = {
+            ...(isPublished != undefined && { isPublished }),
+            ...(onlyActive && {
+                OR: [{ expiresAt: null }, { expiresAt: { gte: new Date() } }]
+            })
+        };
 
         const skip = (page - 1) * limit;
 

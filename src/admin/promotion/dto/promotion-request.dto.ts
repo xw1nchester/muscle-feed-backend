@@ -1,9 +1,11 @@
 import { Transform } from 'class-transformer';
 import {
     IsBoolean,
+    IsDate,
     IsEnum,
     IsNotEmpty,
     IsNumber,
+    IsOptional,
     IsString
 } from 'class-validator';
 
@@ -48,4 +50,11 @@ export class PromotionRequestDto {
 
     @IsBoolean()
     isPublished: boolean;
+
+    @IsOptional()
+    @Transform(({ value }) =>
+        value === undefined || value === null ? value : new Date(value)
+    )
+    @IsDate()
+    expiresAt?: Date | null;
 }
