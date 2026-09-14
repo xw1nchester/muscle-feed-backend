@@ -3,10 +3,13 @@ import {
     IsBoolean,
     IsNotEmpty,
     IsNumber,
+    IsOptional,
     IsString,
     Max,
     Min
 } from 'class-validator';
+
+import { IsUrlOrLocal } from '@validators';
 
 export class ReviewRequestDto {
     @IsNumber()
@@ -15,8 +18,8 @@ export class ReviewRequestDto {
     @Max(5)
     rating: number;
 
-    @IsString()
-    @IsNotEmpty()
+    @IsOptional()
+    @IsUrlOrLocal()
     picture: string;
 
     @IsString()
