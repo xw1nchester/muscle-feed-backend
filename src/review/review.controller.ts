@@ -5,10 +5,13 @@ import {
     Get,
     ParseIntPipe,
     Post,
-    Query
+    Query,
+    UseGuards
 } from '@nestjs/common';
 
-import { Public } from '@auth/decorators';
+import { CurrentUser, Public } from '@auth/decorators';
+import { OptionalJwtAuthGuard } from '@auth/guards/optional-jwt-auth.guard';
+import { JwtPayload } from '@auth/interfaces';
 
 import { ReviewRequestDto } from './dto/review-request.dto';
 import { ReviewService } from './review.service';
@@ -18,9 +21,14 @@ import { ReviewService } from './review.service';
 export class ReviewController {
     constructor(private readonly reviewService: ReviewService) {}
 
+    @Public()
+    @UseGuards(OptionalJwtAuthGuard)
     @Post()
-    async create(@Body() dto: ReviewRequestDto) {
-        return await this.reviewService.create(dto);
+    async create(
+        @Body() dto: ReviewRequestDto,
+        @CurrentUser() user: JwtPayload
+    ) {
+        return await this.reviewService.create(dto, user.id);
     }
 
     @Get()

@@ -4,21 +4,26 @@ import {
     NotFoundException
 } from '@nestjs/common';
 
-import { Language, Review } from '@prisma/client';
+import { Language, Review, User } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
 
 import { ReviewRequestDto as AdminReviewRequestDto } from '@admin/review/dto/review-request.dto';
 import { PaginationDto } from '@dto/pagination.dto';
+import { UserService } from '@user/user.service';
 import { extractLocalizedFields } from '@utils';
 
 import { ReviewRequestDto } from './dto/review-request.dto';
 
 @Injectable()
 export class ReviewService {
-    constructor(private readonly prismaService: PrismaService) {}
+    constructor(
+        private readonly prismaService: PrismaService,
+        private readonly userService: UserService
+    ) {}
 
     async getById(id: number) {
         const review = await this.prismaService.review.findFirst({
+            include: { user: true },
             where: { id }
         });
 
@@ -29,8 +34,8 @@ export class ReviewService {
         return review;
     }
 
-    createDto(review: Review) {
-        const { id, rating, picture, isPublished, createdAt, updatedAt } =
+    createDto(review: Review & { user: User }) {
+        const { id, rating, picture, isPublished, user, createdAt, updatedAt } =
             review;
 
         const localizedFields = extractLocalizedFields(review);
@@ -41,18 +46,16 @@ export class ReviewService {
             picture,
             ...localizedFields,
             isPublished,
+            user: user ? this.userService.createDto(user) : null,
             createdAt,
             updatedAt
         };
     }
 
-    async create({
-        rating,
-        picture,
-        author,
-        text,
-        language
-    }: ReviewRequestDto) {
+    async create(
+        { rating, picture, author, text, language }: ReviewRequestDto,
+        userId?: number
+    ) {
         const createdReview = await this.prismaService.review.create({
             data: {
                 rating,
@@ -65,8 +68,10 @@ export class ReviewService {
                     : {
                           authorHe: author,
                           textHe: text
-                      })
-            }
+                      }),
+                userId
+            },
+            include: { user: true }
         });
 
         return { review: this.createDto(createdReview) };
@@ -86,6 +91,7 @@ export class ReviewService {
         const skip = (page - 1) * limit;
 
         const reviewsData = await this.prismaService.review.findMany({
+            include: { user: true },
             where,
             orderBy: { createdAt: 'desc' },
             take: limit,
@@ -102,8 +108,11 @@ export class ReviewService {
     }
 
     async adminCreate(dto: AdminReviewRequestDto) {
+        !!dto.userId && (await this.userService.getById(dto.userId));
+
         const createdReview = await this.prismaService.review.create({
-            data: dto
+            data: dto,
+            include: { user: true }
         });
 
         return { review: this.createDto(createdReview) };
@@ -118,7 +127,10 @@ export class ReviewService {
     async update(id: number, dto: AdminReviewRequestDto) {
         await this.getById(id);
 
+        !!dto.userId && (await this.userService.getById(dto.userId));
+
         const updatedReview = await this.prismaService.review.update({
+            include: { user: true },
             where: { id },
             data: dto
         });
@@ -137,6 +149,7 @@ export class ReviewService {
         }
 
         const updatedReview = await this.prismaService.review.update({
+            include: { user: true },
             where: { id },
             data: { isPublished: !isPublished }
         });

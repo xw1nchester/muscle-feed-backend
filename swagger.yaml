@@ -214,6 +214,10 @@ components:
               example: ביקורת נהדרת!
         isPublished:
           type: boolean
+        user:
+          nullable: true
+          allOf:
+            - $ref: "#/components/schemas/UserDto"
         createdAt:
           type: string
           format: date-time
@@ -228,6 +232,9 @@ components:
         picture:
           type: string
           example: http://localhost:8080/api/static/42c193f6-1ccc-4376-aef7-4f302817adc3.png
+        userId:
+          type: integer
+          nullable: true
         authorRu:
           type: string
           example: Иван
@@ -2203,7 +2210,9 @@ paths:
     post:
       tags:
         - Review
-      security: []
+      security:
+        - {}
+        - BearerAuth: []
       requestBody:
         content:
           application/json:

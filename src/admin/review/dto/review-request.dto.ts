@@ -22,6 +22,11 @@ export class ReviewRequestDto {
     @IsUrlOrLocal()
     picture: string;
 
+    @IsOptional()
+    @Transform(({ value }) => (!value ? null : Number(value)))
+    @IsNumber()
+    userId: number;
+
     @IsString()
     @IsNotEmpty()
     authorRu: string;

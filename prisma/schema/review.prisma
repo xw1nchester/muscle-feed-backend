@@ -9,6 +9,8 @@ model Review {
     isPublished Boolean  @default(false) @map("is_published")
     createdAt   DateTime @default(now()) @map("created_at")
     updatedAt   DateTime @updatedAt @map("updated_at")
+    user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+    userId      Int?     @map("user_id")
 
     @@map("reviews")
 }
