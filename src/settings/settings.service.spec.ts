@@ -50,7 +50,10 @@ describe('SettingsService', () => {
             id: 1,
             cycleStartDate: new Date(),
             email: 'test@mail.ru',
-            phoneNumber: '12345678'
+            phoneNumber: '12345678',
+            nextDayOrderCutoffEnabled: false,
+            nextDayOrderCutoffMinutes: 0,
+            businessTimeZone: 'Asia/Jerusalem'
         };
 
         const testCases: getDeliveryMapTestCase[] = [
