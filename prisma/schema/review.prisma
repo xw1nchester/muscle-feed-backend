@@ -7,6 +7,7 @@ model Review {
     textRu      String?  @map("text_ru")
     textHe      String?  @map("text_he")
     isPublished Boolean  @default(false) @map("is_published")
+    bonusAwarded Boolean @default(false) @map("bonus_awarded")
     createdAt   DateTime @default(now()) @map("created_at")
     updatedAt   DateTime @updatedAt @map("updated_at")
     user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)

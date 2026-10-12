@@ -3,6 +3,7 @@ import {
     Injectable,
     NotFoundException
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 import { Language, Review, User } from '@prisma/client';
 import { PrismaService } from '@prisma/prisma.service';
@@ -18,6 +19,7 @@ import { ReviewRequestDto } from './dto/review-request.dto';
 export class ReviewService {
     constructor(
         private readonly prismaService: PrismaService,
+        private readonly configService: ConfigService,
         private readonly userService: UserService
     ) {}
 
@@ -111,7 +113,7 @@ export class ReviewService {
         !!dto.userId && (await this.userService.getById(dto.userId));
 
         const createdReview = await this.prismaService.review.create({
-            data: dto,
+            data: { ...dto, bonusAwarded: true },
             include: { user: true }
         });
 
@@ -139,20 +141,45 @@ export class ReviewService {
     }
 
     async togglePublish(id: number) {
-        const { authorRu, authorHe, textRu, textHe, isPublished } =
-            await this.getById(id);
+        const review = await this.getById(id);
 
-        if (!isPublished && (!authorRu || !authorHe || !textRu || !textHe)) {
+        if (
+            !review.isPublished &&
+            (!review.authorRu ||
+                !review.authorHe ||
+                !review.textRu ||
+                !review.textHe)
+        ) {
             throw new BadRequestException(
                 'У отзыва должны быть заполнены все поля'
             );
         }
 
-        const updatedReview = await this.prismaService.review.update({
-            include: { user: true },
-            where: { id },
-            data: { isPublished: !isPublished }
-        });
+        const shouldReward =
+            !review.isPublished && review.userId && !review.bonusAwarded;
+
+        const updatedReview = await this.prismaService.$transaction(
+            async tx => {
+                const updated = await tx.review.update({
+                    include: { user: true },
+                    where: { id },
+                    data: {
+                        isPublished: !review.isPublished,
+                        ...(shouldReward && { bonusAwarded: true })
+                    }
+                });
+
+                if (shouldReward) {
+                    await this.userService.reward(
+                        tx,
+                        review.userId,
+                        Number(this.configService.get('REVIEW_BONUS_AMOUNT'))
+                    );
+                }
+
+                return updated;
+            }
+        );
 
         return { review: this.createDto(updatedReview) };
     }
