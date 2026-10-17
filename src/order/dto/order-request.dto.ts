@@ -1,6 +1,7 @@
 import { Transform } from 'class-transformer';
 import {
     IsArray,
+    IsBoolean,
     IsDate,
     IsEnum,
     IsNotEmpty,
@@ -79,4 +80,8 @@ export class OrderRequestDto {
     @IsOptional()
     @IsNumber()
     promocodeId?: number;
+
+    @IsOptional()
+    @IsBoolean()
+    useBonusPoints?: boolean;
 }

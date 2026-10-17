@@ -15,6 +15,7 @@ model Order {
     paidAmount          Int                  @default(0) @map("paid_amount")
     promocodeDiscount   Int                  @default(0) @map("promocode_discount")
     menuDiscount        Int                  @default(0) @map("menu_discount")
+    bonusPointsSpent    Int                  @default(0) @map("bonus_points_spent")
     finalPrice          Int                  @map("final_price")
     isProcessed         Boolean              @default(false) @map("is_processed")
     isAllowedExtendion  Boolean              @default(false) @map("is_allowed_extendion")

@@ -1,5 +1,6 @@
 import {
     BadRequestException,
+    ConflictException,
     Injectable,
     InternalServerErrorException,
     Logger,
@@ -41,6 +42,7 @@ import {
     getTodayZeroDate,
     getWeekdayNumber
 } from '@utils';
+import { calculateBonusPayment } from '@utils/calculate-bonus-payment';
 
 import { IndividualOrderRequestDto } from '../dto/individual-order-request.dto';
 import { OrderChangeRequestDto } from '../dto/order-change-request.dto';
@@ -248,7 +250,13 @@ export class OrderService {
 
     async createDtoById(id: number) {
         const order = await this.getById(id);
-        const { price, paidAmount, promocodeDiscount, menuDiscount } = order;
+        const {
+            price,
+            paidAmount,
+            promocodeDiscount,
+            menuDiscount,
+            bonusPointsSpent
+        } = order;
 
         return {
             order: {
@@ -256,8 +264,58 @@ export class OrderService {
                 price,
                 paidAmount,
                 promocodeDiscount,
-                menuDiscount
+                menuDiscount,
+                bonusPointsSpent
             }
+        };
+    }
+
+    private async applyBonusPayment(
+        tx: Prisma.TransactionClient,
+        userId: number | null,
+        useBonusPoints: boolean,
+        price: number
+    ): Promise<{
+        finalPrice: number;
+        bonusPointsSpent: number;
+    }> {
+        if (!userId || !useBonusPoints) {
+            return {
+                finalPrice: price,
+                bonusPointsSpent: 0
+            };
+        }
+
+        const user = await tx.user.findUniqueOrThrow({
+            where: { id: userId },
+            select: { bonusPoints: true }
+        });
+
+        const bonus = calculateBonusPayment(price, user.bonusPoints);
+
+        if (bonus.bonusPointsSpent > 0) {
+            const result = await tx.user.updateMany({
+                where: {
+                    id: userId,
+                    bonusPoints: {
+                        gte: bonus.bonusPointsSpent
+                    }
+                },
+                data: {
+                    bonusPoints: {
+                        decrement: bonus.bonusPointsSpent
+                    }
+                }
+            });
+
+            if (result.count !== 1) {
+                throw new ConflictException('Баланс бонусов изменился');
+            }
+        }
+
+        return {
+            finalPrice: bonus.finalPrice,
+            bonusPointsSpent: bonus.bonusPointsSpent
         };
     }
 
@@ -267,6 +325,7 @@ export class OrderService {
             daysCount,
             skippedWeekdays,
             menuId,
+            useBonusPoints,
             ...rest
         }: OrderRequestDto,
         userId: number | null
@@ -317,6 +376,13 @@ export class OrderService {
 
         const id = await this.prismaService.$transaction(
             async tx => {
+                const bonusData = await this.applyBonusPayment(
+                    tx,
+                    userId,
+                    useBonusPoints,
+                    finalPrice
+                );
+
                 const { id } = await tx.order.create({
                     data: {
                         ...rest,
@@ -324,9 +390,10 @@ export class OrderService {
                         menuId,
                         userId,
                         price,
-                        finalPrice,
+                        finalPrice: bonusData.finalPrice,
                         menuDiscount,
                         promocodeDiscount,
+                        bonusPointsSpent: bonusData.bonusPointsSpent,
                         giftDaysCount,
                         isIndividual: false
                     }
@@ -607,9 +674,9 @@ export class OrderService {
             }
         }
 
-        this.logger.debug(
-            `Saved dishes of the order ${orderId}: ${JSON.stringify(debugOrderDishes)}`
-        );
+        // this.logger.debug(
+        //     `Saved dishes of the order ${orderId}: ${JSON.stringify(debugOrderDishes)}`
+        // );
     }
 
     getStatusesConditions() {

@@ -1013,6 +1013,8 @@ components:
           example: "Позвоните за 10 минут до доставки"
         promocodeId:
           type: integer
+        useBonusPoints:
+          type: boolean
       required:
         - menuId
         - startDate
@@ -3534,6 +3536,8 @@ paths:
                       promocodeDiscount:
                         type: integer
                       menuDiscount:
+                        type: integer
+                      bonusPointsSpent:
                         type: integer
                       finalPrice:
                         type: integer
