@@ -59,11 +59,6 @@ export class ReviewController {
         return this.reviewService.update(id, dto);
     }
 
-    @Patch(':id/toggle-publish')
-    async togglePublish(@Param('id', ParseIntPipe) id: number) {
-        return this.reviewService.togglePublish(id);
-    }
-
     @Delete(':id')
     async delete(@Param('id', ParseIntPipe) id: number) {
         return this.reviewService.delete(id);

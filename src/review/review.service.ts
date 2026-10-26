@@ -127,28 +127,13 @@ export class ReviewService {
     }
 
     async update(id: number, dto: AdminReviewRequestDto) {
-        await this.getById(id);
+        const review = await this.getById(id);
 
         !!dto.userId && (await this.userService.getById(dto.userId));
 
-        const updatedReview = await this.prismaService.review.update({
-            include: { user: true },
-            where: { id },
-            data: dto
-        });
-
-        return { review: this.createDto(updatedReview) };
-    }
-
-    async togglePublish(id: number) {
-        const review = await this.getById(id);
-
         if (
-            !review.isPublished &&
-            (!review.authorRu ||
-                !review.authorHe ||
-                !review.textRu ||
-                !review.textHe)
+            dto.isPublished &&
+            (!dto.authorRu || !dto.authorHe || !dto.textRu || !dto.textHe)
         ) {
             throw new BadRequestException(
                 'У отзыва должны быть заполнены все поля'
@@ -156,7 +141,7 @@ export class ReviewService {
         }
 
         const shouldReward =
-            !review.isPublished && review.userId && !review.bonusAwarded;
+            dto.isPublished && review.userId && !review.bonusAwarded;
 
         const updatedReview = await this.prismaService.$transaction(
             async tx => {
@@ -164,7 +149,7 @@ export class ReviewService {
                     include: { user: true },
                     where: { id },
                     data: {
-                        isPublished: !review.isPublished,
+                        ...dto,
                         ...(shouldReward && { bonusAwarded: true })
                     }
                 });

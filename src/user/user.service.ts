@@ -3,6 +3,7 @@ import { genSaltSync, hashSync } from 'bcrypt';
 import {
     BadRequestException,
     Injectable,
+    Logger,
     NotFoundException
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -29,6 +30,8 @@ import { ProfileRequestDto } from './dto/profile-request.dto';
 
 @Injectable()
 export class UserService {
+    private readonly logger = new Logger(UserService.name);
+
     constructor(
         private readonly prismaService: PrismaService,
         private readonly configService: ConfigService,
@@ -394,6 +397,8 @@ export class UserService {
     }
 
     async reward(tx: Prisma.TransactionClient, id: number, amount: number) {
+        this.logger.debug(`Rewarding user ${id} with ${amount} bonus points`);
+
         await tx.user.update({
             where: { id },
             data: { bonusPoints: { increment: amount } }

@@ -2,6 +2,7 @@ import { Transform, Type } from 'class-transformer';
 import {
     ArrayMinSize,
     IsArray,
+    IsBoolean,
     IsDate,
     IsNotEmpty,
     IsNumber,
@@ -82,4 +83,8 @@ export class IndividualOrderRequestDto {
     @IsOptional()
     @IsNumber()
     promocodeId: number;
+
+    @IsOptional()
+    @IsBoolean()
+    useBonusPoints?: boolean;
 }

@@ -50,6 +50,12 @@
         "^@redis/(?!client)(.*)$": "<rootDir>/../src/redis/$1",
         "^@redis$": "<rootDir>/../src/redis",
         "^@shared/(.*)$": "<rootDir>/../src/shared/$1",
-        "^@shared$": "<rootDir>/../src/shared"
+        "^@shared$": "<rootDir>/../src/shared",
+        "^@before-after/(.*)$": "<rootDir>/../src/before-after/$1",
+        "^@before-after$": "<rootDir>/../src/before-after",
+        "^@feedback/(.*)$": "<rootDir>/../src/feedback/$1",
+        "^@feedback$": "<rootDir>/../src/feedback",
+        "^@promotion/(.*)$": "<rootDir>/../src/promotion/$1",
+        "^@promotion$": "<rootDir>/../src/promotion"
     }
 }

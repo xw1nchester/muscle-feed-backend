@@ -1558,7 +1558,7 @@ export class OrderService {
     }
 
     async createIndividual(dto: IndividualOrderRequestDto, userId: number) {
-        const { dishes, date, ...rest } = dto;
+        const { dishes, date, useBonusPoints, ...rest } = dto;
 
         const nearestDeliveryDate =
             await this.settingsService.getNextDeliveryDate();
@@ -1627,14 +1627,24 @@ export class OrderService {
             );
         }
 
+        const promocodeDiscount = totalPrice - finalPrice;
+
         const orderId = await this.prismaService.$transaction(async tx => {
+            const bonusData = await this.applyBonusPayment(
+                tx,
+                userId,
+                useBonusPoints,
+                finalPrice
+            );
+
             const { id: orderId } = await tx.order.create({
                 data: {
                     ...rest,
                     userId,
                     price: totalPrice,
-                    finalPrice,
-                    promocodeDiscount: totalPrice - finalPrice,
+                    finalPrice: bonusData.finalPrice,
+                    promocodeDiscount,
+                    bonusPointsSpent: bonusData.bonusPointsSpent,
                     isIndividual: true
                 }
             });

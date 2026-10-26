@@ -2361,25 +2361,6 @@ paths:
                 properties:
                   review:
                     $ref: "#/components/schemas/ReviewResponseDto"
-  /api/admin/review/{reviewId}/toggle-publish:
-    patch:
-      tags:
-        - Admin Review
-      parameters:
-        - name: reviewId
-          in: path
-          required: true
-          schema:
-            type: integer
-      responses:
-        "200":
-          description: "Success"
-          content:
-            application/json:
-              schema:
-                properties:
-                  review:
-                    $ref: "#/components/schemas/ReviewResponseDto"
   /api/before-after:
     get:
       tags:
@@ -4340,6 +4321,8 @@ paths:
                   example: "Позвоните за 10 минут до доставки"
                 promocodeId:
                   type: integer
+                useBonusPoints:
+                  type: boolean
               required:
                 - dishes
                 - date
